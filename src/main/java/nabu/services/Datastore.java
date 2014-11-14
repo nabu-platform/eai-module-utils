@@ -1,9 +1,10 @@
-package be.nabu.services;
+package nabu.services;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -26,26 +27,26 @@ public class Datastore {
 
 	@GET
 	@Path("/{uri}")
-	public InputStream retrieve(@PathParam("uri") URI uri) throws IOException {
+	public InputStream retrieve(@WebParam(name="uri") @PathParam("uri") URI uri) throws IOException {
 		return DatastoreFactory.getInstance().getDatastore().retrieve(uri);
 	}
 	
 	@POST
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
-	public URI store(@QueryParam("contentType") String contentType, @QueryParam("name") String name, InputStream input) throws IOException {
+	public URI store(@WebParam(name="contentType") @QueryParam("contentType") String contentType, @WebParam(name="name") @QueryParam("name") String name, @WebParam(name="data") InputStream input) throws IOException {
 		return ((WritableDatastore) DatastoreFactory.getInstance().getDatastore()).store(input, name, contentType);
 	}
 	
 	@PUT
 	@Path("/{uri}")
-	public void update(@PathParam("uri") URI uri, InputStream input) throws IOException {
+	public void update(@WebParam(name="uri") @PathParam("uri") URI uri, @WebParam(name="data") InputStream input) throws IOException {
 		((UpdatableDatastore) DatastoreFactory.getInstance().getDatastore()).update(uri, input);
 	}
 	
 	@DELETE
 	@Path("/{uri}")
-	public void update(@PathParam("uri") URI uri) throws IOException {
+	public void delete(@WebParam(name="uri") @PathParam("uri") URI uri) throws IOException {
 		((DeletableDatastore) DatastoreFactory.getInstance().getDatastore()).delete(uri);
 	}
 	
