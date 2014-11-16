@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import be.nabu.libs.datastore.DatastoreFactory;
+import be.nabu.libs.datastore.api.DataProperties;
 import be.nabu.libs.datastore.api.DeletableDatastore;
 import be.nabu.libs.datastore.api.UpdatableDatastore;
 import be.nabu.libs.datastore.api.WritableDatastore;
@@ -50,4 +51,9 @@ public class Datastore {
 		((DeletableDatastore) DatastoreFactory.getInstance().getDatastore()).delete(uri);
 	}
 	
+	@GET
+	@Path("/{uri}/properties")
+	public DataProperties properties(URI uri) throws IOException {
+		return DatastoreFactory.getInstance().getDatastore().getProperties(uri);
+	}
 }
