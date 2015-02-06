@@ -21,33 +21,42 @@ public class Notifier {
 	}
 	
 	public void subscribe(final String serviceToCall, final String filter) {
-		EventDispatcherFactory.getInstance().getEventDispatcher().subscribe(Object.class, new EventHandler<Object, Object>() {
-			@Override
-			public Object handle(Object content) {
-				DefinedService service = executionContext.getServiceContext().getResolver(DefinedService.class).resolve(serviceToCall);
-				if (service == null) {
-					throw new RuntimeException("The service " + serviceToCall + " can not be found");
-				}
-				// TODO: don't send it in as the full input pipeline, it is actually a single field on the pipeline
-				// match them by type (or aspect)
-				try {
-					return new ServiceRuntime(service, executionContext).run((ComplexContent) content);
-				}
-				catch (ServiceException e) {
-					return e;
-				}
+		EventDispatcherFactory.getInstance().getEventDispatcher().subscribe(Object.class, new NotificationEventHandler(serviceToCall), instance).filter(new NotificationEventFilter());
+	}
+	
+	private final class NotificationEventFilter implements EventHandler<Object, Boolean> {
+		@Override
+		public Boolean handle(Object arg0) {
+			// only complex content is allowed currently
+			if (!(arg0 instanceof ComplexContent)) {
+				return true;
 			}
-			
-		}, instance).filter(new EventHandler<Object, Boolean>() {
-			@Override
-			public Boolean handle(Object arg0) {
-				// only complex content is allowed currently
-				if (!(arg0 instanceof ComplexContent)) {
-					return true;
-				}
-				// make sure the type matches the given filter criteria
-				return false;
+			// make sure the type matches the given filter criteria
+			return false;
+		}
+	}
+
+	private final class NotificationEventHandler implements EventHandler<Object, Object> {
+		private final String serviceToCall;
+		
+		private NotificationEventHandler(String serviceToCall) {
+			this.serviceToCall = serviceToCall;
+		}
+		
+		@Override
+		public Object handle(Object content) {
+			DefinedService service = executionContext.getServiceContext().getResolver(DefinedService.class).resolve(serviceToCall);
+			if (service == null) {
+				throw new RuntimeException("The service " + serviceToCall + " can not be found");
 			}
-		});
+			// TODO: don't send it in as the full input pipeline, it is actually a single field on the pipeline
+			// match them by type (or aspect)
+			try {
+				return new ServiceRuntime(service, executionContext).run((ComplexContent) content);
+			}
+			catch (ServiceException e) {
+				return e;
+			}
+		}
 	}
 }

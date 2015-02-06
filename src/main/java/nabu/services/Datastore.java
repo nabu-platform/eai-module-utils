@@ -36,6 +36,7 @@ public class Datastore {
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
 	public URI store(@WebParam(name="contentType") @QueryParam("contentType") String contentType, @WebParam(name="name") @QueryParam("name") String name, @WebParam(name="data") InputStream input) throws IOException {
+		System.out.println("storing: " + name + " (" + contentType + ")");
 		return ((WritableDatastore) DatastoreFactory.getInstance().getDatastore()).store(input, name, contentType);
 	}
 	
