@@ -3,6 +3,7 @@ package nabu.utils;
 import java.io.IOException;
 import java.lang.String;
 import java.util.List;
+import java.lang.Object;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;

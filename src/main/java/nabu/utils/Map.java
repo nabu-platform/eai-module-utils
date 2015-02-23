@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.lang.String;
+import java.lang.Object;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
