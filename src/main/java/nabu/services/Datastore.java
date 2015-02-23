@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,6 +29,7 @@ public class Datastore {
 
 	@GET
 	@Path("/{uri}")
+	@WebResult(name = "stream")
 	public InputStream retrieve(@WebParam(name="uri") @PathParam("uri") URI uri) throws IOException {
 		return DatastoreFactory.getInstance().getDatastore().retrieve(uri);
 	}
@@ -35,6 +37,7 @@ public class Datastore {
 	@POST
 	@Path("/")
 	@Produces(MediaType.TEXT_PLAIN)
+	@WebResult(name = "uri")
 	public URI store(@WebParam(name="contentType") @QueryParam("contentType") String contentType, @WebParam(name="name") @QueryParam("name") String name, @WebParam(name="data") InputStream input) throws IOException {
 		System.out.println("storing: " + name + " (" + contentType + ")");
 		return ((WritableDatastore) DatastoreFactory.getInstance().getDatastore()).store(input, name, contentType);
@@ -54,7 +57,8 @@ public class Datastore {
 	
 	@GET
 	@Path("/{uri}/properties")
-	public DataProperties properties(URI uri) throws IOException {
+	@WebResult(name = "properties")
+	public DataProperties properties(@WebParam(name = "uri") URI uri) throws IOException {
 		return DatastoreFactory.getInstance().getDatastore().getProperties(uri);
 	}
 }

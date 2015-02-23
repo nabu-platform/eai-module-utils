@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.libs.resources.ResourceFactory;
@@ -18,7 +20,8 @@ import be.nabu.utils.io.api.WritableContainer;
 @WebService
 public class File {
 	
-	public InputStream read(URI uri, SimplePrincipal principal) throws IOException {
+	@WebResult(name = "stream")
+	public InputStream read(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
 		ResourceRoot resolved = ResourceFactory.getInstance().resolve(uri, principal);
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
@@ -29,7 +32,7 @@ public class File {
 		return IOUtils.toInputStream(((ReadableResource) resolved).getReadable());
 	}
 	
-	public void write(URI uri, InputStream content, SimplePrincipal principal) throws IOException {
+	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
 		WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, principal);
 		try {
 			IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
@@ -39,7 +42,7 @@ public class File {
 		}
 	}
 	
-	public void mkdir(URI uri, SimplePrincipal principal) throws IOException {
+	public void mkdir(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
 		ResourceUtils.mkdir(uri, principal);
 	}
 }

@@ -5,16 +5,20 @@ import java.io.InputStream;
 import java.lang.String;
 import java.nio.charset.Charset;
 
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
 @WebService
 public class Bytes {
 	
-	public String toString(byte [] bytes, Charset charset) {
+	@WebResult(name = "string")
+	public String toString(@WebParam(name = "bytes") byte [] bytes, @WebParam(name = "charset") Charset charset) {
 		return new String(bytes, charset);
 	}
-	
-	public InputStream toStream(byte [] bytes) {
+
+	@WebResult(name = "stream")
+	public InputStream toStream(@WebParam(name = "bytes") byte [] bytes) {
 		return new ByteArrayInputStream(bytes);
 	}
 	

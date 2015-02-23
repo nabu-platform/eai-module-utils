@@ -1,5 +1,6 @@
 package nabu.services;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import be.nabu.libs.events.EventDispatcherFactory;
@@ -16,11 +17,11 @@ public class Notifier {
 	private ExecutionContext executionContext;
 	private static Notifier instance = new Notifier();
 	
-	public void fire(Object event) {
+	public void fire(@WebParam(name = "event") Object event) {
 		EventDispatcherFactory.getInstance().getEventDispatcher().fire(event, instance);
 	}
 	
-	public void subscribe(final String serviceToCall, final String filter) {
+	public void subscribe(@WebParam(name = "serviceId") final String serviceToCall, @WebParam(name = "filter") final String filter) {
 		EventDispatcherFactory.getInstance().getEventDispatcher().subscribe(Object.class, new NotificationEventHandler(serviceToCall), instance).filter(new NotificationEventFilter());
 	}
 	

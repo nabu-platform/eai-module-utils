@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.lang.String;
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.utils.io.IOUtils;
@@ -14,10 +15,12 @@ import be.nabu.utils.io.IOUtils;
 @WebService
 public class Stream {
 	
+	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "stream") InputStream input) throws IOException {
 		return IOUtils.toBytes(IOUtils.wrap(input));
 	}
 	
+	@WebResult(name = "string")
 	public String toString(@WebParam(name = "stream") InputStream input, @WebParam(name = "charset") Charset charset) throws IOException {
 		return new String(toBytes(input), charset);
 	}
@@ -25,6 +28,5 @@ public class Stream {
 	public void close(@WebParam(name = "closeable") Closeable closeable) throws IOException {
 		closeable.close();
 	}
-	
 	
 }

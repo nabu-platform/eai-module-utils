@@ -2,6 +2,7 @@ package nabu.utils;
 
 import java.io.IOException;
 import java.lang.String;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -21,11 +22,11 @@ public class Server {
 		logger.info(message);
 	}
 	
-	public void publish(@WebParam(name = "brokerClientId") String brokerClientId, @WebParam(name = "content") Object content) throws IOException {
+	public void publish(@WebParam(name = "brokerClientId") String brokerClientId, @WebParam(name = "content") Object content, @WebParam(name = "properties") List<Property> properties) throws IOException {
 		DefinedBrokerClient brokerClient = (DefinedBrokerClient) ArtifactResolverFactory.getInstance().getResolver().resolve(brokerClientId);
 		if (brokerClient == null) {
 			throw new IllegalArgumentException("The broker client can not be found: " + brokerClientId);
 		}
-		brokerClient.getBrokerClient().publish(content);
+		brokerClient.getBrokerClient().publish(content, new Properties().asMap(properties));
 	}
 }
