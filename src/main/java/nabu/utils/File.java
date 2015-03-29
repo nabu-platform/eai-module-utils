@@ -22,6 +22,9 @@ public class File {
 	
 	@WebResult(name = "stream")
 	public InputStream read(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
+		if (uri == null) {
+			return null;
+		}
 		ResourceRoot resolved = ResourceFactory.getInstance().resolve(uri, principal);
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
@@ -33,16 +36,20 @@ public class File {
 	}
 	
 	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
-		WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, principal);
-		try {
-			IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
-		}
-		finally {
-			writableContainer.close();
+		if (uri != null || content != null) {
+			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, principal);
+			try {
+				IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
+			}
+			finally {
+				writableContainer.close();
+			}
 		}
 	}
 	
 	public void mkdir(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
-		ResourceUtils.mkdir(uri, principal);
+		if (uri != null) {
+			ResourceUtils.mkdir(uri, principal);
+		}
 	}
 }

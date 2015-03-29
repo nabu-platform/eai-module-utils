@@ -17,16 +17,18 @@ public class Stream {
 	
 	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "stream") InputStream input) throws IOException {
-		return IOUtils.toBytes(IOUtils.wrap(input));
+		return input == null ? null : IOUtils.toBytes(IOUtils.wrap(input));
 	}
 	
 	@WebResult(name = "string")
 	public String toString(@WebParam(name = "stream") InputStream input, @WebParam(name = "charset") Charset charset) throws IOException {
-		return new String(toBytes(input), charset);
+		return input == null ? null : new String(toBytes(input), charset == null ? Charset.defaultCharset() : charset);
 	}
 	
 	public void close(@WebParam(name = "closeable") Closeable closeable) throws IOException {
-		closeable.close();
+		if (closeable != null) {
+			closeable.close();
+		}
 	}
 	
 }

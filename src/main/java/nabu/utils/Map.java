@@ -16,34 +16,42 @@ import javax.jws.WebService;
 public class Map {
 	
 	@WebResult(name = "properties")
-	public List<Property> asProperties(@WebParam(name = "map") java.util.Map<String, String> map) {
+	public List<Property> toProperties(@WebParam(name = "map") java.util.Map<String, String> map) {
 		List<Property> properties = new ArrayList<Property>();
-		for (String key : map.keySet()) {
-			Property property = new Property();
-			property.setKey(key);
-			property.setValue(map.get(key));
-			properties.add(property);
+		if (map != null) {
+			for (String key : map.keySet()) {
+				Property property = new Property();
+				property.setKey(key);
+				property.setValue(map.get(key));
+				properties.add(property);
+			}
 		}
 		return properties;
 	}
 	
+	@WebResult(name = "previousValue")
+	public Object put(@WebParam(name = "map") java.util.Map<String, Object> map, @WebParam(name = "key") String key, @WebParam(name = "value") Object value) {
+		map.put(key, value);
+		return map == null ? null : map.put(key, value);
+	}
+	
 	@WebResult(name = "map")
-	public java.util.Map<String, Object> create(@WebParam(name = "respectOrder") boolean respectOrder) {
-		return respectOrder ? new LinkedHashMap<String, Object>() : new HashMap<String, Object>();
+	public java.util.Map<String, Object> create(@WebParam(name = "respectOrder") Boolean respectOrder) {
+		return respectOrder != null && respectOrder ? new LinkedHashMap<String, Object>() : new HashMap<String, Object>();
 	}
 	
 	@WebResult(name = "keys")
 	public List<String> keys(@WebParam(name = "map") java.util.Map<String, Object> map) {
-		return new ArrayList<String>(map.keySet());
+		return map == null ? new ArrayList<String>() : new ArrayList<String>(map.keySet());
 	}
 	
 	@WebResult(name = "value")
-	public Object value(@WebParam(name = "map") java.util.Map<String, Object> map, @WebParam(name = "key") String key) {
-		return map.get(key);
+	public Object get(@WebParam(name = "map") java.util.Map<String, Object> map, @WebParam(name = "key") String key) {
+		return map == null ? null : map.get(key);
 	}
 	
 	@WebResult(name = "values")
 	public Collection<Object> values(@WebParam(name = "map") java.util.Map<String, Object> map) {
-		return map.values();
+		return map == null ? new ArrayList<Object>() : map.values();
 	}
 }

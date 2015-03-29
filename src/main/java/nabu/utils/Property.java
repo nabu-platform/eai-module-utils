@@ -1,5 +1,6 @@
 package nabu.utils;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -20,6 +21,7 @@ public class Property {
 		this.value = value;
 	}
 
+	@NotNull
 	public String getKey() {
 		return key;
 	}

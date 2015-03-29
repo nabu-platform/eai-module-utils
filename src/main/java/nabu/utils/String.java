@@ -13,11 +13,11 @@ public class String {
 	
 	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
-		return string.getBytes(charset);
+		return string == null ? null : string.getBytes(charset == null ? Charset.defaultCharset() : charset);
 	}
 	
 	@WebResult(name = "stream")
 	public InputStream toStream(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
-		return new ByteArrayInputStream(toBytes(string, charset));
+		return string == null ? null : new ByteArrayInputStream(toBytes(string, charset));
 	}
 }

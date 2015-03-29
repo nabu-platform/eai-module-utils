@@ -1,7 +1,9 @@
 package nabu.utils;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
 import java.lang.String;
 
 import be.nabu.libs.resources.api.principals.BasicPrincipal;
@@ -12,6 +14,7 @@ public class SimplePrincipal implements BasicPrincipal {
 
 	private String name, password;
 	
+	@NotNull
 	@Override
 	public String getName() {
 		return name;

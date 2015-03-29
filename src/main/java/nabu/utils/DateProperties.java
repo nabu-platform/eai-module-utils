@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.lang.String;
+
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
@@ -33,6 +35,7 @@ public class DateProperties {
 	public void setLanguage(String language) {
 		this.language = language;
 	}
+	@NotNull
 	public String getFormat() {
 		return format;
 	}

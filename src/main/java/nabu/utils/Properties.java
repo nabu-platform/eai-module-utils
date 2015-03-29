@@ -9,6 +9,7 @@ import java.lang.Object;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.api.ComplexContent;
@@ -22,7 +23,7 @@ public class Properties {
 	private DefinedTypeResolver resolver = DefinedTypeResolverFactory.getInstance().getResolver();
 	
 	@WebResult(name = "object")
-	public Object toObject(@WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<Property> properties) {
+	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<Property> properties) {
 		DefinedType resolved = resolver.resolve(typeId);
 		if (resolved == null) {
 			throw new IllegalArgumentException("Could not find the type: " + typeId);
@@ -46,7 +47,7 @@ public class Properties {
 	 * The latter is massively updated with regards to collection handling
 	 */
 	@WebResult(name = "map")
-	public Map<String, String> asMap(@WebParam(name = "properties") List<Property> properties) {
+	public Map<String, String> toMap(@WebParam(name = "properties") List<Property> properties) {
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		if (properties != null) {
 			for (Property property : properties) {
