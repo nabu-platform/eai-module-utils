@@ -11,6 +11,8 @@ import be.nabu.libs.services.MultipleServiceRuntimeTracker;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceInterface;
+import be.nabu.libs.services.pojo.MethodServiceInterface;
 import be.nabu.libs.services.vm.PipelineInterfaceProperty;
 import be.nabu.libs.services.vm.api.VMService;
 
@@ -20,6 +22,7 @@ import java.lang.Object;
 @WebService
 public class Service {
 	
+	private static ServiceInterface trackInterface = MethodServiceInterface.wrap(Services.class, "track"); 
 	private ExecutionContext executionContext;
 	
 	/**
@@ -31,9 +34,8 @@ public class Service {
 			throw new IllegalArgumentException("The given node does not point to a vm service: " + serviceId);
 		}
 		VMService service = (VMService) resolved;
-		String iface = Services.class.getName() + ".track";
-		if (!iface.equalsIgnoreCase(ValueUtils.getValue(PipelineInterfaceProperty.getInstance(), service.getPipeline().getProperties()))) {
-			throw new IllegalArgumentException("The vm service '" + serviceId + "' does not implement the correct interface: " + iface);
+		if (!trackInterface.equals(ValueUtils.getValue(PipelineInterfaceProperty.getInstance(), service.getPipeline().getProperties()))) {
+			throw new IllegalArgumentException("The vm service '" + serviceId + "' does not implement the correct interface: " + trackInterface);
 		}
 		// the current runtime is the one that is calling this service "registerServiceTracker", need the parent runtime
 		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
