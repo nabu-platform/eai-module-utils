@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>be.nabu.libs.artifacts</groupId>
 			<artifactId>artifacts-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -60,31 +60,25 @@
 		<dependency>
 			<groupId>be.nabu.utils</groupId>
 			<artifactId>utils-io</artifactId>
-			<version>1.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.utils</groupId>
-			<artifactId>utils-io</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.2-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.utils</groupId>
 			<artifactId>utils-codec</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.converter</groupId>
 			<artifactId>converter-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.converter</groupId>
 			<artifactId>converter-base</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -102,25 +96,13 @@
 		<dependency>
 			<groupId>be.nabu.libs.events</groupId>
 			<artifactId>events-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.types</groupId>
-			<artifactId>types-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.types</groupId>
 			<artifactId>types-api</artifactId>
 			<version>1.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.types</groupId>
-			<artifactId>types-base</artifactId>
-			<version>1.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -132,12 +114,18 @@
 		<dependency>
 			<groupId>be.nabu.libs.types</groupId>
 			<artifactId>types-java</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>be.nabu.libs.evaluator</groupId>
+			<artifactId>evaluator-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>be.nabu.libs.types</groupId>
-			<artifactId>types-evaluator</artifactId>
+			<groupId>be.nabu.libs.evaluator</groupId>
+			<artifactId>evaluator-types</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
@@ -162,25 +150,19 @@
 		<dependency>
 			<groupId>be.nabu.libs.property</groupId>
 			<artifactId>property-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.validator</groupId>
 			<artifactId>validator-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.validator</groupId>
 			<artifactId>validator-base</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.resources</groupId>
-			<artifactId>resources-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -195,17 +177,17 @@
 		<dependency>
 			<groupId>be.nabu.libs.datastore</groupId>
 			<artifactId>datastore-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.datastore</groupId>
 			<artifactId>datastore-resources</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.datastore</groupId>
 			<artifactId>datastore-urn-database</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.datatransactions</groupId>
@@ -215,12 +197,12 @@
 		<dependency>
 			<groupId>be.nabu.libs.datatransactions</groupId>
 			<artifactId>datatransactions-database</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.channels</groupId>
 			<artifactId>channels-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
