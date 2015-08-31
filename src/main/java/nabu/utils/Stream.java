@@ -30,5 +30,4 @@ public class Stream {
 			closeable.close();
 		}
 	}
-	
 }

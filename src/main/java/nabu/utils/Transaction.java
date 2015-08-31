@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import be.nabu.libs.services.api.ExecutionContext;
 
 @WebService
-public class Transactions {
+public class Transaction {
 	
 	private ExecutionContext executionContext;
 	

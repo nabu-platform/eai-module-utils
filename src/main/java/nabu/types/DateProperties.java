@@ -1,4 +1,4 @@
-package nabu.utils;
+package nabu.types;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

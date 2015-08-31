@@ -13,6 +13,7 @@ import be.nabu.libs.resources.ResourceFactory;
 import be.nabu.libs.resources.ResourceUtils;
 import be.nabu.libs.resources.api.ReadableResource;
 import be.nabu.libs.resources.api.ResourceRoot;
+import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 import be.nabu.utils.io.api.WritableContainer;
@@ -20,12 +21,14 @@ import be.nabu.utils.io.api.WritableContainer;
 @WebService
 public class File {
 	
+	private ExecutionContext executionContext;
+	
 	@WebResult(name = "stream")
-	public InputStream read(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
+	public InputStream read(@WebParam(name = "uri") URI uri) throws IOException {
 		if (uri == null) {
 			return null;
 		}
-		ResourceRoot resolved = ResourceFactory.getInstance().resolve(uri, principal);
+		ResourceRoot resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getPrincipal());
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
 		}
@@ -35,9 +38,9 @@ public class File {
 		return IOUtils.toInputStream(((ReadableResource) resolved).getReadable());
 	}
 	
-	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
+	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content) throws IOException {
 		if (uri != null || content != null) {
-			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, principal);
+			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, executionContext.getSecurityContext().getPrincipal());
 			try {
 				IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
 			}
@@ -47,9 +50,9 @@ public class File {
 		}
 	}
 	
-	public void mkdir(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") SimplePrincipal principal) throws IOException {
+	public void mkdir(@WebParam(name = "uri") URI uri) throws IOException {
 		if (uri != null) {
-			ResourceUtils.mkdir(uri, principal);
+			ResourceUtils.mkdir(uri, executionContext.getSecurityContext().getPrincipal());
 		}
 	}
 }

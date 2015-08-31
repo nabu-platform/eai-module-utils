@@ -1,4 +1,4 @@
-package nabu.utils;
+package nabu.types;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
