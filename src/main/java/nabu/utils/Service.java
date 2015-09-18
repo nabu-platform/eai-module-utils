@@ -42,7 +42,7 @@ public class Service {
 		// include the original runtime tracker as well, it could be for trace mode or the like
 		runtime.setRuntimeTracker(new MultipleServiceRuntimeTracker(
 			runtime.getRuntimeTracker(),
-			new FlowServiceTracker(service)
+			new FlowServiceTracker(service, executionContext)
 		));
 	}
 	
