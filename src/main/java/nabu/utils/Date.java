@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 import nabu.types.DateProperties;
 
-@WebService
+@WebService(name = "date")
 public class Date {
 	
 	@WebResult(name = "date")
