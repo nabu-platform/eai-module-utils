@@ -87,7 +87,7 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		list.remove(index);
+		list.remove((int) index);
 		return list;
 	}
 	

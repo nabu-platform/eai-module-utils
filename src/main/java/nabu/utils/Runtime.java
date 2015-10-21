@@ -7,6 +7,9 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
 import be.nabu.eai.services.api.FlatServiceTracker;
 import be.nabu.libs.property.ValueUtils;
@@ -47,6 +50,23 @@ public class Runtime {
 		}
 		Service service = runtime.getService();
 		return service instanceof DefinedService ? ((DefinedService) service).getId() : null;
+	}
+	
+	@WebResult(name = "services")
+	public List<String> getServices() {
+		ServiceRuntime runtime = ServiceRuntime.getRuntime();
+		List<String> services = new ArrayList<String>();
+		while (runtime != null) {
+			if (runtime.getService() instanceof DefinedService) {
+				services.add(((DefinedService) runtime.getService()).getId());
+			}
+			runtime = runtime.getParent();
+		}
+		// remove the first service, it is _this_ service (nabu.utils.Runtime.getServices)
+		if (!services.isEmpty()) {
+			services.remove(0);
+		}
+		return services;
 	}
 
 	@WebResult(name = "service")

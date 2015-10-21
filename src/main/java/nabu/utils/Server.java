@@ -26,9 +26,24 @@ public class Server {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
-	public void log(@WebParam(name = "message") String message) {
+	public void log(@WebParam(name = "message") String message, @WebParam(name = "logger") String loggerName, @WebParam(name = "exception") Exception exception) {
 		if (message != null) {
-			logger.info(message);
+			if (loggerName != null) {
+				if (exception != null) {
+					LoggerFactory.getLogger(loggerName).error(message, exception);
+				}
+				else {
+					LoggerFactory.getLogger(loggerName).info(message);
+				}
+			}
+			else {
+				if (exception != null) {
+					logger.error(message, exception);
+				}
+				else {
+					logger.info(message);
+				}
+			}
 		}
 	}
 	
