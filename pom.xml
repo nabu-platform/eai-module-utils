@@ -190,26 +190,6 @@
 			<artifactId>datastore-resources</artifactId>
 			<version>1.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.datastore</groupId>
-			<artifactId>datastore-urn-database</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.datatransactions</groupId>
-			<artifactId>datatransactions-api</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.datatransactions</groupId>
-			<artifactId>datatransactions-database</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.channels</groupId>
-			<artifactId>channels-api</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<distributionManagement>
