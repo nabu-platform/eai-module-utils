@@ -10,9 +10,11 @@ import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.jws.WebService;
 
 import nabu.types.Dimension;
 
+@WebService
 public class Image {
 	
 	public Dimension dimension(InputStream stream) throws IOException {
@@ -82,9 +84,12 @@ public class Image {
 			double factor = (double) width / (double) image.getWidth();
 			height = (int) (factor * image.getHeight());
 		}
-		BufferedImage resizedImage = new BufferedImage(width, height, targetContentType);
+		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = resizedImage.createGraphics();
 		graphics.drawImage(image, 0, 0, width, height, null);
 		graphics.dispose();
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		ImageIO.write(resizedImage, targetContentType, output);
+		return output.toByteArray();
 	}
 }
