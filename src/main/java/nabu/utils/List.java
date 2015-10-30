@@ -19,6 +19,11 @@ public class List {
 	
 	private ExecutionContext executionContext;
 	
+	@WebResult(name = "contains")
+	public boolean contains(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
+		return list == null || list.indexOf(object) < 0 ? false : true;
+	}
+	
 	@WebResult(name = "index")
 	public Integer indexOf(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
 		if (list == null) {
