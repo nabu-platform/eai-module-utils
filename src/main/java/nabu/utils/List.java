@@ -19,6 +19,15 @@ public class List {
 	
 	private ExecutionContext executionContext;
 	
+	@WebResult(name = "index")
+	public Integer indexOf(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
+		if (list == null) {
+			return null;
+		}
+		int index = list.indexOf(object);
+		return index < 0 ? null : index;
+	}
+	
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> add(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "index") Integer index, @WebParam(name = "object") java.lang.Object object) {
 		if (list == null) {
