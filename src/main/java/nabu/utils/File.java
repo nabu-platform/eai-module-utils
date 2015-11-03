@@ -10,9 +10,10 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.libs.resources.ResourceFactory;
+import be.nabu.libs.resources.ResourceReadableContainer;
 import be.nabu.libs.resources.ResourceUtils;
 import be.nabu.libs.resources.api.ReadableResource;
-import be.nabu.libs.resources.api.ResourceRoot;
+import be.nabu.libs.resources.api.Resource;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
@@ -28,14 +29,14 @@ public class File {
 		if (uri == null) {
 			return null;
 		}
-		ResourceRoot resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getPrincipal());
+		Resource resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getPrincipal());
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
 		}
 		if (!(resolved instanceof ReadableResource)) {
 			throw new IOException("The resource is not readable: " + uri);
 		}
-		return IOUtils.toInputStream(((ReadableResource) resolved).getReadable());
+		return IOUtils.toInputStream(new ResourceReadableContainer((ReadableResource) resolved));
 	}
 	
 	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content) throws IOException {
