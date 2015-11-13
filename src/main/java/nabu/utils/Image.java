@@ -84,7 +84,7 @@ public class Image {
 			double factor = (double) width / (double) image.getWidth();
 			height = (int) (factor * image.getHeight());
 		}
-		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage resizedImage = new BufferedImage(width, height, image.getType());
 		Graphics2D graphics = resizedImage.createGraphics();
 		graphics.drawImage(image, 0, 0, width, height, null);
 		graphics.dispose();
