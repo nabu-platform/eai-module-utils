@@ -4,8 +4,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
-@XmlType(propOrder = { "width", "height" })
-public class Dimension {
+@XmlType(propOrder = { "contentType", "width", "height" })
+public class ImageMetaData {
+	
+	private String contentType;
 	private int width, height;
 
 	public int getWidth() {
@@ -23,5 +25,14 @@ public class Dimension {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	
 	
 }
