@@ -33,7 +33,6 @@ public class Map {
 	
 	@WebResult(name = "previousValue")
 	public Object put(@WebParam(name = "map") java.util.Map<String, Object> map, @WebParam(name = "key") String key, @WebParam(name = "value") Object value) {
-		map.put(key, value);
 		return map == null ? null : map.put(key, value);
 	}
 	
