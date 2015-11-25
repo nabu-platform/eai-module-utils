@@ -1,9 +1,14 @@
 package nabu.utils;
 
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+
 import nabu.types.BoundingBox;
 import nabu.types.Coordinate;
 import static java.lang.Math.*;
 
+@WebService
 public class Gis {
 	
 	/**
@@ -28,7 +33,8 @@ public class Gis {
 	 */
 	public static final double MAX_LONGITUDE = Math.toRadians(180d); 
 	
-	public BoundingBox getBoundingBox(Coordinate center, long distance) {
+	@WebResult(name = "boundingBox")
+	public BoundingBox boundingBox(@WebParam(name = "center") Coordinate center, @WebParam(name = "distance") long distance) {
 		// based on: http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
 		// according to Haversine we can have a central angle by doing d / r (distance and radius)
 		double angularRadius = distance / EARTH_RADIUS;
@@ -61,7 +67,8 @@ public class Gis {
 		);
 	}
 	
-	public double getDistance(Coordinate from, Coordinate to) {
+	@WebResult(name = "distance")
+	public double distance(@WebParam(name = "from") Coordinate from, @WebParam(name = "to") Coordinate to) {
 		// based on https://en.wikipedia.org/wiki/Haversine_formula
 		// and http://stackoverflow.com/questions/837872/calculate-distance-in-meters-when-you-know-longitude-and-latitude-in-java
 		double latitudeFrom = toRadians(from.getLatitude());
