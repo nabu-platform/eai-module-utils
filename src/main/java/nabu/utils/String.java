@@ -7,12 +7,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
 @WebService
 public class String {
+	
+	@WebResult(name = "content")
+	public java.lang.String replace(@WebParam(name = "content") java.lang.String content, @WebParam(name = "match") java.lang.String find, @WebParam(name = "replace") java.lang.String replace, @WebParam(name = "useRegex") Boolean useRegex) {
+		if (content == null) {
+			return null;
+		}
+		else if (find == null) {
+			return content;
+		}
+		if (useRegex == null) {
+			useRegex = false;
+		}
+		if (replace == null) {
+			replace = "";
+		}
+		return useRegex ? content.replaceAll(find, replace) : content.replace(find, replace);
+	}
 	
 	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
@@ -26,11 +44,14 @@ public class String {
 	
 	@WebResult(name = "parts")
 	public List<java.lang.String> split(@WebParam(name = "string") java.lang.String string, @WebParam(name = "separator") java.lang.String separator) {
-		return new ArrayList<java.lang.String>(Arrays.asList(string.split(separator)));
+		return string == null ? null : new ArrayList<java.lang.String>(Arrays.asList(string.split(separator)));
 	}
 	
 	@WebResult(name = "string")
 	public java.lang.String join(@WebParam(name = "parts") List<java.lang.String> strings, @WebParam(name = "separator") java.lang.String separator) {
+		if (strings == null) {
+			return null;
+		}
 		if (separator == null) {
 			separator = "";
 		}
