@@ -2,6 +2,7 @@ package nabu.utils;
 
 import junit.framework.TestCase;
 import nabu.types.Coordinate;
+import java.lang.Math;
 
 public class GisTest extends TestCase {
 	

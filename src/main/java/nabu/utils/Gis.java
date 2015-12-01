@@ -3,6 +3,7 @@ package nabu.utils;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import java.lang.Math;
 import javax.validation.constraints.NotNull;
 
 import nabu.types.BoundingBox;
