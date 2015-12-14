@@ -10,9 +10,9 @@ import javax.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.nabu.eai.repository.api.FlatServiceTracker;
 import be.nabu.eai.repository.api.ModifiableServiceRuntimeTrackerProvider;
 import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
-import be.nabu.eai.services.api.FlatServiceTracker;
 import be.nabu.libs.property.ValueUtils;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
@@ -96,7 +96,7 @@ public class Runtime {
 	/**
 	 * Allows you to register a service that performs service tracking, it must implement the interface nabu.interfaces.Services.track
 	 */
-	public void registerServiceTracker(@WebParam(name = "serviceId") String serviceId) {
+	public void registerServiceTracker(@WebParam(name = "serviceId") String serviceId, @WebParam(name = "servicesOnly") Boolean servicesOnly, @WebParam(name = "recursive") Boolean recursive) {
 		DefinedService resolved = executionContext.getServiceContext().getResolver(DefinedService.class).resolve(serviceId);
 		if (!(resolved instanceof VMService)) {
 			throw new IllegalArgumentException("The given node does not point to a vm service: " + serviceId);
@@ -106,10 +106,12 @@ public class Runtime {
 			throw new IllegalArgumentException("The vm service '" + serviceId + "' does not implement the correct interface: " + trackInterface);
 		}
 		if (executionContext.getServiceContext().getServiceTrackerProvider() instanceof ModifiableServiceRuntimeTrackerProvider) {
+			FlatServiceTrackerWrapper runtimeTracker = new FlatServiceTrackerWrapper(service, executionContext);
+			runtimeTracker.setServicesOnly(servicesOnly == null ? false : servicesOnly);
 			((ModifiableServiceRuntimeTrackerProvider) executionContext.getServiceContext().getServiceTrackerProvider()).addTracker(
 				ServiceRuntime.getRuntime().getService(), 
-				new FlatServiceTrackerWrapper(service, executionContext), 
-				true
+				runtimeTracker, 
+				recursive == null ? false : recursive
 			);
 		}
 		else {
