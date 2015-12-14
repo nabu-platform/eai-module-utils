@@ -9,7 +9,6 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.pojo.POJOUtils;
@@ -125,7 +124,7 @@ public class List {
 			if (resolved == null) {
 				throw new IllegalArgumentException("Invalid comparator service passed along: " + comparatorServiceId);
 			}
-			Comparator comparator = POJOUtils.newProxy(Comparator.class, resolved, ServiceRuntime.getRuntime().getRuntimeTracker(), executionContext);
+			Comparator comparator = POJOUtils.newProxy(Comparator.class, resolved, executionContext);
 			Collections.sort(list, comparator);
 		}
 		// we assume the list contains comparable items

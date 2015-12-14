@@ -10,10 +10,10 @@ import javax.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.nabu.eai.repository.api.ModifiableServiceRuntimeTrackerProvider;
 import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
 import be.nabu.eai.services.api.FlatServiceTracker;
 import be.nabu.libs.property.ValueUtils;
-import be.nabu.libs.services.MultipleServiceRuntimeTracker;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -105,13 +105,16 @@ public class Runtime {
 		if (!trackInterface.equals(ValueUtils.getValue(PipelineInterfaceProperty.getInstance(), service.getPipeline().getProperties()))) {
 			throw new IllegalArgumentException("The vm service '" + serviceId + "' does not implement the correct interface: " + trackInterface);
 		}
-		// the current runtime is the one that is calling this service "registerServiceTracker", need the parent runtime
-		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
-		// include the original runtime tracker as well, it could be for trace mode or the like
-		runtime.setRuntimeTracker(new MultipleServiceRuntimeTracker(
-			runtime.getRuntimeTracker(),
-			new FlatServiceTrackerWrapper(service, executionContext)
-		));
+		if (executionContext.getServiceContext().getServiceTrackerProvider() instanceof ModifiableServiceRuntimeTrackerProvider) {
+			((ModifiableServiceRuntimeTrackerProvider) executionContext.getServiceContext().getServiceTrackerProvider()).addTracker(
+				ServiceRuntime.getRuntime().getService(), 
+				new FlatServiceTrackerWrapper(service, executionContext), 
+				true
+			);
+		}
+		else {
+			throw new IllegalStateException("The current execution context does not allow addition of custom service trackers");
+		}
 	}
 	
 	public void setContext(@WebParam(name = "key") String key, @WebParam(name = "value") Object value) {

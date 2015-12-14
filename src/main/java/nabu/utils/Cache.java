@@ -22,8 +22,8 @@ public class Cache {
 	
 	public List<CacheOverview> getCaches() throws IOException {
 		List<CacheOverview> cacheOverviews = new ArrayList<CacheOverview>();
-		if (EAIResourceRepository.getInstance().getServiceRunner().getCacheProvider() instanceof EAIRepositoryCacheProvider) {
-			EAIRepositoryCacheProvider cacheProvider = (EAIRepositoryCacheProvider) EAIResourceRepository.getInstance().getServiceRunner().getCacheProvider();
+		if (EAIResourceRepository.getInstance().getCacheProvider() instanceof EAIRepositoryCacheProvider) {
+			EAIRepositoryCacheProvider cacheProvider = (EAIRepositoryCacheProvider) EAIResourceRepository.getInstance().getCacheProvider();
 			for (String name : cacheProvider.getCaches()) {
 				be.nabu.libs.cache.api.Cache cache = cacheProvider.get(name);
 				CacheOverview cacheOverview = new CacheOverview();
@@ -51,21 +51,21 @@ public class Cache {
 	}
 	
 	public void prune(@WebParam(name = "serviceId") @NotNull String serviceId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getServiceRunner().getCacheProvider().get(serviceId);
+		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(serviceId);
 		if (cache != null) {
 			cache.prune();
 		}
 	}
 	
 	public void refresh(@WebParam(name = "serviceId") @NotNull String serviceId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getServiceRunner().getCacheProvider().get(serviceId);
+		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(serviceId);
 		if (cache != null) {
 			cache.refresh();
 		}
 	}
 	
 	public void clear(@WebParam(name = "serviceId") @NotNull String serviceId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getServiceRunner().getCacheProvider().get(serviceId);
+		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(serviceId);
 		if (cache != null) {
 			cache.clear();
 		}
