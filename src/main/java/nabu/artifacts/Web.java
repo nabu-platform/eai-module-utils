@@ -3,12 +3,14 @@ package nabu.artifacts;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import nabu.types.Property;
 import nabu.types.WebArtifactInformation;
 import be.nabu.eai.repository.artifacts.web.WebArtifact;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -30,6 +32,10 @@ public class Web {
 				information.setPath(resolved.getConfiguration().getPath());
 				information.setPort(resolved.getConfiguration().getHttpServer() == null ? null : resolved.getConfiguration().getHttpServer().getConfiguration().getPort());
 				information.setSecure(resolved.getConfiguration().getHttpServer() == null ? null : resolved.getConfiguration().getHttpServer().getConfiguration().getKeystore() != null);
+				Map<String, String> properties = resolved.getProperties();
+				for (String key : properties.keySet()) {
+					information.getProperties().add(new Property(key, properties.get(key)));
+				}
 				return information;
 			}
 		}
