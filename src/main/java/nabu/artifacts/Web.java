@@ -2,7 +2,6 @@ package nabu.artifacts;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.jws.WebParam;
@@ -28,10 +27,13 @@ public class Web {
 				WebArtifactInformation information = new WebArtifactInformation();
 				information.setRealm(resolved.getRealm());
 				information.setCharset(resolved.getConfiguration().getCharset() == null ? Charset.defaultCharset() : Charset.forName(resolved.getConfiguration().getCharset()));
-				information.setHosts(resolved.getConfiguration().getHosts() == null ? null : new ArrayList<String>(resolved.getConfiguration().getHosts()));
+				if (resolved.getConfiguration().getVirtualHost() != null) {
+					information.setHost(resolved.getConfiguration().getVirtualHost().getConfiguration().getHost());
+					information.setAliases(resolved.getConfiguration().getVirtualHost().getConfiguration().getAliases());
+					information.setPort(resolved.getConfiguration().getVirtualHost().getConfiguration().getServer() == null ? null : resolved.getConfiguration().getVirtualHost().getConfiguration().getServer().getConfiguration().getPort());
+					information.setSecure(resolved.getConfiguration().getVirtualHost().getConfiguration().getServer() == null ? null : resolved.getConfiguration().getVirtualHost().getConfiguration().getServer().getConfiguration().getKeystore() != null);
+				}
 				information.setPath(resolved.getConfiguration().getPath());
-				information.setPort(resolved.getConfiguration().getHttpServer() == null ? null : resolved.getConfiguration().getHttpServer().getConfiguration().getPort());
-				information.setSecure(resolved.getConfiguration().getHttpServer() == null ? null : resolved.getConfiguration().getHttpServer().getConfiguration().getKeystore() != null);
 				Map<String, String> properties = resolved.getProperties();
 				for (String key : properties.keySet()) {
 					information.getProperties().add(new Property(key, properties.get(key)));

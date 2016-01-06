@@ -8,11 +8,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "webArtifact")
-@XmlType(propOrder = { "realm", "path", "charset", "hosts", "port", "secure", "properties" })
+@XmlType(propOrder = { "realm", "path", "charset", "host", "aliases", "port", "secure", "properties" })
 public class WebArtifactInformation {
 	private String realm, path;
 	private Charset charset;
-	private List<String> hosts;
+	private String host;
+	private List<String> aliases;
 	private Integer port;
 	private Boolean secure;
 	private List<Property> properties;
@@ -35,12 +36,6 @@ public class WebArtifactInformation {
 	public void setCharset(Charset charset) {
 		this.charset = charset;
 	}
-	public List<String> getHosts() {
-		return hosts;
-	}
-	public void setHosts(List<String> hosts) {
-		this.hosts = hosts;
-	}
 	public Integer getPort() {
 		return port;
 	}
@@ -61,5 +56,17 @@ public class WebArtifactInformation {
 	}
 	public void setProperties(List<Property> properties) {
 		this.properties = properties;
+	}
+	public String getHost() {
+		return host;
+	}
+	public void setHost(String host) {
+		this.host = host;
+	}
+	public List<String> getAliases() {
+		return aliases;
+	}
+	public void setAliases(List<String> aliases) {
+		this.aliases = aliases;
 	}
 }
