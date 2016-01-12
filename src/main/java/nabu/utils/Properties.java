@@ -12,20 +12,19 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import nabu.types.Property;
-import be.nabu.libs.types.DefinedTypeResolverFactory;
+import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
-import be.nabu.libs.types.api.DefinedTypeResolver;
 
 @WebService
 public class Properties {
 	
-	private DefinedTypeResolver resolver = DefinedTypeResolverFactory.getInstance().getResolver();
+	private ExecutionContext executionContext;
 	
 	@WebResult(name = "object")
 	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<Property> properties) {
-		DefinedType resolved = resolver.resolve(typeId);
+		DefinedType resolved = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(typeId);
 		if (resolved == null) {
 			throw new IllegalArgumentException("Could not find the type: " + typeId);
 		}
