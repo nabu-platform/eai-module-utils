@@ -32,7 +32,7 @@ public class Service {
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "output")
 	public Object invoke(@WebParam(name = "serviceId") String id, @WebParam(name = "input") Object input) throws ServiceException {
-		if (id != null) {
+		if (id == null) {
 			return null;
 		}
 		DefinedService service = DefinedServiceResolverFactory.getInstance().getResolver().resolve(id);
