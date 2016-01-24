@@ -140,4 +140,9 @@ public class List {
 	public java.util.List<java.lang.Object> newList(@WebParam(name = "initialCapacity") Integer initialCapacity) {
 		return initialCapacity == null ? new ArrayList<java.lang.Object>() : new ArrayList<java.lang.Object>(initialCapacity);
 	}
+	
+	@WebResult(name = "size")
+	public Integer size(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
+		return list == null ? 0 : list.size();
+	}
 }

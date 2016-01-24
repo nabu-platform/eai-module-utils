@@ -13,7 +13,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.types.Property;
+import nabu.utils.types.Property;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

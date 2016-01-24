@@ -1,14 +1,16 @@
-package nabu.types;
+package nabu.utils.types;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import be.nabu.libs.types.api.KeyValuePair;
+
 import java.lang.String;
 
 @XmlRootElement
 @XmlType(propOrder = { "key", "value" })
-public class Property {
+public class Property implements KeyValuePair {
 
 	private String key, value;
 	

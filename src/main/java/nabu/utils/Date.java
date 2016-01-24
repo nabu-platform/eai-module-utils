@@ -8,7 +8,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.types.DateProperties;
+import nabu.utils.types.DateProperties;
 
 @WebService(name = "date")
 public class Date {

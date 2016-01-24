@@ -21,9 +21,9 @@ import be.nabu.utils.io.api.ByteBuffer;
 @WebService
 public class Transcoder {
 	
-	@WebResult(name = "bytes")
-	public byte [] transcode(@WebParam(name = "stream") InputStream input, @NotNull @WebParam(name = "transcoder") be.nabu.utils.codec.api.Transcoder<ByteBuffer> transcoder) throws IOException {
-		return input == null ? null : IOUtils.toBytes(TranscoderUtils.transcodeBytes(IOUtils.wrap(input), new Base64Encoder()));
+	@WebResult(name = "stream")
+	public InputStream transcode(@WebParam(name = "stream") InputStream input, @NotNull @WebParam(name = "transcoder") be.nabu.utils.codec.api.Transcoder<ByteBuffer> transcoder) throws IOException {
+		return IOUtils.toInputStream(TranscoderUtils.wrapReadable(IOUtils.wrap(input), transcoder), true);
 	}
 	
 	@WebResult(name = "transcoder")

@@ -9,8 +9,8 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.types.CacheEntryOverview;
-import nabu.types.CacheOverview;
+import nabu.utils.types.CacheEntryOverview;
+import nabu.utils.types.CacheOverview;
 import be.nabu.eai.repository.EAIRepositoryCacheProvider;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.libs.cache.api.CacheEntry;

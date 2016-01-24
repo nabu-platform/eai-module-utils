@@ -1,4 +1,4 @@
-package nabu.types;
+package nabu.utils.types;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

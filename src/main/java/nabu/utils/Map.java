@@ -12,7 +12,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
-import nabu.types.Property;
+import nabu.utils.types.Property;
 
 @WebService
 public class Map {

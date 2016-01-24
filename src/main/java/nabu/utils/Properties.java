@@ -11,7 +11,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.types.Property;
+import nabu.utils.types.Property;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
@@ -34,12 +34,21 @@ public class Properties {
 		ComplexContent newInstance = ((ComplexType) resolved).newInstance();
 		if (properties != null) {
 			for (Property property : properties) {
-				newInstance.set(property.getKey(), property.getKey());
+				newInstance.set(property.getKey().replace(".", "/"), property.getKey());
 			}
 		}
 		return newInstance;
 	}
 	
+	@WebResult(name = "value")
+	public String getValue(@NotNull @WebParam(name = "key") String key, @WebParam(name = "properties") List<Property> properties) {
+		for (Property property : properties) {
+			if (property != null && key.equals(property.getKey())) {
+				return property.getValue();
+			}
+		}
+		return null;
+	}
 	
 	/**
 	 * TODO: currently most libraries are updated to allow for generics to be used here

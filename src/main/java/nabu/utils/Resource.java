@@ -13,14 +13,13 @@ import be.nabu.libs.resources.ResourceFactory;
 import be.nabu.libs.resources.ResourceReadableContainer;
 import be.nabu.libs.resources.ResourceUtils;
 import be.nabu.libs.resources.api.ReadableResource;
-import be.nabu.libs.resources.api.Resource;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 import be.nabu.utils.io.api.WritableContainer;
 
 @WebService
-public class File {
+public class Resource {
 	
 	private ExecutionContext executionContext;
 	
@@ -29,7 +28,7 @@ public class File {
 		if (uri == null) {
 			return null;
 		}
-		Resource resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getPrincipal());
+		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getPrincipal());
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
 		}

@@ -8,7 +8,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
-import nabu.types.Property;
+import nabu.utils.types.Property;
 import be.nabu.libs.types.BaseTypeInstance;
 import be.nabu.libs.types.CollectionHandlerFactory;
 import be.nabu.libs.types.TypeConverterFactory;
@@ -68,7 +68,6 @@ public class Object {
 			if (value != null) {
 				CollectionHandlerProvider collectionHandler = CollectionHandlerFactory.getInstance().getHandler().getHandler(value.getClass());
 				if (collectionHandler != null) {
-					java.lang.System.out.println("MARSHALLING: " + value + " > " + collectionHandler.getIndexes(value));
 					for (java.lang.Object index : collectionHandler.getIndexes(value)) {
 						java.lang.Object singleValue = collectionHandler.get(value, index);
 						if (singleValue != null) {

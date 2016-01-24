@@ -1,4 +1,4 @@
-package nabu.types;
+package nabu.utils.types;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;

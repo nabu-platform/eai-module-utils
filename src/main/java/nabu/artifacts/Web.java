@@ -11,8 +11,8 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.types.Property;
-import nabu.types.WebArtifactInformation;
+import nabu.utils.types.Property;
+import nabu.utils.types.WebArtifactInformation;
 import be.nabu.eai.repository.artifacts.web.WebArtifact;
 import be.nabu.libs.resources.api.Resource;
 import be.nabu.libs.resources.api.ResourceContainer;

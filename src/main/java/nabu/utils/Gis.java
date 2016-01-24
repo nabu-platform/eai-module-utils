@@ -3,11 +3,13 @@ package nabu.utils;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+
 import java.lang.Math;
+
 import javax.validation.constraints.NotNull;
 
-import nabu.types.BoundingBox;
-import nabu.types.Coordinate;
+import nabu.utils.types.BoundingBox;
+import nabu.utils.types.Coordinate;
 import static java.lang.Math.*;
 
 @WebService
