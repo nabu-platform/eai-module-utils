@@ -1,7 +1,6 @@
 package nabu.services;
 
 import javax.jws.WebParam;
-import javax.jws.WebService;
 
 import be.nabu.libs.events.EventDispatcherFactory;
 import be.nabu.libs.events.api.EventHandler;
@@ -11,7 +10,6 @@ import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.libs.types.api.ComplexContent;
 
-@WebService
 public class Notifier {
 	
 	private ExecutionContext executionContext;
