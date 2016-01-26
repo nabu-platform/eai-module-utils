@@ -22,10 +22,13 @@ import be.nabu.utils.mime.api.Header;
 import be.nabu.utils.mime.api.ModifiablePart;
 import be.nabu.utils.mime.api.Part;
 import be.nabu.utils.mime.api.MultiPart;
+import be.nabu.utils.mime.impl.FormatException;
 import be.nabu.utils.mime.impl.MimeHeader;
 import be.nabu.utils.mime.impl.MimeUtils;
 import be.nabu.utils.mime.impl.PlainMimeContentPart;
+import be.nabu.utils.mime.impl.PlainMimeEmptyPart;
 import be.nabu.utils.mime.impl.PlainMimeMultiPart;
+import be.nabu.utils.mime.impl.PullableMimeFormatter;
 import be.nabu.utils.security.SignatureType;
 
 @WebService
@@ -81,6 +84,26 @@ public class Mime {
 			part.setHeader(headers.toArray(new Header[headers.size()]));
 		}
 		return part;
+	}
+	
+	@WebResult(name = "part")
+	public Part newEmptyPart(@WebParam(name = "headers") List<Header> headers) {
+		ModifiablePart part = new PlainMimeEmptyPart(null);
+		if (headers != null && !headers.isEmpty()) {
+			part.setHeader(headers.toArray(new Header[headers.size()]));
+		}
+		return part;
+	}
+	
+	@WebResult(name = "stream")
+	public InputStream format(@NotNull @WebParam(name = "part") Part part, @WebParam(name = "allowBinary") Boolean allowBinary, @WebParam(name = "chunkSize") Integer chunkSize) throws IOException, FormatException {
+		PullableMimeFormatter mimeFormatter = new PullableMimeFormatter();
+		mimeFormatter.setAllowBinary(allowBinary == null || allowBinary);
+		if (chunkSize != null) {
+			mimeFormatter.setChunkSize(chunkSize);
+		}
+		mimeFormatter.format(part);
+		return IOUtils.toInputStream(mimeFormatter, true);
 	}
 	
 	@WebResult(name = "part")
