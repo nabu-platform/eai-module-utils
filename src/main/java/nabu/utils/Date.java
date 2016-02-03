@@ -128,7 +128,7 @@ public class Date {
 		if (timezone == null) {
 			timezone = TimeZone.getDefault();
 		}
-		return unit.increment(new java.util.Date(), increment, timezone);
+		return unit.increment(start, increment, timezone);
 	}
 	
 	@WebResult(name = "dates")

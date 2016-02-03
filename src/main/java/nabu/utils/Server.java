@@ -13,13 +13,12 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.utils.types.Property;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import be.nabu.eai.repository.artifacts.broker.DefinedBrokerClient;
 import be.nabu.libs.artifacts.ArtifactResolverFactory;
+import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService
 public class Server {
@@ -47,7 +46,7 @@ public class Server {
 		}
 	}
 	
-	public void publish(@NotNull @WebParam(name = "brokerClientId") String brokerClientId, @WebParam(name = "content") Object content, @WebParam(name = "properties") List<Property> properties) throws IOException {
+	public void publish(@NotNull @WebParam(name = "brokerClientId") String brokerClientId, @WebParam(name = "content") Object content, @WebParam(name = "properties") List<KeyValuePair> properties) throws IOException {
 		DefinedBrokerClient brokerClient = (DefinedBrokerClient) ArtifactResolverFactory.getInstance().getResolver().resolve(brokerClientId);
 		if (brokerClient == null) {
 			throw new IllegalArgumentException("The broker client can not be found: " + brokerClientId);

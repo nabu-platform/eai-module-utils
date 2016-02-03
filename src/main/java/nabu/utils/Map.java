@@ -12,14 +12,15 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import be.nabu.libs.types.api.KeyValuePair;
 import nabu.utils.types.Property;
 
 @WebService
 public class Map {
 	
 	@WebResult(name = "properties")
-	public List<Property> toProperties(@WebParam(name = "map") java.util.Map<String, String> map) {
-		List<Property> properties = new ArrayList<Property>();
+	public List<KeyValuePair> toProperties(@WebParam(name = "map") java.util.Map<String, String> map) {
+		List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
 		if (map != null) {
 			for (String key : map.keySet()) {
 				Property property = new Property();

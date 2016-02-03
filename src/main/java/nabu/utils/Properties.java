@@ -11,11 +11,11 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
-import nabu.utils.types.Property;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
+import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService
 public class Properties {
@@ -23,7 +23,7 @@ public class Properties {
 	private ExecutionContext executionContext;
 	
 	@WebResult(name = "object")
-	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<Property> properties) {
+	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<KeyValuePair> properties) {
 		DefinedType resolved = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(typeId);
 		if (resolved == null) {
 			throw new IllegalArgumentException("Could not find the type: " + typeId);
@@ -33,7 +33,7 @@ public class Properties {
 		}
 		ComplexContent newInstance = ((ComplexType) resolved).newInstance();
 		if (properties != null) {
-			for (Property property : properties) {
+			for (KeyValuePair property : properties) {
 				newInstance.set(property.getKey().replace(".", "/"), property.getKey());
 			}
 		}
@@ -41,8 +41,8 @@ public class Properties {
 	}
 	
 	@WebResult(name = "value")
-	public String getValue(@NotNull @WebParam(name = "key") String key, @WebParam(name = "properties") List<Property> properties) {
-		for (Property property : properties) {
+	public String getValue(@NotNull @WebParam(name = "key") String key, @WebParam(name = "properties") List<KeyValuePair> properties) {
+		for (KeyValuePair property : properties) {
 			if (property != null && key.equals(property.getKey())) {
 				return property.getValue();
 			}
@@ -56,10 +56,10 @@ public class Properties {
 	 * The latter is massively updated with regards to collection handling
 	 */
 	@WebResult(name = "map")
-	public Map<String, String> toMap(@WebParam(name = "properties") List<Property> properties) {
+	public Map<String, String> toMap(@WebParam(name = "properties") List<KeyValuePair> properties) {
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		if (properties != null) {
-			for (Property property : properties) {
+			for (KeyValuePair property : properties) {
 				if (property != null) {
 					map.put(property.getKey(), property.getValue());
 				}

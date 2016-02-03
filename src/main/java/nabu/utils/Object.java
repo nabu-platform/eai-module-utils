@@ -16,6 +16,7 @@ import be.nabu.libs.types.TypeUtils;
 import be.nabu.libs.types.api.CollectionHandlerProvider;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.Element;
+import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.api.TypeConverter;
 import be.nabu.libs.types.java.BeanInstance;
 
@@ -26,8 +27,8 @@ public class Object {
 
 	@WebResult(name = "properties")
 	@SuppressWarnings("rawtypes")
-	public List<Property> toProperties(@WebParam(name = "object") java.lang.Object object) {
-		List<Property> properties = new ArrayList<Property>();
+	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object) {
+		List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
 		if (object != null) {
 			ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : new BeanInstance(object);
 			toProperties(content, properties, null);
@@ -61,7 +62,7 @@ public class Object {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void toProperties(ComplexContent content, List<Property> properties, String path) {
+	private void toProperties(ComplexContent content, List<KeyValuePair> properties, String path) {
 		for (Element<?> child : TypeUtils.getAllChildren(content.getType())) {
 			String childPath = path == null ? child.getName() : path + "." + child.getName();
 			java.lang.Object value = content.get(child.getName());
@@ -89,7 +90,7 @@ public class Object {
 		}
 	}
 	
-	private void singleToProperties(Element<?> child, java.lang.Object value, List<Property> properties, String childPath) {
+	private void singleToProperties(Element<?> child, java.lang.Object value, List<KeyValuePair> properties, String childPath) {
 		if (value instanceof ComplexContent) {
 			toProperties((ComplexContent) value, properties, childPath);
 		}
