@@ -1,24 +1,16 @@
 package nabu.utils;
 
-import java.io.IOException;
 import java.lang.String;
-import java.util.List;
 import java.util.UUID;
-import java.lang.Object;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
-import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import be.nabu.eai.repository.artifacts.broker.DefinedBrokerClient;
-import be.nabu.libs.artifacts.ArtifactResolverFactory;
-import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService
 public class Server {
@@ -45,17 +37,7 @@ public class Server {
 			}
 		}
 	}
-	
-	public void publish(@NotNull @WebParam(name = "brokerClientId") String brokerClientId, @WebParam(name = "content") Object content, @WebParam(name = "properties") List<KeyValuePair> properties) throws IOException {
-		DefinedBrokerClient brokerClient = (DefinedBrokerClient) ArtifactResolverFactory.getInstance().getResolver().resolve(brokerClientId);
-		if (brokerClient == null) {
-			throw new IllegalArgumentException("The broker client can not be found: " + brokerClientId);
-		}
-		if (content != null) {
-			brokerClient.getBrokerClient().publish(content, new Properties().toMap(properties));
-		}
-	}
-	
+
 	@WebResult(name = "uuid")
 	public UUID uuid() {
 		return UUID.randomUUID();
