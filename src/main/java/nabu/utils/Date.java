@@ -186,4 +186,14 @@ public class Date {
 		double value = unit.diff(start, end, timezone);
 		return absolute != null && absolute ? java.lang.Math.abs(value) : value;
 	}
+	
+	@WebResult(name = "timestamp")
+	public Long toTimestamp(@WebParam(name = "date") java.util.Date date) {
+		return date == null ? null : date.getTime();
+	}
+	
+	@WebResult(name = "date")
+	public java.util.Date fromTimestamp(@WebParam(name = "timestamp") Long timestamp) {
+		return timestamp == null ? null : new java.util.Date(timestamp);
+	}
 }

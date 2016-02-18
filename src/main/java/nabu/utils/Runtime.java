@@ -10,23 +10,17 @@ import javax.jws.WebService;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.nabu.eai.repository.api.FlatServiceTracker;
 import be.nabu.eai.repository.api.ModifiableServiceRuntimeTrackerProvider;
 import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
-import be.nabu.libs.property.ValueUtils;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
-import be.nabu.libs.services.api.ServiceInterface;
-import be.nabu.libs.services.pojo.MethodServiceInterface;
-import be.nabu.libs.services.vm.PipelineInterfaceProperty;
-import be.nabu.libs.services.vm.api.VMService;
 
 @WebService
 public class Runtime {
 	
-	private static ServiceInterface trackInterface = MethodServiceInterface.wrap(FlatServiceTracker.class, "track"); 
+//	private static ServiceInterface trackInterface = MethodServiceInterface.wrap(FlatServiceTracker.class, "track"); 
 
 	public static final java.lang.String APPLICATION_REGEX = java.lang.System.getProperty("nabu.system.applicationRegex", "([^.]+).*");
 	public static final java.lang.String PROCESS_REGEX = java.lang.System.getProperty("nabu.system.processRegex", "[^.]+\\.processes\\.([^.]+).*");
@@ -98,15 +92,8 @@ public class Runtime {
 	 */
 	public void registerServiceTracker(@WebParam(name = "serviceId") String serviceId, @WebParam(name = "servicesOnly") Boolean servicesOnly, @WebParam(name = "recursive") Boolean recursive) {
 		DefinedService resolved = executionContext.getServiceContext().getResolver(DefinedService.class).resolve(serviceId);
-		if (!(resolved instanceof VMService)) {
-			throw new IllegalArgumentException("The given node does not point to a vm service: " + serviceId);
-		}
-		VMService service = (VMService) resolved;
-		if (!trackInterface.equals(ValueUtils.getValue(PipelineInterfaceProperty.getInstance(), service.getPipeline().getProperties()))) {
-			throw new IllegalArgumentException("The vm service '" + serviceId + "' does not implement the correct interface: " + trackInterface);
-		}
 		if (executionContext.getServiceContext().getServiceTrackerProvider() instanceof ModifiableServiceRuntimeTrackerProvider) {
-			FlatServiceTrackerWrapper runtimeTracker = new FlatServiceTrackerWrapper(service, executionContext);
+			FlatServiceTrackerWrapper runtimeTracker = new FlatServiceTrackerWrapper(resolved, executionContext);
 			runtimeTracker.setServicesOnly(servicesOnly == null ? false : servicesOnly);
 			((ModifiableServiceRuntimeTrackerProvider) executionContext.getServiceContext().getServiceTrackerProvider()).addTracker(
 				ServiceRuntime.getRuntime().getService(), 
