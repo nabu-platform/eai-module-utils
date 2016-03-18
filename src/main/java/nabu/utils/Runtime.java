@@ -12,6 +12,7 @@ import java.util.List;
 
 import be.nabu.eai.repository.api.ModifiableServiceRuntimeTrackerProvider;
 import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
+import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -30,6 +31,11 @@ public class Runtime {
 	@WebResult(name = "user")
 	public String getCurrentUser() {
 		return executionContext.getSecurityContext().getPrincipal() == null ? null : executionContext.getSecurityContext().getPrincipal().getName();
+	}
+	
+	@WebResult(name = "realm")
+	public String getCurrentRealm() {
+		return executionContext.getSecurityContext().getPrincipal() instanceof Token ? ((Token) executionContext.getSecurityContext().getPrincipal()).getRealm() : null;
 	}
 	
 	@WebResult(name = "service")
