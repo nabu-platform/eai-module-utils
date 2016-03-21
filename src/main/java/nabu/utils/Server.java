@@ -2,6 +2,7 @@ package nabu.utils;
 
 import java.lang.String;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -46,5 +47,14 @@ public class Server {
 	@WebResult(name = "host")
 	public String getHostName() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostName();
+	}
+	
+	public void sleep(@WebParam(name = "amount") long amount, @WebParam(name = "unit") TimeUnit timeUnit) {
+		try {
+			Thread.sleep(timeUnit == null ? amount : TimeUnit.MILLISECONDS.convert(amount, timeUnit));
+		}
+		catch (InterruptedException e) {
+			// continue
+		}
 	}
 }
