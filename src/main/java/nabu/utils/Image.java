@@ -8,9 +8,12 @@ import java.io.InputStream;
 import java.lang.String;
 import java.util.Iterator;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.jws.WebParam;
@@ -124,7 +127,15 @@ public class Image {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ImageOutputStream imageOutput = ImageIO.createImageOutputStream(output);
 		writer.setOutput(imageOutput);
-		writer.write(resizedImage);
+		if (targetContentType.toLowerCase().contains("jpg") || targetContentType.toLowerCase().contains("jpeg")) {
+			JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
+			jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			jpegParams.setCompressionQuality(1f);
+			writer.write(null, new IIOImage(resizedImage, null, null), jpegParams);
+		}
+		else {
+			writer.write(resizedImage);
+		}
 		imageOutput.flush();
 		return output.toByteArray();
 	}
