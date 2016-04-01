@@ -136,6 +136,18 @@ public class List {
 		return list;
 	}
 	
+	@WebResult(name = "minimum")
+	public java.lang.Object minimum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId) {
+		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId);
+		return sort.isEmpty() ? null : sort.get(0);
+	}
+	
+	@WebResult(name = "maximum")
+	public java.lang.Object maximum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId) {
+		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId);
+		return sort.isEmpty() ? null : sort.get(sort.size() - 1);
+	}
+	
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> newList(@WebParam(name = "initialCapacity") Integer initialCapacity) {
 		return initialCapacity == null ? new ArrayList<java.lang.Object>() : new ArrayList<java.lang.Object>(initialCapacity);
