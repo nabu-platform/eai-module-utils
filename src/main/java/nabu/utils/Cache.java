@@ -6,6 +6,7 @@ import java.util.List;
 import java.lang.String;
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
@@ -69,5 +70,19 @@ public class Cache {
 		if (cache != null) {
 			cache.clear();
 		}
+	}
+	
+	public void set(@WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key, @WebParam(name = "value") java.lang.Object value) throws IOException {
+		if (value == null) {
+			EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).clear(key);
+		}
+		else {
+			EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).put(key, value);
+		}
+	}
+	
+	@WebResult(name = "value")
+	public java.lang.Object get(@WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key) throws IOException {
+		return EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).get(key);
 	}
 }
