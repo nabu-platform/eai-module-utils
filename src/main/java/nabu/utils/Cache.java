@@ -72,7 +72,7 @@ public class Cache {
 		}
 	}
 	
-	public void set(@WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key, @WebParam(name = "value") java.lang.Object value) throws IOException {
+	public void set(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key, @WebParam(name = "value") java.lang.Object value) throws IOException {
 		if (value == null) {
 			EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).clear(key);
 		}
@@ -82,7 +82,7 @@ public class Cache {
 	}
 	
 	@WebResult(name = "value")
-	public java.lang.Object get(@WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key) throws IOException {
+	public java.lang.Object get(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key) throws IOException {
 		return EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).get(key);
 	}
 }
