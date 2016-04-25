@@ -131,9 +131,9 @@ public class List {
 		else {
 			// circumventing generics...
 			java.util.List tmp = list;
-			Collections.sort(tmp, new Comparator<Object>() {
+			Collections.sort(tmp, new Comparator<java.lang.Object>() {
 				@Override
-				public int compare(Object o1, Object o2) {
+				public int compare(java.lang.Object o1, java.lang.Object o2) {
 					return ((java.lang.Comparable) o1).compareTo((java.lang.Comparable) o2);
 				}
 			});
