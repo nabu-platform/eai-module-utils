@@ -68,11 +68,13 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		if (index == null) {
-			list.addAll(objects);
-		}
-		else {
-			list.addAll(index, objects);
+		if (objects != null) {
+			if (index == null) {
+				list.addAll(objects);
+			}
+			else {
+				list.addAll(index, objects);
+			}
 		}
 		return list;
 	}
