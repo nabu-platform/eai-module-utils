@@ -36,7 +36,7 @@ public class Object {
 		return properties;
 	}
 	
-	@WebResult(name = "properties")
+	@WebResult(name = "duplicate")
 	@SuppressWarnings("rawtypes")
 	public java.lang.Object duplicate(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "deep") Boolean deep) {
 		if (object != null) {
@@ -56,6 +56,7 @@ public class Object {
 				}
 				// we need to check if it's a complex type as well, if so we need to recursively duplicate it
 				// we also need to take care of lists and create new ones etc
+				// alternatively we marshal & unmarshal the content, this would break streams etc but they are already in doubtful state when doing actual duplication
 				else {
 					throw new RuntimeException("Deep duplication is not yet supported");
 				}
