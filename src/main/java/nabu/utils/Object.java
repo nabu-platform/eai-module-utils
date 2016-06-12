@@ -36,6 +36,34 @@ public class Object {
 		return properties;
 	}
 	
+	@WebResult(name = "properties")
+	@SuppressWarnings("rawtypes")
+	public java.lang.Object duplicate(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "deep") Boolean deep) {
+		if (object != null) {
+			ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : new BeanInstance(object);
+			return duplicateContent(content, deep != null && deep);
+		}
+		return null;
+	}
+	
+	private ComplexContent duplicateContent(ComplexContent content, boolean deep) {
+		ComplexContent duplicate = content.getType().newInstance();
+		for (Element<?> child : TypeUtils.getAllChildren(duplicate.getType())) {
+			java.lang.Object value = content.get(child.getName());
+			if (value != null) {
+				if (!deep) {
+					duplicate.set(child.getName(), value);
+				}
+				// we need to check if it's a complex type as well, if so we need to recursively duplicate it
+				// we also need to take care of lists and create new ones etc
+				else {
+					throw new RuntimeException("Deep duplication is not yet supported");
+				}
+			}
+		}
+		return duplicate;
+	}
+	
 	@WebResult(name = "first")
 	public java.lang.Object first(@WebParam(name = "options") List<java.lang.Object> options) {
 		if (options != null) {
