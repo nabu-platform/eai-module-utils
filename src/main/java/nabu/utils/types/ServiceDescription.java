@@ -6,9 +6,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "nodeDescription")
-@XmlType(propOrder = { "inputs", "outputs" })
+@XmlType(propOrder = { "inputs", "outputs", "inputName", "outputName" })
 public class ServiceDescription extends NodeDescription {
 	private List<ParameterDescription> inputs, outputs;
+	private String inputName, outputName;
 
 	public List<ParameterDescription> getInputs() {
 		return inputs;
@@ -23,5 +24,16 @@ public class ServiceDescription extends NodeDescription {
 	public void setOutputs(List<ParameterDescription> outputs) {
 		this.outputs = outputs;
 	}
-	
+	public String getInputName() {
+		return inputName;
+	}
+	public void setInputName(String inputName) {
+		this.inputName = inputName;
+	}
+	public String getOutputName() {
+		return outputName;
+	}
+	public void setOutputName(String outputName) {
+		this.outputName = outputName;
+	}
 }

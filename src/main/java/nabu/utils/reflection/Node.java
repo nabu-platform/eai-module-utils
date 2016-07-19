@@ -85,6 +85,8 @@ public class Node {
 		description.setArtifactClass(child.getNode().getArtifactClass().getName());
 		description.setLeaf(child.isLeaf());
 		DefinedService service = (DefinedService) child.getNode().getArtifact();
+		description.setInputName(service.getServiceInterface().getInputDefinition().getName());
+		description.setOutputName(service.getServiceInterface().getOutputDefinition().getName());
 		description.setInputs(toParameters(service.getServiceInterface().getInputDefinition()));
 		description.setOutputs(toParameters(service.getServiceInterface().getOutputDefinition()));
 		return description;
