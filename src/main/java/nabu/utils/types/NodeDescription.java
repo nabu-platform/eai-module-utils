@@ -1,12 +1,17 @@
 package nabu.utils.types;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "nodeDescription")
+@XmlType(propOrder = { "id", "type", "name", "artifactClass", "leaf", "nodes" })
 public class NodeDescription {
 
 	private String type, name, artifactClass, id;
 	private boolean leaf;
+	private List<NodeDescription> nodes;
 
 	public NodeDescription() {
 		// auto construct
@@ -53,6 +58,13 @@ public class NodeDescription {
 	}
 	public void setLeaf(boolean leaf) {
 		this.leaf = leaf;
+	}
+
+	public List<NodeDescription> getNodes() {
+		return nodes;
+	}
+	public void setNodes(List<NodeDescription> nodes) {
+		this.nodes = nodes;
 	}
 
 }
