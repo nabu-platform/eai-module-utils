@@ -20,7 +20,7 @@ public class Type {
 	
 	@WebResult(name = "typeInstance")
 	public Object newInstance(@WebParam(name = "typeId") String id) {
-		if (id != null) {
+		if (id == null) {
 			return null;
 		}
 		DefinedType type = DefinedTypeResolverFactory.getInstance().getResolver().resolve(id);
