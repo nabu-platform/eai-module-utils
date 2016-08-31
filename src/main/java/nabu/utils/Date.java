@@ -111,7 +111,7 @@ public class Date {
 
 	@WebResult(name = "string")
 	public String format(@WebParam(name = "date") java.util.Date value, @NotNull @WebParam(name = "properties") DateProperties properties) {
-		return properties.getFormatter().format(value);
+		return properties.getFormatter().format(value == null ? new java.util.Date() : value);
 	}
 	
 	@WebResult(name = "date")
