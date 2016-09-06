@@ -13,6 +13,8 @@ import javax.jws.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.nabu.eai.repository.EAIResourceRepository;
+
 @WebService
 public class Server {
 	
@@ -47,6 +49,11 @@ public class Server {
 	@WebResult(name = "host")
 	public String getHostName() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostName();
+	}
+	
+	@WebResult(name = "server")
+	public String getServerName() {
+		return EAIResourceRepository.getInstance().getName();
 	}
 	
 	public void sleep(@WebParam(name = "amount") long amount, @WebParam(name = "unit") TimeUnit timeUnit) {
