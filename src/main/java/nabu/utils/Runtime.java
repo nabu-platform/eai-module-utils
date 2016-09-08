@@ -7,6 +7,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,19 @@ public class Runtime {
 	@WebResult(name = "user")
 	public String getCurrentUser() {
 		return executionContext.getSecurityContext().getPrincipal() == null ? null : executionContext.getSecurityContext().getPrincipal().getName();
+	}
+	
+	@WebResult(name = "principal")
+	public Principal getCurrentPrincipal() {
+		return executionContext.getSecurityContext().getPrincipal();
+	}
+	
+	@WebResult(name = "token")
+	public Token getCurrentToken() {
+		if (executionContext.getSecurityContext().getPrincipal() instanceof Token) {
+			return (Token) executionContext.getSecurityContext().getPrincipal();
+		}
+		return null;
 	}
 	
 	@WebResult(name = "realm")
