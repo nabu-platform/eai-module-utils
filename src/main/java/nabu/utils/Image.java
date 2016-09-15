@@ -1,6 +1,8 @@
 package nabu.utils;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -121,6 +123,10 @@ public class Image {
 		}
 		BufferedImage resizedImage = new BufferedImage(width, height, image.getType());
 		Graphics2D graphics = resizedImage.createGraphics();
+		graphics.setComposite(AlphaComposite.Src);
+		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		graphics.drawImage(image, 0, 0, width, height, null);
 		graphics.dispose();
 		ImageWriter writer = writers.next();
