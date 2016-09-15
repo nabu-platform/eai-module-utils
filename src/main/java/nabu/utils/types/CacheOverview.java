@@ -6,15 +6,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "cache")
 public class CacheOverview {
-	private String serviceId;
+	private String cacheId;
 	private long currentCacheSize, maxCacheSize, maxEntrySize;
 	private List<CacheEntryOverview> entries;
 	
-	public String getServiceId() {
-		return serviceId;
+	public String getCacheId() {
+		return cacheId;
 	}
-	public void setServiceId(String serviceId) {
-		this.serviceId = serviceId;
+	public void setCacheId(String cacheId) {
+		this.cacheId = cacheId;
 	}
 	public long getCurrentCacheSize() {
 		return currentCacheSize;

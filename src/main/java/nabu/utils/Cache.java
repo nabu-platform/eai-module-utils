@@ -28,7 +28,7 @@ public class Cache {
 			for (String name : cacheProvider.getCaches()) {
 				be.nabu.libs.cache.api.Cache cache = cacheProvider.get(name);
 				CacheOverview cacheOverview = new CacheOverview();
-				cacheOverview.setServiceId(name);
+				cacheOverview.setCacheId(name);
 				if (cache instanceof LimitedCache) {
 					cacheOverview.setMaxCacheSize(((LimitedCache) cache).getMaxTotalSize());
 					cacheOverview.setCurrentCacheSize(((LimitedCache) cache).getCurrentSize());
@@ -51,22 +51,22 @@ public class Cache {
 		return cacheOverviews;
 	}
 	
-	public void prune(@WebParam(name = "serviceId") @NotNull String serviceId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(serviceId);
+	public void prune(@WebParam(name = "cacheId") @NotNull String cacheId) throws IOException {
+		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(cacheId);
 		if (cache != null) {
 			cache.prune();
 		}
 	}
 	
-	public void refresh(@WebParam(name = "serviceId") @NotNull String serviceId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(serviceId);
+	public void refresh(@WebParam(name = "cacheId") @NotNull String cacheId) throws IOException {
+		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(cacheId);
 		if (cache != null) {
 			cache.refresh();
 		}
 	}
 	
-	public void clear(@WebParam(name = "serviceId") @NotNull String serviceId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(serviceId);
+	public void clear(@WebParam(name = "cacheId") @NotNull String cacheId) throws IOException {
+		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(cacheId);
 		if (cache != null) {
 			cache.clear();
 		}
