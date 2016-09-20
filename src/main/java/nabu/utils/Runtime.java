@@ -31,25 +31,25 @@ public class Runtime {
 	
 	@WebResult(name = "user")
 	public String getCurrentUser() {
-		return executionContext.getSecurityContext().getPrincipal() == null ? null : executionContext.getSecurityContext().getPrincipal().getName();
+		return executionContext.getSecurityContext().getToken() == null ? null : executionContext.getSecurityContext().getToken().getName();
 	}
 	
 	@WebResult(name = "principal")
 	public Principal getCurrentPrincipal() {
-		return executionContext.getSecurityContext().getPrincipal();
+		return executionContext.getSecurityContext().getToken();
 	}
 	
 	@WebResult(name = "token")
 	public Token getCurrentToken() {
-		if (executionContext.getSecurityContext().getPrincipal() instanceof Token) {
-			return (Token) executionContext.getSecurityContext().getPrincipal();
+		if (executionContext.getSecurityContext().getToken() instanceof Token) {
+			return (Token) executionContext.getSecurityContext().getToken();
 		}
 		return null;
 	}
 	
 	@WebResult(name = "realm")
 	public String getCurrentRealm() {
-		return executionContext.getSecurityContext().getPrincipal() instanceof Token ? ((Token) executionContext.getSecurityContext().getPrincipal()).getRealm() : null;
+		return executionContext.getSecurityContext().getToken() instanceof Token ? ((Token) executionContext.getSecurityContext().getToken()).getRealm() : null;
 	}
 	
 	@WebResult(name = "service")

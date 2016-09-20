@@ -28,7 +28,7 @@ public class Resource {
 		if (uri == null) {
 			return null;
 		}
-		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getPrincipal());
+		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getToken());
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
 		}
@@ -40,7 +40,7 @@ public class Resource {
 	
 	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content) throws IOException {
 		if (uri != null || content != null) {
-			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, executionContext.getSecurityContext().getPrincipal());
+			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, executionContext.getSecurityContext().getToken());
 			try {
 				IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
 			}
@@ -52,7 +52,7 @@ public class Resource {
 	
 	public void mkdir(@WebParam(name = "uri") URI uri) throws IOException {
 		if (uri != null) {
-			ResourceUtils.mkdir(uri, executionContext.getSecurityContext().getPrincipal());
+			ResourceUtils.mkdir(uri, executionContext.getSecurityContext().getToken());
 		}
 	}
 }
