@@ -17,6 +17,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import nabu.utils.Date.ExtendedTimeUnit;
 import nabu.utils.types.Property;
 import be.nabu.libs.property.ValueUtils;
 import be.nabu.libs.property.api.Value;
@@ -149,7 +150,7 @@ public class Object {
 	}
 
 	@WebResult(name = "stub")
-	public java.lang.Object stub(@WebParam(name = "typeId") String id, @WebParam(name = "stubId") Integer identifier) {
+	public java.lang.Object stub(@WebParam(name = "typeId") String id, @WebParam(name = "stubId") String identifier, @WebParam(name = "iterations") Integer amountOfIterations, @WebParam(name = "increment") ExtendedTimeUnit increment, @WebParam(name = "multiplier") Double multiplier) {
 		if (id == null) {
 			return null;
 		}
@@ -158,11 +159,12 @@ public class Object {
 			throw new IllegalArgumentException("Type not found: " + id);
 		}
 		if (type instanceof ComplexType) {
+			Random random = new Random();
 			if (identifier == null) {
-				identifier = new Random().nextInt();
+				identifier = Integer.toString(random.nextInt());
 			}
 			ComplexContent content = ((ComplexType) type).newInstance();
-			stub(content, identifier);
+			stub(content, identifier, amountOfIterations == null ? 1 : amountOfIterations, increment == null ? ExtendedTimeUnit.DAYS : increment, multiplier == null ? 1000 : multiplier, random);
 			return content;
 		}
 		else if (type instanceof SimpleType) {
@@ -173,67 +175,79 @@ public class Object {
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void stub(ComplexContent content, int identifier) {
+	private void stub(ComplexContent content, String identifier, int amountOfIterations, ExtendedTimeUnit increment, double multiplier, Random random) {
 		for (Element<?> element : TypeUtils.getAllChildren(content.getType())) {
 			Type type = element.getType();
 			java.lang.String path = element.getName();
 			Value<Integer> maxOccurs = element.getProperty(MaxOccursProperty.getInstance());
 			// if we have a list, set the path
 			if (maxOccurs != null && maxOccurs.getValue() != null && !maxOccurs.getValue().equals(1)) {
-				path += "[0]";
-			}
-			if (type instanceof ComplexType) {
-				ComplexContent child = ((ComplexType) type).newInstance();
-				stub(child, identifier);
-				content.set(path, child);
-			}
-			else if (type instanceof SimpleType) {
-				List values = (List) ValueUtils.getValue(new EnumerationProperty(), element.getProperties());
-				if (values == null) {
-					values = (List) ValueUtils.getValue(new EnumerationProperty(), element.getType().getProperties());
+				for (int i = 0; i < amountOfIterations; i++) {
+					generateValue(content, identifier + "-" + i, amountOfIterations, increment, multiplier, element, type, path + "[" + i + "]", random, i);
 				}
-				// if it is enumerated, take a random enumeration value
-				if (values != null) {
-					content.set(path, values.get(new Random().nextInt(values.size())));
+			}
+			else {
+				generateValue(content, identifier, amountOfIterations, increment, multiplier, element, type, path, random, 0);
+			}
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void generateValue(ComplexContent content, String identifier, int amountOfIterations, ExtendedTimeUnit increment, double multiplier, Element<?> element, Type type, java.lang.String path, Random random, int iteration) {
+		if (type instanceof ComplexType) {
+			ComplexContent child = ((ComplexType) type).newInstance();
+			stub(child, identifier, amountOfIterations, increment, multiplier, random);
+			content.set(path, child);
+		}
+		else if (type instanceof SimpleType) {
+			List values = (List) ValueUtils.getValue(new EnumerationProperty(), element.getProperties());
+			if (values == null) {
+				values = (List) ValueUtils.getValue(new EnumerationProperty(), element.getType().getProperties());
+			}
+			// if it is enumerated, take a random enumeration value
+			if (values != null) {
+				content.set(path, values.get(new Random().nextInt(values.size())));
+			}
+			else {
+				Class<?> instanceClass = ((SimpleType<?>) type).getInstanceClass();
+				if (Number.class.isAssignableFrom(instanceClass) || BigInteger.class.isAssignableFrom(instanceClass) || BigDecimal.class.isAssignableFrom(instanceClass)) {
+					content.set(path, random.nextDouble() * multiplier);
 				}
-				else {
-					Class<?> instanceClass = ((SimpleType<?>) type).getInstanceClass();
-					if (Number.class.isAssignableFrom(instanceClass) || BigInteger.class.isAssignableFrom(instanceClass) || BigDecimal.class.isAssignableFrom(instanceClass)) {
-						content.set(path, identifier);
+				else if (java.util.Date.class.isAssignableFrom(instanceClass)) {
+					java.util.Date value = new java.util.Date();
+					if (iteration > 0) {
+						value = new nabu.utils.Date().increment(value, iteration, increment, TimeZone.getDefault());
 					}
-					else if (java.util.Date.class.isAssignableFrom(instanceClass)) {
-						content.set(path, new java.util.Date());
+					content.set(path, value);
+				}
+				else if (java.lang.String.class.isAssignableFrom(instanceClass)) {
+					content.set(path, element.getName() + "-" + identifier);
+				}
+				else if (java.lang.Boolean.class.isAssignableFrom(instanceClass)) {
+					content.set(path, true);
+				}
+				else if (byte[].class.isAssignableFrom(instanceClass)) {
+					content.set(path, (element.getName() + "-" + identifier).getBytes(Charset.forName("UTF-8")));
+				}
+				else if (java.io.InputStream.class.isAssignableFrom(instanceClass)) {
+					content.set(path, new ByteArrayInputStream((element.getName() + "-" + identifier).getBytes(Charset.forName("UTF-8"))));
+				}
+				else if (UUID.class.isAssignableFrom(instanceClass)) {
+					content.set(path, UUID.randomUUID());
+				}
+				else if (URI.class.isAssignableFrom(instanceClass)) {
+					try {
+						content.set(path, new URI("http://example.com/" + identifier));
 					}
-					else if (java.lang.String.class.isAssignableFrom(instanceClass)) {
-						content.set(path, element.getName() + identifier);
+					catch (URISyntaxException e) {
+						throw new RuntimeException(e);
 					}
-					else if (java.lang.Boolean.class.isAssignableFrom(instanceClass)) {
-						content.set(path, true);
-					}
-					else if (byte[].class.isAssignableFrom(instanceClass)) {
-						content.set(path, (element.getName() + identifier).getBytes(Charset.forName("UTF-8")));
-					}
-					else if (java.io.InputStream.class.isAssignableFrom(instanceClass)) {
-						content.set(path, new ByteArrayInputStream((element.getName() + identifier).getBytes(Charset.forName("UTF-8"))));
-					}
-					else if (UUID.class.isAssignableFrom(instanceClass)) {
-						content.set(path, UUID.randomUUID());
-					}
-					else if (URI.class.isAssignableFrom(instanceClass)) {
-						try {
-							content.set(path, new URI("http://example.com/" + identifier));
-						}
-						catch (URISyntaxException e) {
-							throw new RuntimeException(e);
-						}
-					}
-					else if (TimeZone.class.isAssignableFrom(instanceClass)) {
-						content.set(path, TimeZone.getDefault());
-					}
-					else if (Charset.class.isAssignableFrom(instanceClass)) {
-						content.set(path, Charset.defaultCharset());
-					}
+				}
+				else if (TimeZone.class.isAssignableFrom(instanceClass)) {
+					content.set(path, TimeZone.getDefault());
+				}
+				else if (Charset.class.isAssignableFrom(instanceClass)) {
+					content.set(path, Charset.defaultCharset());
 				}
 			}
 		}
