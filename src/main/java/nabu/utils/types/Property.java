@@ -4,39 +4,25 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.utils.KeyValuePairImpl;
 
 import java.lang.String;
 
 @XmlRootElement
 @XmlType(propOrder = { "key", "value" })
-public class Property implements KeyValuePair {
+public class Property extends KeyValuePairImpl {
 
-	private String key, value;
-	
 	public Property() {
 		// automatic creation
 	}
 	
 	public Property(String key, String value) {
-		this.key = key;
-		this.value = value;
+		super(key, value);
 	}
 
 	@NotNull
 	public String getKey() {
-		return key;
+		return super.getKey();
 	}
 
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
 }

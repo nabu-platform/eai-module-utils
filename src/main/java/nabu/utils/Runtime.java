@@ -7,13 +7,17 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import nabu.utils.types.ExceptionSummary;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
 import be.nabu.eai.repository.api.ModifiableServiceRuntimeTrackerProvider;
 import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
+import be.nabu.libs.authentication.api.Device;
 import be.nabu.libs.authentication.api.Token;
+import be.nabu.libs.authentication.api.principals.DevicePrincipal;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -41,8 +45,21 @@ public class Runtime {
 	
 	@WebResult(name = "token")
 	public Token getCurrentToken() {
-		if (executionContext.getSecurityContext().getToken() instanceof Token) {
-			return (Token) executionContext.getSecurityContext().getToken();
+		return executionContext.getSecurityContext().getToken();
+	}
+	
+	@WebResult(name = "device")
+	public Device getCurrentDevice() {
+		Token token = executionContext.getSecurityContext().getToken();
+		if (token != null && token instanceof DevicePrincipal) {
+			return ((DevicePrincipal) token).getDevice();
+		}
+		else if (token != null && token.getCredentials() != null && !token.getCredentials().isEmpty()) {
+			for (Principal credential : token.getCredentials()) {
+				if (credential instanceof DevicePrincipal) {
+					return ((DevicePrincipal) credential).getDevice();
+				}
+			}
 		}
 		return null;
 	}
@@ -138,5 +155,10 @@ public class Runtime {
 	@WebResult(name = "value")
 	public Object getContext(@WebParam(name = "key") String key) {
 		return ServiceRuntime.getRuntime().getContext().get(key);
+	}
+	
+	@WebResult(name = "summary")
+	public ExceptionSummary summarizeException(@WebParam(name = "exception") Exception exception) {
+		return ExceptionSummary.build(exception);
 	}
 }
