@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
 @WebService
 public class String {
@@ -43,7 +43,7 @@ public class String {
 	}
 	
 	@WebResult(name = "parts")
-	public List<java.lang.String> split(@WebParam(name = "string") java.lang.String string, @WebParam(name = "separator") java.lang.String separator) {
+	public List<java.lang.String> split(@WebParam(name = "string") java.lang.String string, @NotNull @WebParam(name = "separator") java.lang.String separator) {
 		return string == null ? null : new ArrayList<java.lang.String>(Arrays.asList(string.split(separator)));
 	}
 	

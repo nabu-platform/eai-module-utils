@@ -23,6 +23,7 @@ import be.nabu.libs.property.ValueUtils;
 import be.nabu.libs.property.api.Value;
 import be.nabu.libs.types.BaseTypeInstance;
 import be.nabu.libs.types.CollectionHandlerFactory;
+import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.TypeConverterFactory;
 import be.nabu.libs.types.TypeUtils;
@@ -53,6 +54,35 @@ public class Object {
 			toProperties(content, properties, null);
 		}
 		return properties;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "changed")
+	public boolean mapByKey(@WebParam(name = "from") java.lang.Object source, @WebParam(name = "into") java.lang.Object target, @WebParam(name = "includeNull") java.lang.Boolean includeNull) {
+		if (includeNull == null) {
+			includeNull = true;
+		}
+		ComplexContent sourceContent = source instanceof ComplexContent ? (ComplexContent) source : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(source);
+		ComplexContent targetContent = target instanceof ComplexContent ? (ComplexContent) target : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(target);
+	
+		boolean changed = false;
+		for (Element<?> element : TypeUtils.getAllChildren(targetContent.getType())) {
+			Element<?> sourceElement = sourceContent.getType().get(element.getName());
+			if (sourceElement != null) {
+				java.lang.Object newValue = sourceContent.get(element.getName());
+				if (newValue != null || includeNull || element.getType().isList(element.getProperties())) {
+					java.lang.Object oldValue = targetContent.get(element.getName());
+					if (oldValue == null || element.getType() instanceof SimpleType) {
+						targetContent.set(element.getName(), newValue);
+						changed = true;
+					}
+					else {
+						changed |= mapByKey(newValue, oldValue, includeNull);
+					}
+				}
+			}
+		}
+		return changed;
 	}
 	
 	@WebResult(name = "duplicate")
