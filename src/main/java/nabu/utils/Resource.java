@@ -37,6 +37,14 @@ public class Resource {
 		}
 		return IOUtils.toInputStream(new ResourceReadableContainer((ReadableResource) resolved));
 	}
+
+	@WebResult(name = "exists")
+	public boolean exists(@WebParam(name = "uri") URI uri) throws IOException {
+		if (uri == null) {
+			return false;
+		}
+		return ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getToken()) != null;
+	}
 	
 	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content) throws IOException {
 		if (uri != null || content != null) {
