@@ -64,4 +64,28 @@ public class String {
 		}
 		return builder.toString();
 	}
+	
+	@WebResult(name = "upper")
+	public java.lang.String upper(@WebParam(name = "string") java.lang.String string) {
+		return string == null ? null : string.toUpperCase();
+	}
+	
+	@WebResult(name = "lower")
+	public java.lang.String lower(@WebParam(name = "string") java.lang.String string) {
+		return string == null ? null : string.toLowerCase();
+	}
+	
+	@WebResult(name = "substring")
+	public java.lang.String substring(@WebParam(name = "string") java.lang.String string, @WebParam(name = "start") Integer start, @WebParam(name = "stop") Integer stop) {
+		if (string == null || (start == null && stop == null)) {
+			return string;
+		}
+		if (start == null) {
+			start = 0;
+		}
+		if (stop == null) {
+			stop = string.length();
+		}
+		return string.substring(start, stop);
+	}
 }
