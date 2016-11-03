@@ -25,4 +25,19 @@ public class Property extends KeyValuePairImpl {
 		return super.getKey();
 	}
 
+	@Override
+	public String getValue() {
+		return super.getValue();
+	}
+
+	@Override
+	public void setKey(String key) {
+		super.setKey(key);
+	}
+
+	@Override
+	public void setValue(String value) {
+		super.setValue(value);
+	}
+
 }
