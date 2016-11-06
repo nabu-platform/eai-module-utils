@@ -39,12 +39,26 @@ import be.nabu.libs.types.api.TypeConverter;
 import be.nabu.libs.types.java.BeanInstance;
 import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.validator.api.Validation;
+import be.nabu.libs.validator.api.Validator;
 
 @WebService
 public class Object {
 	
 	private TypeConverter converter = TypeConverterFactory.getInstance().getConverter();
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Validation<?>> validate(@WebParam(name = "object") java.lang.Object object) {
+		if (object == null) {
+			return null;
+		}
+		else if (!(object instanceof ComplexContent)) {
+			object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+		}
+		Validator validator = ((ComplexContent) object).getType().createValidator();
+		return validator.validate(object);
+	}
+	
 	@WebResult(name = "properties")
 	@SuppressWarnings("rawtypes")
 	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object) {
