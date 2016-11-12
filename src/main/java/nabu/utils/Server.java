@@ -56,6 +56,11 @@ public class Server {
 		return EAIResourceRepository.getInstance().getName();
 	}
 	
+	@WebResult(name = "group")
+	public String getServerGroup() {
+		return EAIResourceRepository.getInstance().getGroup();
+	}
+	
 	public void sleep(@WebParam(name = "amount") long amount, @WebParam(name = "unit") TimeUnit timeUnit) {
 		try {
 			Thread.sleep(timeUnit == null ? amount : TimeUnit.MILLISECONDS.convert(amount, timeUnit));
