@@ -46,12 +46,20 @@ public class List {
 		return list;
 	}
 	
-	@WebResult(name = "list")
+	@WebResult(name = "element")
 	public java.lang.Object get(@WebParam(name = "list") java.util.List<java.lang.Object> list, @NotNull @WebParam(name = "index") Integer index) {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
 		return list.get(index);
+	}
+	
+	@WebResult(name = "list")
+	public java.util.List<java.lang.Object> getAll(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "fromInclusive") Integer from, @WebParam(name = "toExclusive") Integer to) {
+		if (list == null) {
+			list = new ArrayList<java.lang.Object>();
+		}
+		return list.subList(from == null ? 0 : from, to == null ? list.size() : to);
 	}
 
 	@WebResult(name = "list")
