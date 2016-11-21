@@ -1,6 +1,7 @@
 package nabu.utils;
 
 import java.lang.String;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.net.InetAddress;
@@ -17,6 +18,16 @@ import be.nabu.eai.repository.EAIResourceRepository;
 
 @WebService
 public class Server {
+	
+	public static char [] simplePasswordCharacters = new char [] {
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+	};
+	
+	public static char [] complexPasswordCharacters = new char [] {
+		'$', '*', '?', '!', '{', '}', '§', '^', '@', '#', '&', '[', ']', '(', ')' 
+	};
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -44,6 +55,20 @@ public class Server {
 	@WebResult(name = "uuid")
 	public UUID uuid() {
 		return UUID.randomUUID();
+	}
+	
+	@WebResult(name = "password")
+	public String password(@WebParam(name = "length") Integer length) {
+		if (length == null) {
+			length = 8;
+		}
+		StringBuilder builder = new StringBuilder();
+		Random random = new Random();
+		for (int i = 0; i < length; i++) {
+			int nextInt = random.nextInt(simplePasswordCharacters.length);
+			builder.append(simplePasswordCharacters[nextInt]);
+		}
+		return builder.toString();
 	}
 	
 	@WebResult(name = "host")
