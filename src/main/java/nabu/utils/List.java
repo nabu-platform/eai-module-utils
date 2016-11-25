@@ -9,14 +9,26 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import be.nabu.eai.module.utils.CommonUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.pojo.POJOUtils;
+import be.nabu.libs.types.api.ComplexType;
+import be.nabu.libs.types.api.DefinedType;
 
 @WebService
 public class List {
 	
 	private ExecutionContext executionContext;
+	
+	public java.util.List<java.lang.Object> group(@WebParam(name = "list") java.util.List<java.lang.Object> instances, @NotNull @WebParam(name = "definition") java.lang.String name) {
+		// detect the fields at each level and group the current list by them, do type masking on the inner document
+		DefinedType resolve = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(name);
+		if (!(resolve instanceof ComplexType)) {
+			throw new IllegalArgumentException("Can not find complex type: " + name);
+		}
+		return CommonUtils.group(instances, (ComplexType) resolve);
+	}
 	
 	@WebResult(name = "contains")
 	public boolean contains(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
