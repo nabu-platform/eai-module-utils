@@ -19,4 +19,17 @@ public class Math {
 		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode).doubleValue();
 	}
 	
+	@WebResult(name = "sum")
+	public Double sum(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		double sum = 0;
+		for (Double value : values) {
+			if (value != null) {
+				sum += value;
+			}
+		}
+		return sum;
+	}
 }
