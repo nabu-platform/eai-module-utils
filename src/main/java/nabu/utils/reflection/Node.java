@@ -4,13 +4,19 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import be.nabu.eai.repository.EAIRepositoryUtils;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.Entry;
+import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.artifacts.api.RestartableArtifact;
+import be.nabu.libs.artifacts.api.StartableArtifact;
+import be.nabu.libs.artifacts.api.StoppableArtifact;
 import be.nabu.libs.property.api.Value;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.Service;
@@ -21,9 +27,11 @@ import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.properties.CommentProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.validator.api.Validation;
 import nabu.utils.types.NodeDescription;
 import nabu.utils.types.ParameterDescription;
 import nabu.utils.types.ServiceDescription;
+import nabu.utils.types.StartableNode;
 
 @WebService
 public class Node {
@@ -130,4 +138,85 @@ public class Node {
 		return description;
 	}
 	
+	@WebResult(name = "nodes")
+	public List<StartableNode> startables() {
+		List<StartableNode> nodes = new ArrayList<StartableNode>();
+		List<StartableArtifact> artifacts = EAIResourceRepository.getInstance().getArtifacts(StartableArtifact.class);
+		for (StartableArtifact artifact : artifacts) {
+			StartableNode node = new StartableNode();
+			node.setId(artifact.getId());
+			node.setStarted(artifact.isStarted());
+			node.setCanStop(artifact instanceof StoppableArtifact);
+			Map<String, List<Validation<?>>> messages = EAIResourceRepository.getInstance().getMessages(artifact.getId());
+			if (messages != null) {
+				node.setMessages(messages.get("start"));
+			}
+			if (artifact instanceof DefinedService) {
+				node.setType(DefinedService.class.getName());
+			}
+			else if (artifact instanceof DefinedType) {
+				node.setType(DefinedType.class.getName());
+			}
+			else {
+				node.setType(artifact.getClass().getName());
+			}
+			node.setArtifactClass(artifact.getClass().getName());
+			nodes.add(node);
+		}
+		return nodes;
+	}
+	
+	public void start(@WebParam(name = "nodeId") String nodeId) throws Exception {
+		if (nodeId != null) {
+			Artifact artifact = EAIResourceRepository.getInstance().resolve(nodeId);
+			if (artifact instanceof StartableArtifact && !((StartableArtifact) artifact).isStarted()) {
+				try {
+					((StartableArtifact) artifact).start();
+					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "start", true);
+				}
+				catch (Exception e) {
+					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "start", true, EAIRepositoryUtils.toValidation(e));
+					throw e;
+				}
+			}
+		}
+	}
+	
+	public void restart(@WebParam(name = "nodeId") String nodeId) throws Exception {
+		if (nodeId != null) {
+			Artifact artifact = EAIResourceRepository.getInstance().resolve(nodeId);
+			if (artifact instanceof RestartableArtifact) {
+				((RestartableArtifact) artifact).restart();
+			}
+			if (artifact instanceof StartableArtifact && artifact instanceof StoppableArtifact) {
+				try {
+					if (((StartableArtifact) artifact).isStarted()) {
+						((StoppableArtifact) artifact).stop();
+					}
+					((StartableArtifact) artifact).start();
+					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "start", true);
+				}
+				catch (Exception e) {
+					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "start", true, EAIRepositoryUtils.toValidation(e));
+					throw e;
+				}				
+			}
+		}
+	}
+	
+	public void stop(@WebParam(name = "nodeId") String nodeId) throws Exception {
+		if (nodeId != null) {
+			Artifact artifact = EAIResourceRepository.getInstance().resolve(nodeId);
+			if (artifact instanceof StoppableArtifact) {
+				try {
+					((StoppableArtifact) artifact).stop();
+					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "stop", true);
+				}
+				catch (Exception e) {
+					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "stop", true, EAIRepositoryUtils.toValidation(e));
+					throw e;
+				}
+			}
+		}
+	}
 }

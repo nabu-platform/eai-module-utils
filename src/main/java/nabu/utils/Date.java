@@ -170,7 +170,7 @@ public class Date {
 	}
 	
 	@WebResult(name = "diff")
-	public double diff(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "absolute") Boolean absolute, @WebParam(name = "timezone") TimeZone timezone) {
+	public double diff(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "absolute") Boolean absolute, @WebParam(name = "timezone") TimeZone timezone, @WebParam(name = "round") Boolean round) {
 		if (start == null) {
 			start = new java.util.Date();
 		}
@@ -184,7 +184,14 @@ public class Date {
 			timezone = TimeZone.getDefault();
 		}
 		double value = unit.diff(start, end, timezone);
-		return absolute != null && absolute ? java.lang.Math.abs(value) : value;
+		if (absolute != null && absolute) {
+			value = java.lang.Math.abs(value);
+		}
+		// always floor the value, if for example there is 1.8 years difference, we actually have 1 year and a number of months, not 2 years
+		if (round != null && round) {
+			value = value < 0 ? java.lang.Math.ceil(value) : java.lang.Math.floor(value);
+		}
+		return value;
 	}
 	
 	@WebResult(name = "timestamp")
