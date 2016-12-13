@@ -3,6 +3,7 @@ package nabu.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -180,7 +181,13 @@ public class List {
 		return initialCapacity == null ? new ArrayList<java.lang.Object>() : new ArrayList<java.lang.Object>(initialCapacity);
 	}
 	
+	@WebResult(name = "linkedList")
+	public java.util.List<java.lang.Object> newLinkedList() {
+		return new LinkedList<java.lang.Object>();
+	}
+	
 	@WebResult(name = "size")
+	@NotNull
 	public Integer size(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
 		return list == null ? 0 : list.size();
 	}

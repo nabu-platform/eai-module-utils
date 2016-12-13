@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
 import be.nabu.eai.repository.EAIRepositoryUtils;
 import be.nabu.eai.repository.EAIResourceRepository;
@@ -35,6 +36,18 @@ import nabu.utils.types.StartableNode;
 
 @WebService
 public class Node {
+	
+	@WebResult(name = "nodes")
+	public List<NodeDescription> listByType(@WebParam(name = "id") String id, @NotNull @WebParam(name = "type") String artifactClass) throws ClassNotFoundException {
+		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+		List<?> artifacts = EAIResourceRepository.getInstance().getArtifacts(Thread.currentThread().getContextClassLoader().loadClass(artifactClass));
+		for (Object artifact : artifacts) {
+			if (id == null || ((Artifact) artifact).getId().startsWith(id + ".")) {
+				nodes.add(getDescription(EAIResourceRepository.getInstance().getEntry(((Artifact) artifact).getId()), false));
+			}
+		}
+		return nodes;
+	}
 	
 	@WebResult(name = "nodes")
 	public List<NodeDescription> list(@WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {

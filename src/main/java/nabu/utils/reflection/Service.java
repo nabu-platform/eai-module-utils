@@ -9,10 +9,8 @@ import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
-import be.nabu.libs.types.TypeUtils;
 import be.nabu.libs.types.api.ComplexContent;
-import be.nabu.libs.types.api.Element;
-import be.nabu.libs.types.structure.Structure;
+import be.nabu.libs.types.mask.MaskedContent;
 
 @WebService
 public class Service {
@@ -47,14 +45,7 @@ public class Service {
 					throw new IllegalArgumentException("Can not wrap input");
 				}
 			}
-			serviceInput = Structure.cast((ComplexContent) input, service.getServiceInterface().getInputDefinition());
-			// if we could not cast it, map it manually
-			if (serviceInput == null) {
-				serviceInput = service.getServiceInterface().getInputDefinition().newInstance();
-				for (Element<?> child : TypeUtils.getAllChildren(service.getServiceInterface().getInputDefinition())) {
-					serviceInput.set(child.getName(), ((ComplexContent) input).get(child.getName()));
-				}
-			}
+			serviceInput = new MaskedContent((ComplexContent) input, service.getServiceInterface().getInputDefinition());
 		}
 		else {
 			serviceInput = service.getServiceInterface().getInputDefinition().newInstance();
