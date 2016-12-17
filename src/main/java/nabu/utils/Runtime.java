@@ -13,8 +13,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.nabu.eai.repository.api.ModifiableServiceRuntimeTrackerProvider;
-import be.nabu.eai.repository.util.FlatServiceTrackerWrapper;
 import be.nabu.libs.authentication.api.Device;
 import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.authentication.api.principals.DevicePrincipal;
@@ -122,25 +120,6 @@ public class Runtime {
 	public String getProcess() {
 		String rootService = getRootService();
 		return rootService == null ? null : rootService.replaceAll(PROCESS_REGEX, "$1");
-	}
-	
-	/**
-	 * Allows you to register a service that performs service tracking, it must implement the interface nabu.interfaces.Services.track
-	 */
-	public void registerServiceTracker(@WebParam(name = "serviceId") String serviceId, @WebParam(name = "servicesOnly") Boolean servicesOnly, @WebParam(name = "recursive") Boolean recursive) {
-		DefinedService resolved = executionContext.getServiceContext().getResolver(DefinedService.class).resolve(serviceId);
-		if (executionContext.getServiceContext().getServiceTrackerProvider() instanceof ModifiableServiceRuntimeTrackerProvider) {
-			FlatServiceTrackerWrapper runtimeTracker = new FlatServiceTrackerWrapper(resolved, executionContext);
-			runtimeTracker.setServicesOnly(servicesOnly == null ? false : servicesOnly);
-			((ModifiableServiceRuntimeTrackerProvider) executionContext.getServiceContext().getServiceTrackerProvider()).addTracker(
-				ServiceRuntime.getRuntime().getService(), 
-				runtimeTracker, 
-				recursive == null ? false : recursive
-			);
-		}
-		else {
-			throw new IllegalStateException("The current execution context does not allow addition of custom service trackers");
-		}
 	}
 	
 	public void setContext(@WebParam(name = "key") String key, @WebParam(name = "value") Object value) {
