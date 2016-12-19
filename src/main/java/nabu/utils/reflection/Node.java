@@ -151,30 +151,43 @@ public class Node {
 		return description;
 	}
 	
+	@WebResult(name = "node")
+	public StartableNode startable(@WebParam(name = "nodeId") String id) {
+		Artifact artifact = EAIResourceRepository.getInstance().resolve(id);
+		if (artifact instanceof StartableArtifact) {
+			return createStartable(artifact);
+		}
+		return null;
+	}
+
+	private StartableNode createStartable(Artifact artifact) {
+		StartableNode node = new StartableNode();
+		node.setId(artifact.getId());
+		node.setStarted(((StartableArtifact) artifact).isStarted());
+		node.setCanStop(artifact instanceof StoppableArtifact);
+		Map<String, List<Validation<?>>> messages = EAIResourceRepository.getInstance().getMessages(artifact.getId());
+		if (messages != null) {
+			node.setMessages(messages.get("start"));
+		}
+		if (artifact instanceof DefinedService) {
+			node.setType(DefinedService.class.getName());
+		}
+		else if (artifact instanceof DefinedType) {
+			node.setType(DefinedType.class.getName());
+		}
+		else {
+			node.setType(artifact.getClass().getName());
+		}
+		node.setArtifactClass(artifact.getClass().getName());
+		return node;
+	}
+	
 	@WebResult(name = "nodes")
 	public List<StartableNode> startables() {
 		List<StartableNode> nodes = new ArrayList<StartableNode>();
 		List<StartableArtifact> artifacts = EAIResourceRepository.getInstance().getArtifacts(StartableArtifact.class);
 		for (StartableArtifact artifact : artifacts) {
-			StartableNode node = new StartableNode();
-			node.setId(artifact.getId());
-			node.setStarted(artifact.isStarted());
-			node.setCanStop(artifact instanceof StoppableArtifact);
-			Map<String, List<Validation<?>>> messages = EAIResourceRepository.getInstance().getMessages(artifact.getId());
-			if (messages != null) {
-				node.setMessages(messages.get("start"));
-			}
-			if (artifact instanceof DefinedService) {
-				node.setType(DefinedService.class.getName());
-			}
-			else if (artifact instanceof DefinedType) {
-				node.setType(DefinedType.class.getName());
-			}
-			else {
-				node.setType(artifact.getClass().getName());
-			}
-			node.setArtifactClass(artifact.getClass().getName());
-			nodes.add(node);
+			nodes.add(createStartable(artifact));
 		}
 		return nodes;
 	}

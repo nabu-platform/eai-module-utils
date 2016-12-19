@@ -1,6 +1,8 @@
 package nabu.utils;
 
 import java.lang.String;
+import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -10,11 +12,14 @@ import java.net.UnknownHostException;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.utils.KeyValuePairImpl;
 
 @WebService
 public class Server {
@@ -93,5 +98,21 @@ public class Server {
 		catch (InterruptedException e) {
 			// continue
 		}
+	}
+	
+	@WebResult(name = "properties")
+	public java.util.List<KeyValuePair> properties() {
+		java.util.List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
+		Properties systemProperties = System.getProperties();
+		for (java.lang.Object key : systemProperties.keySet()) {
+			KeyValuePairImpl impl = new KeyValuePairImpl(key.toString(), systemProperties.getProperty(key.toString()));
+			properties.add(impl);
+		}
+		return properties;
+	}
+	
+	@WebResult(name = "value")
+	public java.lang.String property(@NotNull @WebParam(name = "key") java.lang.String key, @WebParam(name = "defaultValue") java.lang.String defaultValue) {
+		return System.getProperty(key, defaultValue);
 	}
 }
