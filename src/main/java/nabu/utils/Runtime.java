@@ -48,7 +48,11 @@ public class Runtime {
 	
 	@WebResult(name = "device")
 	public Device getCurrentDevice() {
-		Token token = executionContext.getSecurityContext().getToken();
+		return getDeviceFromToken(executionContext.getSecurityContext().getToken());
+	}
+
+	@WebResult(name = "device")
+	public Device getDeviceFromToken(@WebParam(name = "token") Token token) {
 		if (token != null && token instanceof DevicePrincipal) {
 			return ((DevicePrincipal) token).getDevice();
 		}
