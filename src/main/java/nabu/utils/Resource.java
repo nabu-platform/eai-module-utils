@@ -13,6 +13,7 @@ import be.nabu.libs.resources.ResourceFactory;
 import be.nabu.libs.resources.ResourceReadableContainer;
 import be.nabu.libs.resources.ResourceUtils;
 import be.nabu.libs.resources.api.ReadableResource;
+import be.nabu.libs.resources.api.ResourceProperties;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
@@ -22,6 +23,11 @@ import be.nabu.utils.io.api.WritableContainer;
 public class Resource {
 	
 	private ExecutionContext executionContext;
+	
+	@WebResult(name = "properties")
+	public ResourceProperties properties(@WebParam(name = "uri") URI uri) throws IOException {
+		return uri == null ? null : ResourceUtils.properties(ResourceFactory.getInstance().resolve(uri, null));
+	}
 	
 	@WebResult(name = "stream")
 	public InputStream read(@WebParam(name = "uri") URI uri) throws IOException {
