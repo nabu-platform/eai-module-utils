@@ -17,6 +17,9 @@ public class CommonUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static List<Object> group(List<Object> instances, ComplexType type) {
+		if (instances == null) {
+			return null;
+		}
 		List<String> fieldNames = new ArrayList<String>();
 		String groupName = null;
 		ComplexType groupType = null;
