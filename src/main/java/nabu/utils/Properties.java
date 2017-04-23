@@ -34,7 +34,9 @@ public class Properties {
 		ComplexContent newInstance = ((ComplexType) resolved).newInstance();
 		if (properties != null) {
 			for (KeyValuePair property : properties) {
-				newInstance.set(property.getKey().replace(".", "/"), property.getValue());
+				if (newInstance.getType().get(property.getKey()) != null) {
+					newInstance.set(property.getKey().replace(".", "/"), property.getValue());
+				}
 			}
 		}
 		return newInstance;
