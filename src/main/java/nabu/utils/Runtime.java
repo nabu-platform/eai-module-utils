@@ -15,7 +15,9 @@ import java.util.List;
 
 import be.nabu.libs.authentication.api.Device;
 import be.nabu.libs.authentication.api.Token;
+import be.nabu.libs.authentication.api.WrappedToken;
 import be.nabu.libs.authentication.api.principals.DevicePrincipal;
+import be.nabu.libs.authentication.impl.ImpersonateToken;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -36,10 +38,10 @@ public class Runtime {
 		return executionContext.getSecurityContext().getToken() == null ? null : executionContext.getSecurityContext().getToken().getName();
 	}
 	
-	@WebResult(name = "principal")
-	public Principal getCurrentPrincipal() {
-		return executionContext.getSecurityContext().getToken();
-	}
+//	@WebResult(name = "principal")
+//	public Principal getCurrentPrincipal() {
+//		return executionContext.getSecurityContext().getToken();
+//	}
 	
 	@WebResult(name = "token")
 	public Token getCurrentToken() {
@@ -50,20 +52,34 @@ public class Runtime {
 	public Device getCurrentDevice() {
 		return getDeviceFromToken(executionContext.getSecurityContext().getToken());
 	}
+	
+	@WebResult(name = "token")
+	public Token unwrapToken(@WebParam(name = "token") Token token) {
+		return token instanceof WrappedToken ? ((WrappedToken) token).getOriginalToken() : null;
+	}
+	
+	@WebResult(name = "token")
+	public Token wrapToken(@WebParam(name = "token") Token originalToken, @WebParam(name = "name") String name, @WebParam(name = "realm") String realm) {
+		return new ImpersonateToken(originalToken, realm, name);
+	}
 
 	@WebResult(name = "device")
 	public Device getDeviceFromToken(@WebParam(name = "token") Token token) {
+		Device device = null;
 		if (token != null && token instanceof DevicePrincipal) {
-			return ((DevicePrincipal) token).getDevice();
+			device = ((DevicePrincipal) token).getDevice();
 		}
-		else if (token != null && token.getCredentials() != null && !token.getCredentials().isEmpty()) {
+		if (device == null && token != null && token.getCredentials() != null && !token.getCredentials().isEmpty()) {
 			for (Principal credential : token.getCredentials()) {
 				if (credential instanceof DevicePrincipal) {
-					return ((DevicePrincipal) credential).getDevice();
+					device = ((DevicePrincipal) credential).getDevice();
+					if (device != null) {
+						break;
+					}
 				}
 			}
 		}
-		return null;
+		return device;
 	}
 	
 	@WebResult(name = "realm")
