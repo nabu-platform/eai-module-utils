@@ -22,6 +22,7 @@ import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
+import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
 
 @WebService
 public class Runtime {
@@ -159,5 +160,32 @@ public class Runtime {
 	@WebResult(name = "summary")
 	public ExceptionSummary summarizeException(@WebParam(name = "exception") Exception exception) {
 		return ExceptionSummary.build(exception);
+	}
+	
+	@WebResult(name = "pipeline")
+	public Object getPipeline(@WebParam(name = "offset") Integer offset, @WebParam(name = "serviceId") String serviceId) {
+		// if you look with a service filter, you want to find the first hit
+		// if you look without, you want to skip at least the runtime for this java service
+		if (offset == null) {
+			offset = 1;
+		}
+		// you will set an offset of 0 if you want to find the first instance of a given service, but because of the way the loop works, we need 1
+		// this also works if you don't have a service filter, we want to go up x amount of runtimes, and at least one because that is this java service
+		else {
+			offset++;
+		}
+		ServiceRuntime runtime = ServiceRuntime.getRuntime();
+		while (runtime != null && offset > 0) {
+			runtime = runtime.getParent();
+			if (serviceId != null) {
+				if (runtime.getService() instanceof DefinedService && ((DefinedService) runtime.getService()).getId().equals(serviceId)) {
+					offset--;
+				}
+			}
+			else {
+				offset--;
+			}
+		}
+		return runtime.getServiceInstance() instanceof ServiceInstanceWithPipeline ? ((ServiceInstanceWithPipeline) runtime.getServiceInstance()).getPipeline() : null;
 	}
 }

@@ -1,7 +1,9 @@
 package nabu.utils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,5 +89,10 @@ public class String {
 			stop = string.length();
 		}
 		return string.substring(start, stop);
+	}
+	
+	@WebResult(name = "bytes")
+	public byte[] fromHexString(@WebParam(name = "hexString") java.lang.String string) throws IOException {
+		return new BigInteger(string, 16).toByteArray();
 	}
 }

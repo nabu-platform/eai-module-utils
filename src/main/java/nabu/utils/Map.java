@@ -1,10 +1,11 @@
-package nabu.utils;
+	package nabu.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.lang.String;
 import java.lang.Object;
 
@@ -17,6 +18,12 @@ import nabu.utils.types.Property;
 
 @WebService
 public class Map {
+	
+	public enum MapOrder {
+		NONE,
+		INSERTION,
+		NATURAL
+	}
 	
 	@WebResult(name = "properties")
 	public List<KeyValuePair> toProperties(@WebParam(name = "map") java.util.Map<String, String> map) {
@@ -38,8 +45,14 @@ public class Map {
 	}
 	
 	@WebResult(name = "map")
-	public java.util.Map<String, Object> create(@WebParam(name = "respectOrder") Boolean respectOrder) {
-		return respectOrder != null && respectOrder ? new LinkedHashMap<String, Object>() : new HashMap<String, Object>();
+	public java.util.Map<String, Object> create(@WebParam(name = "order") MapOrder order) {
+		if (order == null || order == MapOrder.NONE) {
+			return new HashMap<String, Object>();
+		}
+		else if (order == MapOrder.INSERTION) {
+			return new LinkedHashMap<String, Object>();
+		}
+		return new TreeMap<String, Object>();
 	}
 	
 	@WebResult(name = "keys")
