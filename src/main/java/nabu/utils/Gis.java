@@ -97,4 +97,37 @@ public class Gis {
 	private double haversine(double theta) {
 		return sin(theta / 2) * sin(theta / 2); 
 	}
+	
+	@WebResult(name = "coordinate")
+	public Coordinate convertLambert72(@WebParam(name = "x") double x, @WebParam(name = "y") double y) {
+		double n = 0.77164219;
+		double F = 1.81329763;
+		double thetaFudge = 0.00014204;
+		double e = 0.08199189;
+		double a = 6378388.0;
+		double xDiff = 149910.0;
+		double yDiff = 5400150.0;
+
+		double theta0 = 0.07604294;
+
+		double xReal = xDiff - x;
+		double yReal = yDiff - y;
+
+		double rho = sqrt((xReal * xReal) + (yReal * yReal));
+		double theta = atan(xReal / (-yReal));
+
+		double pi = 3.141592653589793238462643383279;
+
+		double newLongitude = (theta0 + (theta + thetaFudge) / n) * 180 / pi;
+		double newLatitude = 0.0;
+
+		
+		for (int i = 0; i < 5; i++) {
+			newLatitude = 2.0 * atan(pow((F * a / rho), (1.0 / n)) * pow(((1.0 + e * sin(newLatitude)) / (1.0 - e * sin(newLatitude))), (e / 2.0))) - (pi / 2.0);
+		}
+
+		newLatitude = newLatitude * (180.0 / pi);
+
+		return new Coordinate(newLongitude, newLatitude);
+	}
 }

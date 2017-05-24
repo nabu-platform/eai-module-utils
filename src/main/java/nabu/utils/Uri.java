@@ -19,12 +19,12 @@ public class Uri {
 	}
 
 	@WebResult(name = "uri")
-	public String encodeUri(@WebParam(name = "uri") String uri) {
-		return URIUtils.encodeURI(uri);
+	public String encodeUri(@WebParam(name = "uri") String uri, @WebParam(name = "includeEncoded") Boolean includeEncoded) {
+		return URIUtils.encodeURI(uri, includeEncoded == null ? true : includeEncoded);
 	}
 	
 	@WebResult(name = "component")
-	public String encodeUriComponent(@WebParam(name = "component") String component) {
-		return URIUtils.encodeURIComponent(component);
+	public String encodeUriComponent(@WebParam(name = "component") String component, @WebParam(name = "includeEncoded") Boolean includeEncoded) {
+		return URIUtils.encodeURIComponent(component, includeEncoded == null ? true : includeEncoded);
 	}
 }
