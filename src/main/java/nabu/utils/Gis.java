@@ -128,6 +128,6 @@ public class Gis {
 
 		newLatitude = newLatitude * (180.0 / pi);
 
-		return new Coordinate(newLongitude, newLatitude);
+		return new Coordinate(newLatitude, newLongitude);
 	}
 }
