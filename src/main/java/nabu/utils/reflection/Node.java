@@ -38,6 +38,32 @@ import nabu.utils.types.StartableNode;
 public class Node {
 	
 	@WebResult(name = "nodes")
+	public List<NodeDescription> references(@NotNull @WebParam(name = "id") String id) {
+		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+		for (String child : EAIResourceRepository.getInstance().getReferences(id)) {
+			Entry entry = EAIResourceRepository.getInstance().getEntry(child);
+			if (entry != null) {
+				NodeDescription description = getDescription(entry, false);
+				nodes.add(description); 
+			}
+		}
+		return nodes;
+	}
+	
+	@WebResult(name = "nodes")
+	public List<NodeDescription> dependencies(@NotNull @WebParam(name = "id") String id) {
+		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+		for (String child : EAIResourceRepository.getInstance().getDependencies(id)) {
+			Entry entry = EAIResourceRepository.getInstance().getEntry(child);
+			if (entry != null) {
+				NodeDescription description = getDescription(entry, false);
+				nodes.add(description); 
+			}
+		}
+		return nodes;
+	}
+	
+	@WebResult(name = "nodes")
 	public List<NodeDescription> listByType(@WebParam(name = "id") String id, @NotNull @WebParam(name = "type") String artifactClass) throws ClassNotFoundException {
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
 		List<?> artifacts = EAIResourceRepository.getInstance().getArtifacts(Thread.currentThread().getContextClassLoader().loadClass(artifactClass));
@@ -62,6 +88,14 @@ public class Node {
 			}
 		}
 		return nodes;
+	}
+	
+	@WebResult(name = "node")
+	public NodeDescription get(@WebParam(name = "id") String id) {
+		Entry entry = id == null 
+			? EAIResourceRepository.getInstance().getRoot()
+			: EAIResourceRepository.getInstance().getEntry(id);
+		return getDescription(entry, false);
 	}
 	
 	@WebResult(name = "services")
