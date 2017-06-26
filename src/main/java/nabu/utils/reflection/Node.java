@@ -66,10 +66,19 @@ public class Node {
 	@WebResult(name = "nodes")
 	public List<NodeDescription> listByType(@WebParam(name = "id") String id, @NotNull @WebParam(name = "type") String artifactClass) throws ClassNotFoundException {
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
-		List<?> artifacts = EAIResourceRepository.getInstance().getArtifacts(Thread.currentThread().getContextClassLoader().loadClass(artifactClass));
-		for (Object artifact : artifacts) {
-			if (id == null || ((Artifact) artifact).getId().startsWith(id + ".")) {
-				nodes.add(getDescription(EAIResourceRepository.getInstance().getEntry(((Artifact) artifact).getId()), false));
+		Class<?> loadClass = null;
+		try {
+			loadClass = Thread.currentThread().getContextClassLoader().loadClass(artifactClass);
+		}
+		catch (Exception e) {
+			// this should not fail if for example the type does not exist, it should simply return nothing
+		}
+		if (loadClass != null) {
+			List<?> artifacts = EAIResourceRepository.getInstance().getArtifacts(loadClass);
+			for (Object artifact : artifacts) {
+				if (id == null || ((Artifact) artifact).getId().startsWith(id + ".")) {
+					nodes.add(getDescription(EAIResourceRepository.getInstance().getEntry(((Artifact) artifact).getId()), false));
+				}
 			}
 		}
 		return nodes;
