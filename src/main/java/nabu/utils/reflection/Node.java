@@ -149,6 +149,12 @@ public class Node {
 		description.setArtifactClass(child.getNode().getArtifactClass().getName());
 		description.setLeaf(child.isLeaf());
 		DefinedService service = (DefinedService) child.getNode().getArtifact();
+		if (service == null) {
+			throw new RuntimeException("Could not get service from entry: " + child.getId());
+		}
+		else if (service.getServiceInterface() == null) {
+			throw new RuntimeException("The service '" + service.getId() + "' has no interface");
+		}
 		description.setInputName(service.getServiceInterface().getInputDefinition().getName());
 		description.setOutputName(service.getServiceInterface().getOutputDefinition().getName());
 		description.setInputs(toParameters(service.getServiceInterface().getInputDefinition()));
