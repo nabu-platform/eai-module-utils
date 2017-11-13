@@ -100,6 +100,7 @@ public class Date {
 	}
 	
 	@WebResult(name = "date")
+	@NotNull
 	public java.util.Date now() {
 		return new java.util.Date();
 	}

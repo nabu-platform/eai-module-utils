@@ -12,6 +12,7 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
@@ -21,6 +22,22 @@ import be.nabu.libs.types.api.KeyValuePair;
 public class Properties {
 	
 	private ExecutionContext executionContext;
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "changed")
+	public boolean mapToObject(@NotNull @WebParam(name = "into") Object target, @WebParam(name = "properties") List<KeyValuePair> properties) {
+		boolean changed = false;
+		ComplexContent targetContent = target instanceof ComplexContent ? (ComplexContent) target : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(target);
+		if (properties != null) {
+			for (KeyValuePair pair : properties) {
+				if (targetContent.getType().get(pair.getKey()) != null) {
+					targetContent.set(pair.getKey(), pair.getValue());
+					changed = true;
+				}
+			}
+		}
+		return changed;
+	}
 	
 	@WebResult(name = "object")
 	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<KeyValuePair> properties) {

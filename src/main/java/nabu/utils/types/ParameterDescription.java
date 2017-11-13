@@ -1,18 +1,20 @@
 package nabu.utils.types;
 
 public class ParameterDescription {
-	private String name, type, description;
-	private boolean isList;
+	private String name, type, typeName, description;
+	private boolean isList, isOptional;
 	
 	public ParameterDescription() {
 		// auto construct
 	}
 
-	public ParameterDescription(String name, String type, String description, boolean isList) {
+	public ParameterDescription(String name, String type, String typeName, String description, boolean isList, boolean isOptional) {
 		this.name = name;
 		this.type = type;
+		this.typeName = typeName;
 		this.description = description;
 		this.isList = isList;
+		this.isOptional = isOptional;
 	}
 
 	public String getName() {
@@ -38,5 +40,18 @@ public class ParameterDescription {
 	}
 	public void setList(boolean isList) {
 		this.isList = isList;
+	}
+	public boolean isOptional() {
+		return isOptional;
+	}
+	public void setOptional(boolean isOptional) {
+		this.isOptional = isOptional;
+	}
+	public String getTypeName() {
+		return typeName;
+	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
 	}
 }

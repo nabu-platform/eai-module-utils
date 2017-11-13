@@ -72,7 +72,7 @@ public class Object {
 	
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "changed")
-	public boolean mapByKey(@WebParam(name = "from") java.lang.Object source, @WebParam(name = "into") java.lang.Object target, @WebParam(name = "includeNull") java.lang.Boolean includeNull) {
+	public boolean mapByKey(@WebParam(name = "from") java.lang.Object source, @WebParam(name = "into") java.lang.Object target, @WebParam(name = "includeNull") java.lang.Boolean includeNull, @WebParam(name = "ignoredFields") List<java.lang.String> ignoredFields) {
 		if (includeNull == null) {
 			includeNull = true;
 		}
@@ -82,16 +82,21 @@ public class Object {
 		boolean changed = false;
 		for (Element<?> element : TypeUtils.getAllChildren(targetContent.getType())) {
 			Element<?> sourceElement = sourceContent.getType().get(element.getName());
-			if (sourceElement != null) {
+			if (sourceElement != null && (ignoredFields == null || !ignoredFields.contains(element.getName()))) {
 				java.lang.Object newValue = sourceContent.get(element.getName());
 				if (newValue != null || includeNull || element.getType().isList(element.getProperties())) {
 					java.lang.Object oldValue = targetContent.get(element.getName());
 					if (oldValue == null || element.getType() instanceof SimpleType) {
 						targetContent.set(element.getName(), newValue);
-						changed = true;
+						// this will make sure the conversions that are necessary have been applied
+						java.lang.Object setNewValue = targetContent.get(element.getName());
+						// check if we actually changed the new value
+						if (newValue == null && setNewValue != null || newValue != null && !newValue.equals(setNewValue)) {
+							changed = true;
+						}
 					}
 					else {
-						changed |= mapByKey(newValue, oldValue, includeNull);
+						changed |= mapByKey(newValue, oldValue, includeNull, ignoredFields);
 					}
 				}
 			}

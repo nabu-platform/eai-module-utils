@@ -54,11 +54,13 @@ public class Runtime {
 		return getDeviceFromToken(executionContext.getSecurityContext().getToken());
 	}
 	
+	@Deprecated
 	@WebResult(name = "token")
 	public Token unwrapToken(@WebParam(name = "token") Token token) {
 		return token instanceof WrappedToken ? ((WrappedToken) token).getOriginalToken() : null;
 	}
 	
+	@Deprecated
 	@WebResult(name = "token")
 	public Token wrapToken(@WebParam(name = "token") Token originalToken, @WebParam(name = "name") String name, @WebParam(name = "realm") String realm) {
 		return new ImpersonateToken(originalToken, realm, name);

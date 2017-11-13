@@ -58,11 +58,13 @@ public class Server {
 	}
 
 	@WebResult(name = "uuid")
+	@NotNull
 	public UUID uuid() {
 		return UUID.randomUUID();
 	}
 	
 	@WebResult(name = "password")
+	@NotNull
 	public String password(@WebParam(name = "length") Integer length) {
 		if (length == null) {
 			length = 8;
@@ -77,6 +79,7 @@ public class Server {
 	}
 	
 	@WebResult(name = "host")
+	@NotNull
 	public String getHostName() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostName();
 	}

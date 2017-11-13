@@ -28,6 +28,7 @@ import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.properties.CommentProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.types.properties.MinOccursProperty;
 import be.nabu.libs.validator.api.Validation;
 import nabu.utils.types.NodeDescription;
 import nabu.utils.types.ParameterDescription;
@@ -162,14 +163,17 @@ public class Node {
 		return description;
 	}
 	
-	private static List<ParameterDescription> toParameters(ComplexType type) {
+	public static List<ParameterDescription> toParameters(ComplexType type) {
 		List<ParameterDescription> parameters = new ArrayList<ParameterDescription>();
 		for (Element<?> element : TypeUtils.getAllChildren(type)) {
 			Value<Integer> maxOccurs = element.getProperty(MaxOccursProperty.getInstance());
+			Value<Integer> minOccurs = element.getProperty(MinOccursProperty.getInstance());
 			Value<String> comment = element.getProperty(CommentProperty.getInstance());
-			parameters.add(new ParameterDescription(element.getName(), element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null, 
+			parameters.add(new ParameterDescription(element.getName(), element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
+				element.getType().getName(element.getProperties()),
 				comment == null ? null : comment.getValue(),
-				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1));
+				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1,
+				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0));
 		}
 		return parameters;
 	}

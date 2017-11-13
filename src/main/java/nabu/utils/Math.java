@@ -15,7 +15,7 @@ public class Math {
 		if (value == null) {
 			return null;
 		}
-		BigDecimal bigDecimal = new BigDecimal(value);
+		BigDecimal bigDecimal = BigDecimal.valueOf(value);
 		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode).doubleValue();
 	}
 	

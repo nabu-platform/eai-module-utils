@@ -95,4 +95,12 @@ public class String {
 	public byte[] fromHexString(@WebParam(name = "hexString") java.lang.String string) throws IOException {
 		return new BigInteger(string, 16).toByteArray();
 	}
+	
+	@WebResult(name = "formatted")
+	public java.lang.String format(@WebParam(name = "template") java.lang.String template, @WebParam(name = "parameters") List<java.lang.Object> parameters) {
+		if (template == null) {
+			return null;
+		}
+		return java.lang.String.format(template, parameters == null ? new Object[0] : parameters.toArray());
+	}
 }
