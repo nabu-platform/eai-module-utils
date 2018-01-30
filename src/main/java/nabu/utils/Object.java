@@ -73,6 +73,9 @@ public class Object {
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "changed")
 	public boolean mapByKey(@WebParam(name = "from") java.lang.Object source, @WebParam(name = "into") java.lang.Object target, @WebParam(name = "includeNull") java.lang.Boolean includeNull, @WebParam(name = "ignoredFields") List<java.lang.String> ignoredFields) {
+		if (target == null || source == null) {
+			return false;
+		}
 		if (includeNull == null) {
 			includeNull = true;
 		}
@@ -87,11 +90,11 @@ public class Object {
 				if (newValue != null || includeNull || element.getType().isList(element.getProperties())) {
 					java.lang.Object oldValue = targetContent.get(element.getName());
 					if (oldValue == null || element.getType() instanceof SimpleType) {
-						targetContent.set(element.getName(), newValue);
 						// this will make sure the conversions that are necessary have been applied
 						java.lang.Object setNewValue = targetContent.get(element.getName());
+						targetContent.set(element.getName(), newValue);
 						// check if we actually changed the new value
-						if (newValue == null && setNewValue != null || newValue != null && !newValue.equals(setNewValue)) {
+						if ((newValue == null && setNewValue != null) || (newValue != null && !newValue.equals(setNewValue))) {
 							changed = true;
 						}
 					}
@@ -301,4 +304,5 @@ public class Object {
 			}
 		}
 	}
+	
 }

@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -13,6 +14,7 @@ import be.nabu.libs.resources.ResourceFactory;
 import be.nabu.libs.resources.ResourceReadableContainer;
 import be.nabu.libs.resources.ResourceUtils;
 import be.nabu.libs.resources.api.ReadableResource;
+import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.resources.api.ResourceProperties;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.io.IOUtils;
@@ -27,6 +29,21 @@ public class Resource {
 	@WebResult(name = "properties")
 	public ResourceProperties properties(@WebParam(name = "uri") URI uri) throws IOException {
 		return uri == null ? null : ResourceUtils.properties(ResourceFactory.getInstance().resolve(uri, null));
+	}
+	
+	@WebResult(name = "children")
+	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri) throws IOException {
+		if (uri == null) {
+			return null;
+		}
+		java.util.List<ResourceProperties> list = new ArrayList<ResourceProperties>();
+		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, null);
+		if (resolved instanceof ResourceContainer) {
+			for (be.nabu.libs.resources.api.Resource child : (ResourceContainer<?>) resolved) {
+				list.add(ResourceUtils.properties(child));
+			}
+		}
+		return list;
 	}
 	
 	@WebResult(name = "stream")

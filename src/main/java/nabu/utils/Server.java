@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.services.ServiceRuntime;
+import be.nabu.libs.services.ServiceUtils;
+import be.nabu.libs.services.api.DefinedService;
+import be.nabu.libs.services.api.Service;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
 
@@ -34,25 +38,71 @@ public class Server {
 		'$', '*', '?', '!', '{', '}', '§', '^', '@', '#', '&', '[', ']', '(', ')' 
 	};
 	
+	public enum LogLevel {
+		ERROR,
+		WARN,
+		INFO,
+		DEBUG
+	}
+	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
-	public void log(@WebParam(name = "message") String message, @WebParam(name = "logger") String loggerName, @WebParam(name = "exception") Exception exception) {
+	public void log(@WebParam(name = "message") String message, @WebParam(name = "logger") String loggerName, @WebParam(name = "level") LogLevel level, @WebParam(name = "exception") Exception exception) {
+		if (message == null && exception != null) {
+			message = exception.getMessage();
+			if (message == null) {
+				message = "An unknown error has occured";
+			}
+		}
 		if (message != null) {
-			if (loggerName != null) {
-				if (exception != null) {
-					LoggerFactory.getLogger(loggerName).error(message, exception);
-				}
-				else {
-					LoggerFactory.getLogger(loggerName).info(message);
+			if (level == null) {
+				level = exception == null ? LogLevel.INFO : LogLevel.ERROR;
+			}
+			if (loggerName == null) {
+				ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
+				while (runtime != null) {
+					Service unwrap = ServiceUtils.unwrap(runtime.getService());
+					if (unwrap instanceof DefinedService) {
+						loggerName = ((DefinedService) unwrap).getId();
+						break;
+					}
+					runtime = runtime.getParent();
 				}
 			}
-			else {
-				if (exception != null) {
-					logger.error(message, exception);
-				}
-				else {
-					logger.info(message);
-				}
+			Logger logger = loggerName == null ? this.logger : LoggerFactory.getLogger(loggerName);
+			switch(level) {
+				case DEBUG: 
+					if (exception != null) {
+						logger.debug(message, exception);
+					}
+					else {
+						logger.debug(message);
+					}
+				break;
+				case INFO: 
+					if (exception != null) {
+						logger.info(message, exception);
+					}
+					else {
+						logger.info(message);
+					}
+				break;
+				case WARN: 
+					if (exception != null) {
+						logger.warn(message, exception);
+					}
+					else {
+						logger.warn(message);
+					}
+				break;
+				case ERROR: 
+					if (exception != null) {
+						logger.error(message, exception);
+					}
+					else {
+						logger.error(message);
+					}
+				break;
 			}
 		}
 	}
@@ -117,5 +167,9 @@ public class Server {
 	@WebResult(name = "value")
 	public java.lang.String property(@NotNull @WebParam(name = "key") java.lang.String key, @WebParam(name = "defaultValue") java.lang.String defaultValue) {
 		return System.getProperty(key, defaultValue);
+	}
+	
+	public void setProperty(@NotNull @WebParam(name = "key") java.lang.String key, @WebParam(name = "value") java.lang.String value) {
+		System.setProperty(key, value);
 	}
 }

@@ -17,7 +17,7 @@ public class Token {
 	
 	@WebResult(name = "token")
 	public be.nabu.libs.authentication.api.Token newSystemToken(@WebParam(name = "realm") java.lang.String realm, @WebParam(name = "name") java.lang.String name) {
-		if (realm == null && name.equals("root")) {
+		if (realm == null && (name == null || name.equals("root"))) {
 			return SystemPrincipal.ROOT;
 		}
 		else {

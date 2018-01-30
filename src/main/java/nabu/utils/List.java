@@ -1,8 +1,10 @@
 package nabu.utils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.jws.WebParam;
@@ -11,9 +13,17 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import be.nabu.eai.module.utils.CommonUtils;
+import be.nabu.libs.converter.ConverterFactory;
+import be.nabu.libs.evaluator.EvaluationException;
+import be.nabu.libs.evaluator.PathAnalyzer;
+import be.nabu.libs.evaluator.QueryParser;
+import be.nabu.libs.evaluator.types.api.TypeOperation;
+import be.nabu.libs.evaluator.types.operations.TypesOperationProvider;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.pojo.POJOUtils;
+import be.nabu.libs.types.ComplexContentWrapperFactory;
+import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
 
@@ -29,6 +39,47 @@ public class List {
 			throw new IllegalArgumentException("Can not find complex type: " + name);
 		}
 		return CommonUtils.group(instances, (ComplexType) resolve);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "hashed")
+	public java.util.Map<java.lang.String, java.util.List<java.lang.Object>> hash(@WebParam(name = "objects") java.util.List<java.lang.Object> documents, @NotNull @WebParam(name = "queries") java.util.List<java.lang.String> keys) throws ParseException, EvaluationException {
+		java.util.Map<java.lang.String, java.util.List<java.lang.Object>> results = new HashMap<java.lang.String, java.util.List<java.lang.Object>>();
+		if (documents != null) {
+			java.util.List<TypeOperation> operations = new ArrayList<TypeOperation>();
+			for (java.lang.String key : keys) {
+				operations.add((TypeOperation) new PathAnalyzer<ComplexContent>(new TypesOperationProvider()).analyze(QueryParser.getInstance().parse(key)));
+			}
+			for (java.lang.Object document : documents) {
+				if (document != null) {
+					ComplexContent content = document instanceof ComplexContent 
+						? (ComplexContent) document
+						: ComplexContentWrapperFactory.getInstance().getWrapper().wrap(document);
+						
+					java.lang.String hash = null;
+					for (TypeOperation operation : operations) {
+						java.lang.Object evaluated = operation.evaluate(content);
+						// properly convert
+						if (evaluated != null && !(evaluated instanceof java.lang.String)) {
+							java.lang.String stringified = ConverterFactory.getInstance().getConverter().convert(evaluated, java.lang.String.class);
+							evaluated = stringified == null ? evaluated.toString() : stringified;
+						}
+						if (hash == null) {
+							hash = "";
+						}
+						else {
+							hash += ".";
+						}
+						hash += evaluated;
+					}
+					if (!results.containsKey(hash)) {
+						results.put(hash, new ArrayList<java.lang.Object>());
+					}
+					results.get(hash).add(document);
+				}
+			}
+		}
+		return results;
 	}
 	
 	@WebResult(name = "contains")

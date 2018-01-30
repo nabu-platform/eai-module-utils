@@ -12,20 +12,30 @@ import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.CacheEntryOverview;
 import nabu.utils.types.CacheOverview;
-import be.nabu.eai.repository.EAIRepositoryCacheProvider;
+import nabu.utils.types.CacheProviderOverview;
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.eai.repository.api.CacheProviderArtifact;
+import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.cache.api.CacheEntry;
+import be.nabu.libs.cache.api.CacheWithHash;
 import be.nabu.libs.cache.api.ExplorableCache;
 import be.nabu.libs.cache.api.LimitedCache;
 
 @WebService
 public class Cache {
 	
-	public List<CacheOverview> getCaches() throws IOException {
-		List<CacheOverview> cacheOverviews = new ArrayList<CacheOverview>();
-		if (EAIResourceRepository.getInstance().getCacheProvider() instanceof EAIRepositoryCacheProvider) {
-			EAIRepositoryCacheProvider cacheProvider = (EAIRepositoryCacheProvider) EAIResourceRepository.getInstance().getCacheProvider();
+	@WebResult(name = "caches")
+	public List<CacheProviderOverview> list(@WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
+		List<CacheProviderOverview> providers = new ArrayList<CacheProviderOverview>();
+		for (CacheProviderArtifact cacheProvider : EAIResourceRepository.getInstance().getArtifacts(CacheProviderArtifact.class)) {
+			if (cacheProviderId != null && !cacheProviderId.equals(cacheProvider.getId())) {
+				continue;
+			}
+			List<CacheOverview> cacheOverviews = new ArrayList<CacheOverview>();
 			for (String name : cacheProvider.getCaches()) {
+				if (cacheId != null && !cacheId.equals(name)) {
+					continue;
+				}
 				be.nabu.libs.cache.api.Cache cache = cacheProvider.get(name);
 				CacheOverview cacheOverview = new CacheOverview();
 				cacheOverview.setCacheId(name);
@@ -41,38 +51,84 @@ public class Cache {
 						cacheEntry.setLastAccessed(entry.getLastAccessed());
 						cacheEntry.setLastModified(entry.getLastModified());
 						cacheEntry.setSize(entry.getSize());
+						if (cache instanceof CacheWithHash) {
+							cacheEntry.setHash(((CacheWithHash) cache).hash(entry.getKey()));
+						}
 						cacheEntries.add(cacheEntry);
 					}
 					cacheOverview.setEntries(cacheEntries);
 				}
 				cacheOverviews.add(cacheOverview);
 			}
+			CacheProviderOverview cacheProviderOverview = new CacheProviderOverview();
+			cacheProviderOverview.setCaches(cacheOverviews);
+			cacheProviderOverview.setId(cacheProvider.getId());
+			providers.add(cacheProviderOverview);
 		}
-		return cacheOverviews;
+		return providers;
 	}
 	
-	public void prune(@WebParam(name = "cacheId") @NotNull String cacheId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(cacheId);
-		if (cache != null) {
-			cache.prune();
+	public void prune(@NotNull @WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
+		Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
+		if (resolve instanceof CacheProviderArtifact) {
+			if (cacheId != null) {
+				be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(cacheId);
+				if (cache != null) {
+					cache.prune();
+				}
+			}
+			else {
+				for (String name : ((CacheProviderArtifact) resolve).getCaches()) {
+					be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(name);
+					if (cache != null) {
+						cache.prune();
+					}
+				}
+			}
 		}
 	}
 	
-	public void refresh(@WebParam(name = "cacheId") @NotNull String cacheId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(cacheId);
-		if (cache != null) {
-			cache.refresh();
+	public void refresh(@NotNull @WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
+		Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
+		if (resolve instanceof CacheProviderArtifact) {
+			if (cacheId != null) {
+				be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(cacheId);
+				if (cache != null) {
+					cache.refresh();
+				}
+			}
+			else {
+				for (String name : ((CacheProviderArtifact) resolve).getCaches()) {
+					be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(name);
+					if (cache != null) {
+						cache.refresh();
+					}
+				}
+			}
 		}
 	}
 	
-	public void clear(@WebParam(name = "cacheId") @NotNull String cacheId) throws IOException {
-		be.nabu.libs.cache.api.Cache cache = EAIResourceRepository.getInstance().getCacheProvider().get(cacheId);
-		if (cache != null) {
-			cache.clear();
+	public void clear(@NotNull @WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
+		Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
+		if (resolve instanceof CacheProviderArtifact) {
+			if (cacheId != null) {
+				be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(cacheId);
+				if (cache != null) {
+					cache.clear();
+				}
+			}
+			else {
+				for (String name : ((CacheProviderArtifact) resolve).getCaches()) {
+					be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(name);
+					if (cache != null) {
+						cache.clear();
+					}
+				}
+			}
 		}
 	}
 	
-	public void set(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key, @WebParam(name = "value") java.lang.Object value) throws IOException {
+	void set(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key, @WebParam(name = "value") java.lang.Object value) throws IOException {
 		if (value == null) {
 			EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).clear(key);
 		}
@@ -82,7 +138,7 @@ public class Cache {
 	}
 	
 	@WebResult(name = "value")
-	public java.lang.Object get(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key) throws IOException {
+	java.lang.Object get(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key) throws IOException {
 		return EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).get(key);
 	}
 }

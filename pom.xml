@@ -38,5 +38,10 @@
 			<artifactId>eai-developer</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>be.nabu.libs.cluster</groupId>
+			<artifactId>cluster-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 </project>

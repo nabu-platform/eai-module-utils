@@ -5,8 +5,11 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import nabu.utils.types.ParameterDescription;
+
 import java.lang.String;
 import java.lang.Object;
+import java.util.List;
 
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
@@ -60,5 +63,17 @@ public class Type {
 			return content.get(path);
 		}
 		return null;
+	}
+	
+	@WebResult(name = "parameters")
+	public List<ParameterDescription> describe(@WebParam(name = "typeId") String id) {
+		if (id == null) {
+			return null;
+		}
+		DefinedType type = DefinedTypeResolverFactory.getInstance().getResolver().resolve(id);
+		if (type == null) {
+			throw new IllegalArgumentException("Type not found: " + id);
+		}
+		return Node.toParameters((ComplexType) type);
 	}
 }

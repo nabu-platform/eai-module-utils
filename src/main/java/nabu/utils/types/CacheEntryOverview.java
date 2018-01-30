@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "cacheEntry")
 public class CacheEntryOverview {
+	private String hash;
 	private Date lastModified, lastAccessed;
 	private long size;
 	public Date getLastModified() {
@@ -25,5 +26,11 @@ public class CacheEntryOverview {
 	}
 	public void setSize(long size) {
 		this.size = size;
+	}
+	public String getHash() {
+		return hash;
+	}
+	public void setHash(String hash) {
+		this.hash = hash;
 	}
 }

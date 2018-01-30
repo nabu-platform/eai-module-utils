@@ -173,7 +173,8 @@ public class Node {
 				element.getType().getName(element.getProperties()),
 				comment == null ? null : comment.getValue(),
 				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1,
-				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0));
+				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0,
+				element.getType() instanceof SimpleType));
 		}
 		return parameters;
 	}

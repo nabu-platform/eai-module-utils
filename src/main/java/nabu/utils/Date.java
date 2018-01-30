@@ -12,6 +12,7 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.DateProperties;
+import nabu.utils.types.DateValues;
 
 @WebService(name = "date")
 public class Date {
@@ -203,5 +204,66 @@ public class Date {
 	@WebResult(name = "date")
 	public java.util.Date fromTimestamp(@WebParam(name = "timestamp") Long timestamp) {
 		return timestamp == null ? null : new java.util.Date(timestamp);
+	}
+	
+	@WebResult(name = "values")
+	public DateValues toValues(@WebParam(name = "date") java.util.Date date, @WebParam(name = "timezone") TimeZone timezone) {
+		Calendar calendar = Calendar.getInstance(timezone != null ? timezone : TimeZone.getDefault());
+		calendar.setTime(date == null ? new java.util.Date() : date);
+		DateValues values = new DateValues();
+		values.setYear(calendar.get(Calendar.YEAR));
+		values.setMonth(calendar.get(Calendar.MONTH) + 1);
+		values.setDay(calendar.get(Calendar.DAY_OF_MONTH));
+		values.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+		values.setMinute(calendar.get(Calendar.MINUTE));
+		values.setSecond(calendar.get(Calendar.SECOND));
+		values.setMillisecond(calendar.get(Calendar.MILLISECOND));
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		values.setDayOfWeek(dayOfWeek == 0 ? 7 : dayOfWeek);
+		values.setWeekOfYear(calendar.get(Calendar.WEEK_OF_YEAR));
+		return values;
+	}
+	
+	@WebResult(name = "date")
+	public java.util.Date fromValues(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
+		Calendar calendar = Calendar.getInstance(timezone != null ? timezone : TimeZone.getDefault());
+		if (values.getYear() != null) {
+			calendar.set(Calendar.YEAR, values.getYear());
+		}
+		if (values.getMonth() != null) {
+			calendar.set(Calendar.MONTH, values.getMonth() - 1);
+		}
+		if (values.getDay() != null) {
+			calendar.set(Calendar.DATE, values.getDay());
+		}
+		if (values.getHour() != null) {
+			calendar.set(Calendar.HOUR_OF_DAY, values.getHour());
+		}
+		if (values.getMinute() != null) {
+			calendar.set(Calendar.MINUTE, values.getMinute());
+		}
+		if (values.getSecond() != null) {
+			calendar.set(Calendar.SECOND, values.getSecond());
+		}
+		if (values.getMillisecond() != null) {
+			calendar.set(Calendar.MILLISECOND, values.getMillisecond());
+		}
+		return calendar.getTime();
+	}
+	
+	@WebResult(name = "normalized")
+	public DateValues normalize(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
+		return toValues(fromValues(values, timezone), timezone);
+	}
+	
+	@WebResult(name = "amount")
+	public Long toTimeUnit(@WebParam(name = "amount") Long amount, @WebParam(name = "fromTimeUnit") TimeUnit fromTimeUnit, @NotNull @WebParam(name = "toTimeUnit") TimeUnit toTimeUnit) {
+		if (amount == null) {
+			return null;
+		}
+		if (fromTimeUnit == null) {
+			fromTimeUnit = TimeUnit.MILLISECONDS;
+		}
+		return toTimeUnit.convert(amount, fromTimeUnit);
 	}
 }

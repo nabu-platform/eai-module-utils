@@ -6,6 +6,7 @@ import java.lang.String;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.ExceptionSummary;
 
@@ -13,12 +14,16 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.artifacts.api.InterruptibleArtifact;
 import be.nabu.libs.authentication.api.Device;
 import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.authentication.api.WrappedToken;
 import be.nabu.libs.authentication.api.principals.DevicePrincipal;
 import be.nabu.libs.authentication.impl.ImpersonateToken;
 import be.nabu.libs.services.ServiceRuntime;
+import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
@@ -189,5 +194,31 @@ public class Runtime {
 			}
 		}
 		return runtime.getServiceInstance() instanceof ServiceInstanceWithPipeline ? ((ServiceInstanceWithPipeline) runtime.getServiceInstance()).getPipeline() : null;
+	}
+	
+	public void interrupt(@WebParam(name = "artifactId") String artifactId) {
+		Artifact resolve = EAIResourceRepository.getInstance().resolve(artifactId);
+		if (resolve instanceof InterruptibleArtifact) {
+			((InterruptibleArtifact) resolve).interrupt();
+		}
+	}
+	
+	@WebResult(name = "interrupted")
+	public boolean interrupted(@WebParam(name = "artifactId") String artifactId) {
+		Artifact resolve = EAIResourceRepository.getInstance().resolve(artifactId);
+		if (resolve instanceof InterruptibleArtifact) {
+			return ((InterruptibleArtifact) resolve).interrupted();
+		}
+		return false;
+	}
+	
+	public void setServiceContext(@WebParam(name = "context") String context) {
+		ServiceUtils.setServiceContext(ServiceRuntime.getRuntime(), context);
+	}
+	
+	@WebResult(name = "serviceContext")
+	@NotNull
+	public String getServiceContext() {
+		return ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
 	}
 }
