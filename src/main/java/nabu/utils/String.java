@@ -58,13 +58,21 @@ public class String {
 			separator = "";
 		}
 		StringBuilder builder = new StringBuilder();
+		boolean isFirst = true;
 		for (int i = 0; i < strings.size(); i++) {
-			if (i > 0) {
+			// ignore null values
+			if (strings.get(i) == null) {
+				continue;
+			}
+			if (isFirst) {
+				isFirst = false;
+			}
+			else {
 				builder.append(separator);
 			}
 			builder.append(strings.get(i));
 		}
-		return builder.toString();
+		return isFirst ? null : builder.toString();
 	}
 	
 	@WebResult(name = "upper")
@@ -102,5 +110,10 @@ public class String {
 			return null;
 		}
 		return java.lang.String.format(template, parameters == null ? new Object[0] : parameters.toArray());
+	}
+	
+	@WebResult(name = "trimmed")
+	public java.lang.String trim(@WebParam(name = "string") java.lang.String string) {
+		return string == null ? null : string.trim();
 	}
 }

@@ -32,4 +32,39 @@ public class Math {
 		}
 		return sum;
 	}
+	
+	@WebResult(name = "average")
+	public Double average(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		double sum = 0.0;
+		for (Double value : values) {
+			sum += value;
+		}
+		return sum / values.size();
+	}
+	
+	@WebResult(name = "variance")
+	public Double variance(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		double average = average(values);
+		double sum = 0.0;
+		for (Double value : values) {
+			sum += java.lang.Math.pow(value - average, 2);
+		}
+		return sum / values.size();
+	}
+	
+	// standard deviation
+	@WebResult(name = "deviation")
+	public Double deviation(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		return java.lang.Math.sqrt(variance(values));
+	}
+	
 }

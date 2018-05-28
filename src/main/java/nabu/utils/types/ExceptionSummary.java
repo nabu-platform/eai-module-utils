@@ -13,14 +13,17 @@ public class ExceptionSummary {
 		ExceptionSummary summary = new ExceptionSummary();
 		Throwable current = exception;
 		summary.setMessage(current.getMessage());
+		boolean firstServiceStack = true;
 		while (current != null) {
 			if (current instanceof ServiceException) {
+				// we want the details of the inner most service exception (except the service stack)
+				// the code and message are more likely the actual cause
 				summary.setMessage(current.getMessage());
 				summary.setCode(((ServiceException) current).getCode());
-				if (((ServiceException) current).getServiceStack() != null && !((ServiceException) current).getServiceStack().isEmpty()) {
+				if (firstServiceStack && ((ServiceException) current).getServiceStack() != null && !((ServiceException) current).getServiceStack().isEmpty()) {
 					summary.setServiceStack(((ServiceException) current).getServiceStack().toString());
+					firstServiceStack = false;
 				}
-				break;
 			}
 			current = current.getCause();
 		}

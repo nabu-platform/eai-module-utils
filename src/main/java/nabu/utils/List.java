@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import javax.jws.WebParam;
@@ -189,9 +190,12 @@ public class List {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@WebResult(name = "list")
-	public java.util.List<java.lang.Object> sort(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId) {
+	public java.util.List<java.lang.Object> sort(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId, @WebParam(name = "fields") final java.util.List<java.lang.String> fields) {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
+		}
+		else {
+			list = new ArrayList<java.lang.Object>(list);
 		}
 		if (comparatorServiceId != null) {
 			DefinedService resolved = executionContext.getServiceContext().getResolver(DefinedService.class).resolve(comparatorServiceId);
@@ -199,6 +203,57 @@ public class List {
 				throw new IllegalArgumentException("Invalid comparator service passed along: " + comparatorServiceId);
 			}
 			Comparator comparator = POJOUtils.newProxy(Comparator.class, resolved, executionContext);
+			Collections.sort(list, comparator);
+		}
+		else if (fields != null && !fields.isEmpty()) {
+			Comparator comparator = new Comparator() {
+				@Override
+				public int compare(java.lang.Object o1, java.lang.Object o2) {
+					if (o1 == null) {
+						if (o2 == null) {
+							return 0;
+						}
+						else {
+							return -1;
+						}
+					}
+					else if (o2 == null) {
+						return 1;
+					}
+					if (!(o1 instanceof ComplexContent)) {
+						o1 = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(o1);
+					}
+					if (!(o2 instanceof ComplexContent)) {
+						o2 = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(o2);
+					}
+					int comparison = 0;
+					for (java.lang.String field : fields) {
+						java.lang.Object value1 = ((ComplexContent) o1).get(field);
+						java.lang.Object value2 = ((ComplexContent) o2).get(field);
+						if (value1 == null) {
+							if (value2 == null) {
+								continue;
+							}
+							else {
+								comparison = -1;
+								break;
+							}
+						}
+						else if (value2 == null) {
+							comparison = 1;
+							break;
+						}
+						if (!(value1 instanceof Comparable) || !(value2 instanceof Comparable)) {
+							throw new IllegalArgumentException("The fields can not be compared");
+						}
+						comparison = ((Comparable) value1).compareTo(value2);
+						if (comparison != 0) {
+							break;
+						}
+					}
+					return comparison;
+				}
+			};
 			Collections.sort(list, comparator);
 		}
 		// we assume the list contains comparable items
@@ -215,15 +270,23 @@ public class List {
 		return list;
 	}
 	
+	@WebResult(name = "list")
+	public java.util.List<java.lang.Object> unique(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
+		if (list == null) {
+			return null;
+		}
+		return new ArrayList<java.lang.Object>(new LinkedHashSet<java.lang.Object>(list));
+	}
+	
 	@WebResult(name = "minimum")
-	public java.lang.Object minimum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId) {
-		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId);
+	public java.lang.Object minimum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId, @WebParam(name = "fields") java.util.List<java.lang.String> fields) {
+		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId, fields);
 		return sort.isEmpty() ? null : sort.get(0);
 	}
 	
 	@WebResult(name = "maximum")
-	public java.lang.Object maximum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId) {
-		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId);
+	public java.lang.Object maximum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId, @WebParam(name = "fields") java.util.List<java.lang.String> fields) {
+		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId, fields);
 		return sort.isEmpty() ? null : sort.get(sort.size() - 1);
 	}
 	

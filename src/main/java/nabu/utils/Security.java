@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.SecurityUtils;
@@ -19,4 +20,13 @@ public class Security {
 		return input == null ? null : SecurityUtils.digest(input, algorithm);
 	}
 	
+	@WebResult(name = "hash")
+	public java.lang.String hash(@WebParam(name = "string") java.lang.String content, @NotNull @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
+		return content == null ? null : SecurityUtils.hash(content, algorithm);
+	}
+	
+	@WebResult(name = "valid")
+	public java.lang.Boolean validateHash(@WebParam(name = "string") java.lang.String content, @NotNull @WebParam(name = "hash") java.lang.String hash, @NotNull @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
+		return content == null ? false : SecurityUtils.check(content, hash, algorithm);
+	}
 }

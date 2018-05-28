@@ -219,7 +219,7 @@ public class Date {
 		values.setSecond(calendar.get(Calendar.SECOND));
 		values.setMillisecond(calendar.get(Calendar.MILLISECOND));
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		values.setDayOfWeek(dayOfWeek == 0 ? 7 : dayOfWeek);
+		values.setDayOfWeek(dayOfWeek == 1 ? 7 : dayOfWeek - 1);
 		values.setWeekOfYear(calendar.get(Calendar.WEEK_OF_YEAR));
 		return values;
 	}
@@ -248,6 +248,9 @@ public class Date {
 		if (values.getMillisecond() != null) {
 			calendar.set(Calendar.MILLISECOND, values.getMillisecond());
 		}
+		/*if (values.getDayOfWeek() != null) {
+			calendar.set(Calendar.DAY_OF_WEEK, values.getDayOfWeek() == 7 ? 1 : values.getDayOfWeek() + 1);
+		}*/
 		return calendar.getTime();
 	}
 	

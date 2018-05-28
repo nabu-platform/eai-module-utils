@@ -13,6 +13,7 @@ import javax.jws.WebService;
 import be.nabu.libs.resources.ResourceFactory;
 import be.nabu.libs.resources.ResourceReadableContainer;
 import be.nabu.libs.resources.ResourceUtils;
+import be.nabu.libs.resources.api.ManageableContainer;
 import be.nabu.libs.resources.api.ReadableResource;
 import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.resources.api.ResourceProperties;
@@ -77,6 +78,18 @@ public class Resource {
 			}
 			finally {
 				writableContainer.close();
+			}
+		}
+	}
+	
+	public void delete(@WebParam(name = "uri") URI uri) throws IOException {
+		if (uri != null) {
+			be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, null);
+			if (resolve != null) {
+				ResourceContainer<?> parent = resolve.getParent();
+				if (parent instanceof ManageableContainer) {
+					((ManageableContainer<?>) parent).delete(resolve.getName());
+				}
 			}
 		}
 	}
