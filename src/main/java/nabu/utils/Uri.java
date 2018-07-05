@@ -1,6 +1,7 @@
 package nabu.utils;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.lang.String;
 
 import javax.jws.WebParam;
@@ -16,6 +17,19 @@ public class Uri {
 	@WebResult(name = "components")
 	public UriComponents toComponents(@WebParam(name = "uri") URI uri) {
 		return UriComponents.build(uri);
+	}
+	
+	@WebResult(name = "uri")
+	public URI fromComponents(@WebParam(name = "components") UriComponents components) throws URISyntaxException {
+		return new URI(
+			components.getScheme(),
+			components.getUserInfo(),
+			components.getHost(),
+			components.getPort() == null ? -1 : components.getPort(),
+			components.getPath(),
+			components.getQuery(),
+			components.getFragment()
+		);
 	}
 
 	@WebResult(name = "uri")

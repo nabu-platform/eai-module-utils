@@ -12,6 +12,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.services.DefinedServiceResolverFactory;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
@@ -48,7 +49,7 @@ public class Service {
 	
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "output")
-	public Object invoke(@WebParam(name = "serviceId") String id, @WebParam(name = "input") Object input) throws ServiceException, InterruptedException, ExecutionException {
+	public Object invoke(@WebParam(name = "serviceId") String id, @WebParam(name = "input") Object input, @WebParam(name = "runAs") Token token) throws ServiceException, InterruptedException, ExecutionException {
 		if (id == null) {
 			return null;
 		}
@@ -73,6 +74,14 @@ public class Service {
 		}
 		else {
 			serviceInput = service.getServiceInterface().getInputDefinition().newInstance();
+		}
+		ExecutionContext context = this.context;
+		// currently you can't upgrade the security of the existing context
+		// it is unclear if this is a good thing or a bad one
+		// the added ability to set a token for an invoke() is interesting either way, whether we create a new context or update the existing one is irrelevant for the current usecase (task execution)
+		// to be reevaluated if a new usecase comes along
+		if (token != null) {
+			context = EAIResourceRepository.getInstance().newExecutionContext(token);
 		}
 		// allow different targets or not? can set different target in invoke itself...?
 		Future<ServiceResult> run = EAIResourceRepository.getInstance().getServiceRunner().run(service, context, serviceInput);
