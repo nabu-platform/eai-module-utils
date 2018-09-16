@@ -11,6 +11,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import be.nabu.libs.types.base.Duration;
 import nabu.utils.types.DateProperties;
 import nabu.utils.types.DateValues;
 
@@ -114,6 +115,65 @@ public class Date {
 	@WebResult(name = "string")
 	public String format(@WebParam(name = "date") java.util.Date value, @NotNull @WebParam(name = "properties") DateProperties properties) {
 		return properties.getFormatter().format(value == null ? new java.util.Date() : value);
+	}
+	
+	@WebResult(name = "date")
+	public java.util.Date incrementDuration(@WebParam(name = "start") java.util.Date start, @WebParam(name = "times") Integer times, @WebParam(name = "duration") Duration duration, @WebParam(name = "timezone") TimeZone timezone) {
+//		Instant instant = Instant.ofEpochMilli(start.getTime());
+		if (times == null) {
+			times = 1;
+		}
+		Calendar calendar = timezone == null ? Calendar.getInstance() : Calendar.getInstance(timezone);
+		calendar.setTime(start);
+		
+		if (duration.getYears() != 0) {
+			calendar.add(Calendar.YEAR, times * duration.getYears());
+		}
+		if (duration.getMonths() != 0) {
+			calendar.add(Calendar.MONTH, times * duration.getMonths());
+		}
+		if (duration.getDays() != 0) {
+			calendar.add(Calendar.DAY_OF_MONTH, times * duration.getDays());
+		}
+		if (duration.getHours() != 0) {
+			calendar.add(Calendar.HOUR, times * duration.getHours());
+		}
+		if (duration.getMinutes() != 0) {
+			calendar.add(Calendar.MINUTE, times * duration.getMinutes());
+		}
+		if (duration.getSeconds() != 0.0) {
+			double seconds = duration.getSeconds() * times;
+			double milliseconds = seconds - java.lang.Math.floor(seconds);
+			seconds -= milliseconds;
+			if (seconds != 0.0) {
+				calendar.add(Calendar.SECOND, (int) seconds);
+			}
+			if (milliseconds != 0.0) {
+				calendar.add(Calendar.MILLISECOND, (int) (milliseconds * 1000));
+			}
+		}
+		return calendar.getTime();
+//		java.time.Duration javaDuration = duration.toJavaDuration();
+//		Period javaPeriod = duration.toJavaPeriod();
+//		for (int i = 0; i < times; i++) {
+//			if (subtract) {
+//				if (javaDuration != null) {
+//					instant = (Instant) javaDuration.subtractFrom(instant);	
+//				}
+//				if (javaPeriod != null) {
+//					instant = (Instant) javaPeriod.subtractFrom(instant);
+//				}
+//			}
+//			else {
+//				if (javaDuration != null) {
+//					instant = (Instant) javaDuration.addTo(instant);	
+//				}
+//				if (javaPeriod != null) {
+//					instant = (Instant) javaPeriod.addTo(instant);
+//				}
+//			}
+//		}
+//		return new java.util.Date(instant.toEpochMilli());
 	}
 	
 	@WebResult(name = "date")

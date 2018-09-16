@@ -45,7 +45,7 @@ public class Transaction {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Transactionable toTransactionable(String serviceId, java.lang.Object input, final boolean commit, final boolean rollback) {
+	private Transactionable toTransactionable(final String serviceId, java.lang.Object input, final boolean commit, final boolean rollback) {
 		final Artifact service = (DefinedService) EAIResourceRepository.getInstance().resolve(serviceId);
 		if (!(service instanceof Service)) {
 			throw new IllegalArgumentException("Invalid service id: " + serviceId);

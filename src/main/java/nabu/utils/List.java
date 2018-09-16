@@ -27,6 +27,8 @@ import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
+import be.nabu.libs.types.structure.StructureInstanceDowncastReference;
+import be.nabu.libs.types.structure.StructureInstanceUpcastReference;
 
 @WebService
 public class List {
@@ -85,7 +87,7 @@ public class List {
 	
 	@WebResult(name = "contains")
 	public boolean contains(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
-		return list == null || list.indexOf(object) < 0 ? false : true;
+		return list == null || indexOf(list, object) == null ? false : true;
 	}
 	
 	@WebResult(name = "index")
@@ -94,6 +96,17 @@ public class List {
 			return null;
 		}
 		int index = list.indexOf(object);
+		// because we do a lot of object wrapping for casting, check if the object is somewhere in the stack but hidden
+		if (index < 0 && object instanceof ComplexContent) {
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i) instanceof ComplexContent) {
+					if (unwrap(list.get(i)).contains(object)) {
+						index = i;
+						break;
+					}
+				}
+			}
+		}
 		return index < 0 ? null : index;
 	}
 	
@@ -116,7 +129,7 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		return list.get(index);
+		return index == null || index >= list.size() ? null : list.get(index);
 	}
 	
 	@WebResult(name = "list")
@@ -124,7 +137,7 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		return list.subList(from == null ? 0 : from, to == null ? list.size() : to);
+		return list.subList(from == null ? 0 : from, to == null ? list.size() : java.lang.Math.min(list.size(), to));
 	}
 
 	@WebResult(name = "list")
@@ -134,6 +147,24 @@ public class List {
 		}
 		list.set(index, object);
 		return list;
+	}
+	
+	// unwraps the object into multiple objects that have been cast
+	private java.util.List<java.lang.Object> unwrap(java.lang.Object object) {
+		java.util.List<java.lang.Object> unwrapped = new ArrayList<java.lang.Object>();
+		while (object != null) {
+			unwrapped.add(object);
+			if (object instanceof StructureInstanceDowncastReference) {
+				object = ((StructureInstanceDowncastReference) object).getReference();
+			}
+			else if (object instanceof StructureInstanceUpcastReference) {
+				object = ((StructureInstanceUpcastReference) object).getReference();
+			}
+			else {
+				break;
+			}
+		}
+		return unwrapped;
 	}
 	
 	@WebResult(name = "list")
@@ -157,7 +188,13 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		list.remove(object);
+		boolean removed = list.remove(object);
+		if (!removed && object instanceof ComplexContent) {
+			Integer index = indexOf(list, object);
+			if (index != null) {
+				list.remove((int) index);
+			}
+		}
 		return list;
 	}
 	
@@ -166,7 +203,9 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		list.removeAll(objects);
+		for (java.lang.Object object : objects) {
+			remove(list, object);
+		}
 		return list;
 	}
 	
@@ -228,8 +267,10 @@ public class List {
 					}
 					int comparison = 0;
 					for (java.lang.String field : fields) {
-						java.lang.Object value1 = ((ComplexContent) o1).get(field);
-						java.lang.Object value2 = ((ComplexContent) o2).get(field);
+						// fields should never have whitespace in them, but you can say "asc" or "desc" 
+						java.lang.String [] parts = field.split("[\\s]+");
+						java.lang.Object value1 = ((ComplexContent) o1).get(parts[0]);
+						java.lang.Object value2 = ((ComplexContent) o2).get(parts[0]);
 						if (value1 == null) {
 							if (value2 == null) {
 								continue;
@@ -248,6 +289,10 @@ public class List {
 						}
 						comparison = ((Comparable) value1).compareTo(value2);
 						if (comparison != 0) {
+							// if we asked for descending, reverse the comparison
+							if (parts.length == 2 && parts[1].equalsIgnoreCase("desc")) {
+								comparison *= -1;
+							}
 							break;
 						}
 					}
