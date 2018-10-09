@@ -14,8 +14,21 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import be.nabu.eai.api.NamingConvention;
+
 @WebService
 public class String {
+	
+	@WebResult(name = "conventionized")
+	public java.lang.String conventionize(@WebParam(name = "content") java.lang.String content, @WebParam(name = "from") NamingConvention from, @WebParam(name = "to") NamingConvention to) {
+		if (content == null) {
+			return null;
+		}
+		if (to == null) {
+			to = NamingConvention.LOWER_CAMEL_CASE;
+		}
+		return to.apply(content, from == null ? NamingConvention.LOWER_CAMEL_CASE : from);
+	}
 	
 	@WebResult(name = "content")
 	public java.lang.String replace(@WebParam(name = "content") java.lang.String content, @WebParam(name = "match") java.lang.String find, @WebParam(name = "replace") java.lang.String replace, @WebParam(name = "useRegex") Boolean useRegex) {

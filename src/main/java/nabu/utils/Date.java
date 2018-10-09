@@ -124,7 +124,9 @@ public class Date {
 			times = 1;
 		}
 		Calendar calendar = timezone == null ? Calendar.getInstance() : Calendar.getInstance(timezone);
-		calendar.setTime(start);
+		if (start != null) {
+			calendar.setTime(start);
+		}
 		
 		if (duration.getYears() != 0) {
 			calendar.add(Calendar.YEAR, times * duration.getYears());
@@ -257,12 +259,19 @@ public class Date {
 	}
 	
 	@WebResult(name = "timestamp")
-	public Long toTimestamp(@WebParam(name = "date") java.util.Date date) {
-		return date == null ? null : date.getTime();
+	public Long toTimestamp(@WebParam(name = "date") java.util.Date date, @WebParam(name = "asSeconds") java.lang.Boolean asSeconds) {
+		Long timestamp = date == null ? null : date.getTime();
+		if (timestamp != null && asSeconds != null && asSeconds) {
+			timestamp /= 1000;
+		}
+		return timestamp;
 	}
 	
 	@WebResult(name = "date")
-	public java.util.Date fromTimestamp(@WebParam(name = "timestamp") Long timestamp) {
+	public java.util.Date fromTimestamp(@WebParam(name = "timestamp") Long timestamp, @WebParam(name = "asSeconds") java.lang.Boolean asSeconds) {
+		if (timestamp != null && asSeconds != null && asSeconds) {
+			timestamp *= 1000;
+		}
 		return timestamp == null ? null : new java.util.Date(timestamp);
 	}
 	

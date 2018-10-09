@@ -33,6 +33,38 @@ public class Math {
 		return sum;
 	}
 	
+	@WebResult(name = "maximum")
+	public Double maximum(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		Double max = null;
+		for (Double value : values) {
+			if (value != null) {
+				if (max == null || value > max) {
+					max = value;
+				}
+			}
+		}
+		return max;
+	}
+	
+	@WebResult(name = "minimum")
+	public Double minimum(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		Double min = null;
+		for (Double value : values) {
+			if (value != null) {
+				if (min == null || value < min) {
+					min = value;
+				}
+			}
+		}
+		return min;
+	}
+	
 	@WebResult(name = "average")
 	public Double average(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {
@@ -45,8 +77,9 @@ public class Math {
 		return sum / values.size();
 	}
 	
+	// we either have a population calculation (the values are the entirety of the available values) or a sample calculation where the value represent only a subset of the real series of values
 	@WebResult(name = "variance")
-	public Double variance(@WebParam(name = "values") java.util.List<Double> values) {
+	public Double variance(@WebParam(name = "values") java.util.List<Double> values, @WebParam(name = "sample") Boolean isSample) {
 		if (values == null || values.isEmpty()) {
 			return null;
 		}
@@ -55,16 +88,16 @@ public class Math {
 		for (Double value : values) {
 			sum += java.lang.Math.pow(value - average, 2);
 		}
-		return sum / values.size();
+		return sum / (isSample != null && isSample ? values.size() - 1 : values.size());
 	}
 	
 	// standard deviation
 	@WebResult(name = "deviation")
-	public Double deviation(@WebParam(name = "values") java.util.List<Double> values) {
+	public Double deviation(@WebParam(name = "values") java.util.List<Double> values, @WebParam(name = "sample") Boolean isSample) {
 		if (values == null || values.isEmpty()) {
 			return null;
 		}
-		return java.lang.Math.sqrt(variance(values));
+		return java.lang.Math.sqrt(variance(values, isSample));
 	}
 	
 }

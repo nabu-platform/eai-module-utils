@@ -13,8 +13,10 @@ import java.util.List;
 
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
+import be.nabu.libs.types.SimpleTypeWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
+import be.nabu.libs.types.api.DefinedSimpleType;
 import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.SimpleType;
 
@@ -75,5 +77,21 @@ public class Type {
 			throw new IllegalArgumentException("Type not found: " + id);
 		}
 		return Node.toParameters((ComplexType) type);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "typeId")
+	public String of(@WebParam(name = "typeInstance") Object typeInstance) {
+		if (typeInstance != null) {
+			DefinedSimpleType<? extends Object> wrap = SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(typeInstance.getClass());
+			if (wrap != null) {
+				return wrap.getId();
+			}
+			ComplexContent content = typeInstance instanceof ComplexContent ? ((ComplexContent) typeInstance) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(typeInstance);
+			if (content != null && content.getType() instanceof DefinedType) {
+				return ((DefinedType) content.getType()).getId();
+			}
+		}
+		return null;
 	}
 }
