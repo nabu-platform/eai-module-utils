@@ -71,7 +71,7 @@ public class Resource {
 		if (uri == null) {
 			return null;
 		}
-		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getToken());
+		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, null);
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
 		}
@@ -86,7 +86,7 @@ public class Resource {
 		if (uri == null) {
 			return false;
 		}
-		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, executionContext.getSecurityContext().getToken());
+		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, null);
 		if (resolve instanceof Closeable) {
 			((Closeable) resolve).close();
 		}
@@ -95,7 +95,7 @@ public class Resource {
 	
 	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content) throws IOException {
 		if (uri != null || content != null) {
-			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, executionContext.getSecurityContext().getToken());
+			WritableContainer<ByteBuffer> writableContainer = ResourceUtils.toWritableContainer(uri, null);
 			try {
 				IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
 			}
@@ -126,7 +126,7 @@ public class Resource {
 	
 	public void mkdir(@WebParam(name = "uri") URI uri) throws IOException {
 		if (uri != null) {
-			ResourceContainer<?> directory = ResourceUtils.mkdir(uri, executionContext.getSecurityContext().getToken());
+			ResourceContainer<?> directory = ResourceUtils.mkdir(uri, null);
 			if (directory instanceof Closeable) {
 				((Closeable) directory).close();
 			}

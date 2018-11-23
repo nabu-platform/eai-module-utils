@@ -8,6 +8,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -128,5 +130,21 @@ public class String {
 	@WebResult(name = "trimmed")
 	public java.lang.String trim(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.trim();
+	}
+	
+	@WebResult(name = "groups")
+	public List<java.lang.String> regexGroups(@WebParam(name = "string") java.lang.String string, @NotNull @WebParam(name = "regex") java.lang.String regex) {
+		if (string == null) {
+			return null;
+		}
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(string);
+		List<java.lang.String> list = new ArrayList<java.lang.String>();
+		if (matcher.matches()) {
+			for (int i = 1; i <= matcher.groupCount(); i++) {
+				list.add(matcher.group(i));
+			}
+		}
+		return list;
 	}
 }

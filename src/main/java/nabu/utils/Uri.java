@@ -2,6 +2,9 @@ package nabu.utils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.lang.String;
 
 import javax.jws.WebParam;
@@ -9,6 +12,8 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.libs.resources.URIUtils;
+import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.utils.KeyValuePairImpl;
 import nabu.utils.types.UriComponents;
 
 @WebService
@@ -40,5 +45,22 @@ public class Uri {
 	@WebResult(name = "component")
 	public String encodeUriComponent(@WebParam(name = "component") String component, @WebParam(name = "includeEncoded") Boolean includeEncoded) {
 		return URIUtils.encodeURIComponent(component, includeEncoded == null ? true : includeEncoded);
+	}
+	
+	@WebResult(name = "properties")
+	public java.util.List<KeyValuePair> getQueryProperties(@WebParam(name = "uri") URI uri) {
+		if (uri == null) {
+			return null;
+		}
+		List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
+		Map<java.lang.String, List<java.lang.String>> queryProperties = URIUtils.getQueryProperties(uri);
+		for (Map.Entry<java.lang.String, List<java.lang.String>> entry : queryProperties.entrySet()) {
+			if (entry.getValue() != null) {
+				for (String value : entry.getValue()) {
+					properties.add(new KeyValuePairImpl(entry.getKey(), value));
+				}
+			}
+		}
+		return properties;
 	}
 }
