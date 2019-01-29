@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
+import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
@@ -43,7 +44,10 @@ public class Properties {
 	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<KeyValuePair> properties) {
 		DefinedType resolved = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(typeId);
 		if (resolved == null) {
-			throw new IllegalArgumentException("Could not find the type: " + typeId);
+			resolved = DefinedTypeResolverFactory.getInstance().getResolver().resolve(typeId);
+			if (resolved == null) {
+				throw new IllegalArgumentException("Could not find the type: " + typeId);
+			}
 		}
 		if (!(resolved instanceof ComplexType)) {
 			throw new IllegalArgumentException("The resolved type is not complex: " + typeId);

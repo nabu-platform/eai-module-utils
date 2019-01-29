@@ -233,6 +233,38 @@ public class Date {
 		return dates;
 	}
 	
+	@WebResult(name = "dates")
+	public java.util.List<java.util.Date> rangeDuration(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @NotNull @WebParam(name = "duration") Duration duration, @WebParam(name = "startInclusive") Boolean startInclusive, @WebParam(name = "endInclusive") Boolean endInclusive, @WebParam(name = "timezone") TimeZone timezone) {
+		if (start == null) {
+			start = new java.util.Date();
+		}
+		if (end == null) {
+			end = new java.util.Date();
+		}
+		if (startInclusive == null) {
+			startInclusive = true;
+		}
+		if (endInclusive == null) {
+			endInclusive = false;
+		}
+		if (timezone == null) {
+			timezone = TimeZone.getDefault();
+		}
+		java.util.List<java.util.Date> dates = new java.util.ArrayList<java.util.Date>();
+		boolean isFirst = true;
+		while (!start.after(end)) {
+			if (start.equals(end) && (endInclusive || isFirst)) {
+				dates.add(start);
+			}
+			else if (startInclusive || !isFirst) {
+				dates.add(start);
+			}
+			start = incrementDuration(start, 1, duration, timezone);
+			isFirst = false;
+		}
+		return dates;
+	}
+	
 	@WebResult(name = "diff")
 	public double diff(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "absolute") Boolean absolute, @WebParam(name = "timezone") TimeZone timezone, @WebParam(name = "round") Boolean round) {
 		if (start == null) {
