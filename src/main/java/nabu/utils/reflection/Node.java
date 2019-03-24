@@ -18,6 +18,7 @@ import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.RestartableArtifact;
 import be.nabu.libs.artifacts.api.StartableArtifact;
 import be.nabu.libs.artifacts.api.StoppableArtifact;
+import be.nabu.libs.artifacts.api.TwoPhaseStartableArtifact;
 import be.nabu.libs.property.api.Value;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.Service;
@@ -27,6 +28,7 @@ import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.properties.CommentProperty;
+import be.nabu.libs.types.properties.GeneratedProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
 import be.nabu.libs.validator.api.Validation;
@@ -169,17 +171,19 @@ public class Node {
 			Value<Integer> maxOccurs = element.getProperty(MaxOccursProperty.getInstance());
 			Value<Integer> minOccurs = element.getProperty(MinOccursProperty.getInstance());
 			Value<String> comment = element.getProperty(CommentProperty.getInstance());
+			Value<Boolean> generatedProperty = element.getProperty(GeneratedProperty.getInstance());
 			parameters.add(new ParameterDescription(element.getName(), element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
 				element.getType().getName(element.getProperties()),
 				comment == null ? null : comment.getValue(),
 				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1,
 				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0,
-				element.getType() instanceof SimpleType));
+				element.getType() instanceof SimpleType,
+				generatedProperty != null && generatedProperty.getValue() != null && generatedProperty.getValue()));
 		}
 		return parameters;
 	}
 
-	private NodeDescription getDescription(Entry entry, Boolean recursive) {
+	static NodeDescription getDescription(Entry entry, Boolean recursive) {
 		String type = null;
 		String artifactClass = null;
 		if (entry.isNode()) {
@@ -252,6 +256,9 @@ public class Node {
 			if (artifact instanceof StartableArtifact && !((StartableArtifact) artifact).isStarted()) {
 				try {
 					((StartableArtifact) artifact).start();
+					if (artifact instanceof TwoPhaseStartableArtifact) {
+						((TwoPhaseStartableArtifact) artifact).finish();
+					}
 					EAIRepositoryUtils.message(EAIResourceRepository.getInstance(), artifact.getId(), "start", true);
 				}
 				catch (Exception e) {

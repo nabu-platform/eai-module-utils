@@ -45,18 +45,14 @@ public class Resource {
 	}
 	
 	@WebResult(name = "children")
-	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri) throws IOException {
+	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter) throws IOException {
 		if (uri == null) {
 			return null;
 		}
 		java.util.List<ResourceProperties> list = new ArrayList<ResourceProperties>();
 		be.nabu.libs.resources.api.Resource parent = ResourceFactory.getInstance().resolve(uri, null);
 		try {
-			if (parent instanceof ResourceContainer) {
-				for (be.nabu.libs.resources.api.Resource child : (ResourceContainer<?>) parent) {
-					list.add(ResourceUtils.properties(child));
-				}
-			}
+			list(recursive, fileFilter, list, parent);
 		}
 		finally {
 			if (parent instanceof Closeable) {
@@ -64,6 +60,19 @@ public class Resource {
 			}
 		}
 		return list;
+	}
+
+	private void list(Boolean recursive, java.lang.String fileFilter, java.util.List<ResourceProperties> list, be.nabu.libs.resources.api.Resource parent) {
+		if (parent instanceof ResourceContainer) {
+			for (be.nabu.libs.resources.api.Resource child : (ResourceContainer<?>) parent) {
+				if (fileFilter == null || child.getName().matches(fileFilter)) {
+					list.add(ResourceUtils.properties(child));
+				}
+				if (recursive != null && recursive && child instanceof ResourceContainer) {
+					list(recursive, fileFilter, list, child);
+				}
+			}
+		}
 	}
 	
 	@WebResult(name = "stream")

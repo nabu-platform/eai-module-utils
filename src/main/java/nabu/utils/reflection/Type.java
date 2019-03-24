@@ -23,6 +23,8 @@ import be.nabu.libs.types.api.SimpleType;
 @WebService
 public class Type {
 	
+	//public List<ValidationMessage> validateProperties(@WebParam(name = "properties") List<KeyValuePair> properties)
+	
 	@WebResult(name = "typeInstance")
 	public Object newInstance(@WebParam(name = "typeId") String id) {
 		if (id == null) {

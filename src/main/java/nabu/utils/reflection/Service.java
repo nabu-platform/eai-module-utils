@@ -4,19 +4,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.validation.constraints.NotNull;
 
+import nabu.utils.types.NodeDescription;
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.services.DefinedServiceResolverFactory;
 import be.nabu.libs.services.api.DefinedService;
+import be.nabu.libs.services.api.DefinedServiceInterface;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.ServiceException;
+import be.nabu.libs.services.api.ServiceInterface;
 import be.nabu.libs.services.api.ServiceResult;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
@@ -90,5 +97,27 @@ public class Service {
 			throw serviceResult.getException();
 		}
 		return serviceResult == null ? null : serviceResult.getOutput();
+	}
+	
+	@WebResult(name = "implementations")
+	public List<NodeDescription> listImplementations(@WebParam(name = "interfaceId") String interfaceId) throws ClassNotFoundException {
+		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+		List<DefinedService> artifacts = EAIResourceRepository.getInstance().getArtifacts(DefinedService.class);
+		for (DefinedService service : artifacts) {
+			// interfaces themselves are also services, don't count them though
+			if (service instanceof DefinedServiceInterface) {
+				continue;
+			}
+			ServiceInterface serviceInterface = service.getServiceInterface();
+			while (serviceInterface != null) {
+				if (serviceInterface instanceof DefinedServiceInterface) {
+					if (interfaceId.equals(((DefinedServiceInterface) serviceInterface).getId())) {
+						nodes.add(Node.getDescription(EAIResourceRepository.getInstance().getEntry(service.getId()), false));
+					}
+				}
+				serviceInterface = serviceInterface.getParent();
+			}
+		}
+		return nodes;
 	}
 }

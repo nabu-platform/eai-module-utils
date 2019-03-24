@@ -115,15 +115,21 @@ public class Server {
 	
 	@WebResult(name = "password")
 	@NotNull
-	public String password(@WebParam(name = "length") Integer length) {
+	public String password(@WebParam(name = "length") Integer length, @WebParam(name = "allowedCharacters") String chars) {
 		if (length == null) {
 			length = 8;
 		}
 		StringBuilder builder = new StringBuilder();
 		Random random = new Random();
 		for (int i = 0; i < length; i++) {
-			int nextInt = random.nextInt(simplePasswordCharacters.length);
-			builder.append(simplePasswordCharacters[nextInt]);
+			if (chars == null || chars.isEmpty()) {
+				int nextInt = random.nextInt(simplePasswordCharacters.length);
+				builder.append(simplePasswordCharacters[nextInt]);
+			}
+			else {
+				int nextInt = random.nextInt(chars.length());
+				builder.append(chars.charAt(nextInt));
+			}
 		}
 		return builder.toString();
 	}

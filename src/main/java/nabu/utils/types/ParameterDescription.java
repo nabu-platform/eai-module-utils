@@ -2,13 +2,13 @@ package nabu.utils.types;
 
 public class ParameterDescription {
 	private String name, type, typeName, description;
-	private boolean isList, isOptional, simple;
+	private boolean isList, isOptional, simple, generated;
 	
 	public ParameterDescription() {
 		// auto construct
 	}
 
-	public ParameterDescription(String name, String type, String typeName, String description, boolean isList, boolean isOptional, boolean isSimple) {
+	public ParameterDescription(String name, String type, String typeName, String description, boolean isList, boolean isOptional, boolean isSimple, boolean isGenerated) {
 		this.name = name;
 		this.type = type;
 		this.typeName = typeName;
@@ -16,6 +16,7 @@ public class ParameterDescription {
 		this.isList = isList;
 		this.isOptional = isOptional;
 		this.simple = isSimple;
+		this.generated = isGenerated;
 	}
 
 	public String getName() {
@@ -62,5 +63,13 @@ public class ParameterDescription {
 
 	public void setSimple(boolean simple) {
 		this.simple = simple;
+	}
+
+	public boolean isGenerated() {
+		return generated;
+	}
+
+	public void setGenerated(boolean generated) {
+		this.generated = generated;
 	}
 }

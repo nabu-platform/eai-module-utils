@@ -69,6 +69,23 @@ public class Object {
 		}
 		return properties;
 	}
+
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "changed")
+	public boolean mapProperties(@WebParam(name = "into") java.lang.Object target, @WebParam(name = "properties") List<KeyValuePair> properties) {
+		if (target == null || properties == null) {
+			return false;
+		}
+		boolean set = false;
+		ComplexContent targetContent = target instanceof ComplexContent ? (ComplexContent) target : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(target);
+		for (KeyValuePair property : properties) {
+			if (targetContent.getType().get(property.getKey()) != null) {
+				targetContent.set(property.getKey(), property.getValue());
+				set = true;
+			}
+		}
+		return set;
+	}
 	
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "changed")
