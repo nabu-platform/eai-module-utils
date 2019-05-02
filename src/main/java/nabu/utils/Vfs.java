@@ -105,7 +105,7 @@ public class Vfs {
 		}
 	}
 
-	@WebResult(name = "properties)")
+	@WebResult(name = "properties")
 	public ResourceProperties properties(@NotNull @WebParam(name = "resource") Resource resource) {
 		return ResourceUtils.properties(resource);
 	}

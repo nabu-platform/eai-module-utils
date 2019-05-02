@@ -28,6 +28,9 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
+import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.utils.cep.api.ComplexEvent;
+import be.nabu.utils.cep.impl.ComplexEventImpl;
 
 @WebService
 public class Runtime {
@@ -221,4 +224,11 @@ public class Runtime {
 	public String getServiceContext() {
 		return ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
 	}
+	
+	public void fireEvent(@WebParam(name = "event") java.lang.Object event) {
+		if (executionContext.getEventTarget() != null) {
+			executionContext.getEventTarget().fire(event, this);
+		}
+	}
+	
 }

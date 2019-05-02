@@ -1,8 +1,9 @@
 package nabu.utils.types;
 
 public class ParameterDescription {
-	private String name, type, typeName, description;
+	private String name, type, typeName, description, pattern;
 	private boolean isList, isOptional, simple, generated;
+	private Integer minimum, maximum;
 	
 	public ParameterDescription() {
 		// auto construct
@@ -71,5 +72,29 @@ public class ParameterDescription {
 
 	public void setGenerated(boolean generated) {
 		this.generated = generated;
+	}
+
+	public String getPattern() {
+		return pattern;
+	}
+
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+
+	public Integer getMinimum() {
+		return minimum;
+	}
+
+	public void setMinimum(Integer minimum) {
+		this.minimum = minimum;
+	}
+
+	public Integer getMaximum() {
+		return maximum;
+	}
+
+	public void setMaximum(Integer maximum) {
+		this.maximum = maximum;
 	}
 }

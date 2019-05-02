@@ -63,4 +63,9 @@ public class Uri {
 		}
 		return properties;
 	}
+	
+	@WebResult(name = "normalized")
+	public URI normalize(@WebParam(name = "uri") URI uri) {
+		return URIUtils.normalize(uri);
+	}
 }

@@ -31,6 +31,7 @@ import be.nabu.libs.types.properties.CommentProperty;
 import be.nabu.libs.types.properties.GeneratedProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
+import be.nabu.libs.types.properties.PatternProperty;
 import be.nabu.libs.validator.api.Validation;
 import nabu.utils.types.NodeDescription;
 import nabu.utils.types.ParameterDescription;
@@ -172,13 +173,17 @@ public class Node {
 			Value<Integer> minOccurs = element.getProperty(MinOccursProperty.getInstance());
 			Value<String> comment = element.getProperty(CommentProperty.getInstance());
 			Value<Boolean> generatedProperty = element.getProperty(GeneratedProperty.getInstance());
-			parameters.add(new ParameterDescription(element.getName(), element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
+			Value<String> pattern = element.getProperty(PatternProperty.getInstance());
+			ParameterDescription description = new ParameterDescription(element.getName(), element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
 				element.getType().getName(element.getProperties()),
 				comment == null ? null : comment.getValue(),
 				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1,
 				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0,
 				element.getType() instanceof SimpleType,
-				generatedProperty != null && generatedProperty.getValue() != null && generatedProperty.getValue()));
+				generatedProperty != null && generatedProperty.getValue() != null && generatedProperty.getValue());
+			description.setPattern(pattern == null ? null : pattern.getValue());
+			// TODO: add more
+			parameters.add(description);
 		}
 		return parameters;
 	}

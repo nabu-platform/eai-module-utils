@@ -32,6 +32,27 @@ public class String {
 		return to.apply(content, from == null ? NamingConvention.LOWER_CAMEL_CASE : from);
 	}
 	
+	@WebResult(name = "size")
+	public java.lang.Integer size(@WebParam(name = "string") java.lang.String content) {
+		return content != null ? content.length() : null;
+	}
+
+	@WebResult(name = "matches")
+	public List<java.lang.String> find(@WebParam(name = "content") java.lang.String content, @WebParam(name = "find") java.lang.String find) {
+		final Pattern pattern = Pattern.compile(find);
+		List<java.lang.String> matches = new ArrayList<java.lang.String>();
+		Matcher matcher = pattern.matcher(content);
+		while (matcher.find()) {
+			if (matcher.groupCount() > 0) {
+				matches.add(matcher.group(1));
+			}
+			else {
+				matches.add(matcher.group());
+			}
+		}
+		return matches;
+	}
+	
 	@WebResult(name = "content")
 	public java.lang.String replace(@WebParam(name = "content") java.lang.String content, @WebParam(name = "match") java.lang.String find, @WebParam(name = "replace") java.lang.String replace, @WebParam(name = "useRegex") Boolean useRegex) {
 		if (content == null) {
