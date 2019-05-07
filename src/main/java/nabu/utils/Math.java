@@ -2,6 +2,7 @@ package nabu.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Random;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -99,5 +100,16 @@ public class Math {
 		}
 		return java.lang.Math.sqrt(variance(values, isSample));
 	}
-	
+
+	@WebResult(name = "random")
+	public Double random(@WebParam(name = "minimum") Double minimum, @WebParam(name = "maximum") Double maximum) {
+		double nextDouble = new Random().nextDouble();
+		if (maximum != null) {
+			nextDouble *= minimum == null ? maximum : maximum - minimum;
+		}
+		if (minimum != null) {
+			nextDouble += minimum;
+		}
+		return nextDouble;
+	}
 }

@@ -48,6 +48,7 @@ public class Object {
 	private TypeConverter converter = TypeConverterFactory.getInstance().getConverter();
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@WebResult(name = "validations")
 	public List<Validation<?>> validate(@WebParam(name = "object") java.lang.Object object) {
 		if (object == null) {
 			return null;
@@ -61,11 +62,11 @@ public class Object {
 	
 	@WebResult(name = "properties")
 	@SuppressWarnings("rawtypes")
-	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object) {
+	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "separator") java.lang.String separator) {
 		List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
 		if (object != null) {
 			ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : new BeanInstance(object);
-			toProperties(content, properties, null);
+			toProperties(content, properties, null, separator == null ? "." : separator);
 		}
 		return properties;
 	}
@@ -179,9 +180,9 @@ public class Object {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void toProperties(ComplexContent content, List<KeyValuePair> properties, String path) {
+	private void toProperties(ComplexContent content, List<KeyValuePair> properties, String path, String separator) {
 		for (Element<?> child : TypeUtils.getAllChildren(content.getType())) {
-			String childPath = path == null ? child.getName() : path + "." + child.getName();
+			String childPath = path == null ? child.getName() : path + separator + child.getName();
 			java.lang.Object value = content.get(child.getName());
 			if (value != null) {
 				CollectionHandlerProvider collectionHandler = CollectionHandlerFactory.getInstance().getHandler().getHandler(value.getClass());
@@ -196,20 +197,20 @@ public class Object {
 							else {
 								singlePath += "[\"" + index + "\"]";
 							}
-							singleToProperties(child, singleValue, properties, singlePath);
+							singleToProperties(child, singleValue, properties, singlePath, separator);
 						}
 					}
 				}
 				else {
-					singleToProperties(child, value, properties, childPath);
+					singleToProperties(child, value, properties, childPath, separator);
 				}
 			}
 		}
 	}
 	
-	private void singleToProperties(Element<?> child, java.lang.Object value, List<KeyValuePair> properties, String childPath) {
+	private void singleToProperties(Element<?> child, java.lang.Object value, List<KeyValuePair> properties, String childPath, String separator) {
 		if (value instanceof ComplexContent) {
-			toProperties((ComplexContent) value, properties, childPath);
+			toProperties((ComplexContent) value, properties, childPath, separator);
 		}
 		else {
 			properties.add(new Property(childPath, value instanceof String 
@@ -233,7 +234,7 @@ public class Object {
 				identifier = Integer.toString(random.nextInt());
 			}
 			ComplexContent content = ((ComplexType) type).newInstance();
-			stub(content, identifier, amountOfIterations == null ? 1 : amountOfIterations, increment == null ? ExtendedTimeUnit.DAYS : increment, multiplier == null ? 1000 : multiplier, random);
+			stub(content, identifier, amountOfIterations == null ? 1 : amountOfIterations, increment == null ? ExtendedTimeUnit.DAYS : increment, multiplier == null ? 1000 : multiplier, random, 0);
 			return content;
 		}
 		else if (type instanceof SimpleType) {
@@ -244,7 +245,7 @@ public class Object {
 		}
 	}
 	
-	private void stub(ComplexContent content, String identifier, int amountOfIterations, ExtendedTimeUnit increment, double multiplier, Random random) {
+	private void stub(ComplexContent content, String identifier, int amountOfIterations, ExtendedTimeUnit increment, double multiplier, Random random, int iteration) {
 		for (Element<?> element : TypeUtils.getAllChildren(content.getType())) {
 			Type type = element.getType();
 			java.lang.String path = element.getName();
@@ -256,7 +257,7 @@ public class Object {
 				}
 			}
 			else {
-				generateValue(content, identifier, amountOfIterations, increment, multiplier, element, type, path, random, 0);
+				generateValue(content, identifier, amountOfIterations, increment, multiplier, element, type, path, random, iteration);
 			}
 		}
 	}
@@ -265,7 +266,7 @@ public class Object {
 	private void generateValue(ComplexContent content, String identifier, int amountOfIterations, ExtendedTimeUnit increment, double multiplier, Element<?> element, Type type, java.lang.String path, Random random, int iteration) {
 		if (type instanceof ComplexType) {
 			ComplexContent child = ((ComplexType) type).newInstance();
-			stub(child, identifier, amountOfIterations, increment, multiplier, random);
+			stub(child, identifier, amountOfIterations, increment, multiplier, random, iteration);
 			content.set(path, child);
 		}
 		else if (type instanceof SimpleType) {

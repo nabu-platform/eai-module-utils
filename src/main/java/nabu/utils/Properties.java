@@ -41,7 +41,7 @@ public class Properties {
 	}
 	
 	@WebResult(name = "object")
-	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<KeyValuePair> properties) {
+	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<KeyValuePair> properties, @WebParam(name = "separator") String separator) {
 		DefinedType resolved = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(typeId);
 		if (resolved == null) {
 			resolved = DefinedTypeResolverFactory.getInstance().getResolver().resolve(typeId);
@@ -55,8 +55,12 @@ public class Properties {
 		ComplexContent newInstance = ((ComplexType) resolved).newInstance();
 		if (properties != null) {
 			for (KeyValuePair property : properties) {
-				if (newInstance.getType().get(property.getKey()) != null) {
-					newInstance.set(property.getKey().replace(".", "/"), property.getValue());
+				String key = property.getKey();
+				if (separator == null || !separator.equals("/")) {
+					key = key.replace(separator == null ? "." : separator, "/");
+				}
+				if (newInstance.getType().get(key) != null) {
+					newInstance.set(key, property.getValue());
 				}
 			}
 		}
