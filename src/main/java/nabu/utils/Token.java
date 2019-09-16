@@ -6,6 +6,7 @@ import javax.jws.WebService;
 
 import be.nabu.eai.repository.util.SystemPrincipal;
 import be.nabu.libs.authentication.api.WrappedToken;
+import be.nabu.libs.authentication.impl.BasicPrincipalImpl;
 import be.nabu.libs.authentication.impl.ImpersonateToken;
 
 @WebService
@@ -35,4 +36,8 @@ public class Token {
 		return new ImpersonateToken(originalToken, realm, name);
 	}
 	
+	@WebResult(name = "token")
+	public be.nabu.libs.authentication.api.Token newBasicToken(@WebParam(name = "name") java.lang.String user, @WebParam(name = "password") java.lang.String password) {
+		return new BasicPrincipalImpl(user, password);
+	}
 }
