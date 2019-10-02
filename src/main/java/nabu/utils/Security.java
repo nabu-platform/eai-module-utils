@@ -37,7 +37,7 @@ public class Security {
 	
 	@WebResult(name = "valid")
 	public java.lang.Boolean validateHash(@WebParam(name = "string") java.lang.String content, @NotNull @WebParam(name = "hash") java.lang.String hash, @NotNull @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
-		return content == null ? false : SecurityUtils.check(content, hash, algorithm);
+		return content == null || hash == null ? false : SecurityUtils.check(content, hash, algorithm);
 	}
 	
 	@WebResult(name = "encrypted")

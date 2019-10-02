@@ -137,6 +137,10 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
+		// nothing left
+		if (from != null && from >= list.size()) {
+			return null;
+		}
 		return list.subList(from == null ? 0 : from, to == null ? list.size() : java.lang.Math.min(list.size(), to));
 	}
 

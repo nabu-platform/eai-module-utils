@@ -150,6 +150,11 @@ public class Server {
 		return EAIResourceRepository.getInstance().getGroup();
 	}
 	
+	@WebResult(name = "aliases")
+	public java.util.List<String> getServerAliases() {
+		return EAIResourceRepository.getInstance().getAliases();
+	}
+	
 	public void sleep(@WebParam(name = "amount") long amount, @WebParam(name = "unit") TimeUnit timeUnit) {
 		try {
 			Thread.sleep(timeUnit == null ? amount : TimeUnit.MILLISECONDS.convert(amount, timeUnit));
