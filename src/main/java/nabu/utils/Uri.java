@@ -25,6 +25,11 @@ public class Uri {
 	}
 	
 	@WebResult(name = "uri")
+	public URI getChild(@WebParam(name = "parent") URI uri, @WebParam(name = "child") String child) {
+		return URIUtils.getChild(uri, child);
+	}
+	
+	@WebResult(name = "uri")
 	public URI fromComponents(@WebParam(name = "components") UriComponents components) throws URISyntaxException {
 		return new URI(
 			components.getScheme(),

@@ -9,6 +9,7 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.ExceptionSummary;
+import nabu.utils.types.ServiceInstance;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -28,9 +29,6 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
-import be.nabu.libs.types.api.KeyValuePair;
-import be.nabu.utils.cep.api.ComplexEvent;
-import be.nabu.utils.cep.impl.ComplexEventImpl;
 
 @WebService
 public class Runtime {
@@ -229,6 +227,39 @@ public class Runtime {
 		if (executionContext.getEventTarget() != null) {
 			executionContext.getEventTarget().fire(event, this);
 		}
+	}
+	
+	@WebResult(name = "running")
+	public List<ServiceInstance> getRunning() {
+		List<ServiceInstance> descriptions = new ArrayList<ServiceInstance>();
+		List<Long> ids = new ArrayList<Long>();
+		for (ServiceRuntime runtime : ServiceRuntime.getRunning()) {
+			DefinedService lastService = null;
+			ServiceRuntime lastRuntime = null;
+			while (runtime != null) {
+				if (runtime != null) {
+					lastRuntime = runtime;
+				}
+				if (runtime.getService() instanceof DefinedService) {
+					lastService = (DefinedService) runtime.getService();
+				}
+				runtime = runtime.getParent();
+			}
+			if (lastService != null && lastRuntime != null && !ids.contains(lastRuntime.getId())) {
+				ids.add(lastRuntime.getId());
+				ServiceInstance description = new ServiceInstance();
+				description.setId(lastRuntime.getId());
+				description.setServiceId(lastService.getId());
+				Token token = lastRuntime.getExecutionContext().getSecurityContext().getToken();
+				if (token != null) {
+					description.setAlias(token.getName());
+					description.setRealm(token.getRealm());
+				}
+				description.setStarted(lastRuntime.getStarted());
+				descriptions.add(description);
+			}
+		}
+		return descriptions;
 	}
 	
 }
