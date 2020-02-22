@@ -167,7 +167,7 @@ public class Runtime {
 	
 	@WebResult(name = "summary")
 	public ExceptionSummary summarizeException(@WebParam(name = "exception") Exception exception) {
-		return ExceptionSummary.build(exception);
+		return exception == null ? null : ExceptionSummary.build(exception);
 	}
 	
 	@WebResult(name = "pipeline")

@@ -13,6 +13,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import be.nabu.eai.api.Comment;
 import be.nabu.eai.module.utils.CommonUtils;
 import be.nabu.libs.converter.ConverterFactory;
 import be.nabu.libs.evaluator.EvaluationException;
@@ -125,9 +126,18 @@ public class List {
 	}
 	
 	@WebResult(name = "element")
+	@Comment(title = "You can get a specific index from a list. If the index is negative, it starts counting at the back, e.g. -1 is the last element, -2 is the second to last...") 
 	public java.lang.Object get(@WebParam(name = "list") java.util.List<java.lang.Object> list, @NotNull @WebParam(name = "index") Integer index) {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
+		}
+		// allow starting at back
+		if (index != null && index < 0) {
+			index = list.size() + index;
+		}
+		// if the index is still negative, you overshot the size and are getting something that doesn't exist
+		if (index != null && index < 0) {
+			index = null;
 		}
 		return index == null || index >= list.size() ? null : list.get(index);
 	}

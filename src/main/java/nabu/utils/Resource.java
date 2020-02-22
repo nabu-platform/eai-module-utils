@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
 import java.util.ArrayList;
 
 import javax.jws.WebParam;
@@ -28,7 +29,6 @@ import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.resources.api.ResourceProperties;
 import be.nabu.libs.resources.api.ResourceResolver;
 import be.nabu.libs.resources.api.WritableResource;
-import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 import be.nabu.utils.io.api.WritableContainer;
@@ -36,11 +36,9 @@ import be.nabu.utils.io.api.WritableContainer;
 @WebService
 public class Resource {
 	
-	private ExecutionContext executionContext;
-	
 	@WebResult(name = "properties")
-	public ResourceProperties properties(@WebParam(name = "uri") URI uri) throws IOException {
-		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, null);
+	public ResourceProperties properties(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
+		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, principal);
 		try {
 			return uri == null ? null : ResourceUtils.properties(resolve);
 		}
@@ -52,12 +50,12 @@ public class Resource {
 	}
 	
 	@WebResult(name = "children")
-	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter) throws IOException {
+	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri == null) {
 			return null;
 		}
 		java.util.List<ResourceProperties> list = new ArrayList<ResourceProperties>();
-		be.nabu.libs.resources.api.Resource parent = ResourceFactory.getInstance().resolve(uri, null);
+		be.nabu.libs.resources.api.Resource parent = ResourceFactory.getInstance().resolve(uri, principal);
 		try {
 			list(recursive, fileFilter, list, parent);
 		}
@@ -83,11 +81,11 @@ public class Resource {
 	}
 	
 	@WebResult(name = "stream")
-	public InputStream read(@WebParam(name = "uri") URI uri) throws IOException {
+	public InputStream read(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri == null) {
 			return null;
 		}
-		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, null);
+		be.nabu.libs.resources.api.Resource resolved = ResourceFactory.getInstance().resolve(uri, principal);
 		if (resolved == null) {
 			throw new FileNotFoundException("Could not find file: " + uri);
 		}
@@ -98,25 +96,25 @@ public class Resource {
 	}
 
 	@WebResult(name = "exists")
-	public boolean exists(@WebParam(name = "uri") URI uri) throws IOException {
+	public boolean exists(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri == null) {
 			return false;
 		}
-		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, null);
+		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, principal);
 		if (resolve instanceof Closeable) {
 			((Closeable) resolve).close();
 		}
 		return resolve != null;
 	}
 	
-	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content) throws IOException {
+	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri != null || content != null) {
 			// for optimal signalling to connected systems we need to know if the file already existed (update) or was created in the process
 			// this may require different actions from people watching the file system
 			ResourceState state = ResourceState.UPDATE;
-			be.nabu.libs.resources.api.Resource resource = ResourceFactory.getInstance().resolve(uri, null);
+			be.nabu.libs.resources.api.Resource resource = ResourceFactory.getInstance().resolve(uri, principal);
 			if (resource == null) {
-				resource = ResourceUtils.touch(uri, null);
+				resource = ResourceUtils.touch(uri, principal);
 				state = ResourceState.CREATE;
 			}
 			if (resource == null) {
@@ -136,9 +134,9 @@ public class Resource {
 		}
 	}
 	
-	public void delete(@WebParam(name = "uri") URI uri) throws IOException {
+	public void delete(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri != null) {
-			be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, null);
+			be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, principal);
 			if (resolve != null) {
 				ResourceContainer<?> parent = resolve.getParent();
 				try {
@@ -156,9 +154,9 @@ public class Resource {
 		}
 	}
 	
-	public void mkdir(@WebParam(name = "uri") URI uri) throws IOException {
+	public void mkdir(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri != null) {
-			ResourceContainer<?> directory = ResourceUtils.mkdir(uri, null);
+			ResourceContainer<?> directory = ResourceUtils.mkdir(uri, principal);
 			if (directory instanceof Closeable) {
 				((Closeable) directory).close();
 			}
