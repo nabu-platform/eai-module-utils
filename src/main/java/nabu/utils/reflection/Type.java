@@ -11,6 +11,8 @@ import java.lang.String;
 import java.lang.Object;
 import java.util.List;
 
+import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.SimpleTypeWrapperFactory;
@@ -22,6 +24,7 @@ import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.base.SimpleElementImpl;
 import be.nabu.libs.types.base.ValueImpl;
+import be.nabu.libs.types.mask.MaskedContent;
 import be.nabu.libs.types.properties.MaxInclusiveProperty;
 import be.nabu.libs.types.properties.MaxLengthProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
@@ -90,6 +93,27 @@ public class Type {
 			throw new IllegalArgumentException("Type not found: " + id);
 		}
 		return Node.toParameters((ComplexType) type);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "masked")
+	public Object mask(@WebParam(name = "instance") Object instance, @WebParam(name = "type") String dataType) {
+		if (instance == null) {
+			return null;
+		}
+		else if (!(instance instanceof ComplexContent)) {
+			instance = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(instance);
+		}
+		// check if we are already of the correct type
+		ComplexType type = ((ComplexContent) instance).getType();
+		if (type instanceof DefinedType && ((DefinedType) type).getId().equals(dataType)) {
+			return instance;
+		}
+		Artifact resolve = EAIResourceRepository.getInstance().resolve(dataType);
+		if (!(resolve instanceof ComplexType)) {
+			throw new IllegalArgumentException("Invalid type, expecting a complex type for: " + dataType);
+		}
+		return type.equals(resolve) ? instance : new MaskedContent((ComplexContent) instance, (ComplexType) resolve);
 	}
 	
 	@SuppressWarnings("unchecked")

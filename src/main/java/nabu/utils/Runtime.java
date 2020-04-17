@@ -9,13 +9,19 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.ExceptionSummary;
+import nabu.utils.types.FeatureList;
 import nabu.utils.types.ServiceInstance;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.eai.repository.api.Feature;
+import be.nabu.eai.repository.api.FeatureConfigurator;
+import be.nabu.eai.repository.api.FeaturedArtifact;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.InterruptibleArtifact;
 import be.nabu.libs.authentication.api.Device;
@@ -262,4 +268,62 @@ public class Runtime {
 		return descriptions;
 	}
 	
+	@WebResult(name = "features")
+	public FeatureList getFeatures(@WebParam(name = "id") String id) {
+		FeatureList list = new FeatureList();
+		
+		java.util.Map<String, Feature> features = new HashMap<String, Feature>();
+		EAIResourceRepository repository = EAIResourceRepository.getInstance();
+		for (FeaturedArtifact artifact : repository.getArtifacts(FeaturedArtifact.class)) {
+			if (id == null || artifact.getId().equals(id) || artifact.getId().startsWith(id + ".")) {
+				List<Feature> availableFeatures = artifact.getAvailableFeatures();
+				if (availableFeatures != null) {
+					for (Feature feature : availableFeatures) {
+						features.put(feature.getName(), feature);
+					}
+				}
+			}
+		}
+
+		List<Feature> enabled = new ArrayList<Feature>();
+		List<Feature> disabled = new ArrayList<Feature>();
+		
+		List<String> allEnabled = new ArrayList<String>();
+		for (FeatureConfigurator configurator : repository.getArtifacts(FeatureConfigurator.class)) {
+			if (configurator.getContext() != null && !configurator.getContext().trim().isEmpty() && id != null) {
+				boolean matches = false;
+				for (String context : configurator.getContext().split("[\\s]*,[\\s]*")) {
+					if (id.equals(context) || id.startsWith(context + ".")) {
+						matches = true;
+					}
+				}
+				if (!matches) {
+					continue;
+				}
+			}
+			List<String> enabledFeatures = configurator.getEnabledFeatures();
+			if (enabledFeatures != null) {
+				allEnabled.addAll(enabledFeatures);
+			}
+			Date lastModified = configurator.getLastModified();
+			if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
+				list.setLastModified(lastModified);
+			}
+		}
+		
+		for (String feature : features.keySet()) {
+			if (features.containsKey(feature)) {
+				if (allEnabled.contains(feature)) {
+					enabled.add(features.get(feature));
+				}
+				else {
+					disabled.add(features.get(feature));
+				}
+			}
+		}
+		
+		list.setEnabled(enabled);
+		list.setDisabled(disabled);
+		return list;
+	}
 }

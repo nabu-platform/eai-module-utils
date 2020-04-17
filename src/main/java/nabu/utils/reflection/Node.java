@@ -3,8 +3,10 @@ package nabu.utils.reflection;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -15,6 +17,8 @@ import be.nabu.eai.repository.EAIRepositoryUtils;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.Entry;
 import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.artifacts.api.ExternalDependency;
+import be.nabu.libs.artifacts.api.ExternalDependencyArtifact;
 import be.nabu.libs.artifacts.api.RestartableArtifact;
 import be.nabu.libs.artifacts.api.StartableArtifact;
 import be.nabu.libs.artifacts.api.StoppableArtifact;
@@ -41,10 +45,36 @@ import nabu.utils.types.StartableNode;
 @WebService
 public class Node {
 	
-	@WebResult(name = "nodes")
-	public List<NodeDescription> references(@NotNull @WebParam(name = "id") String id) {
-		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+	private void getAllReferences(String id, Set<String> references, boolean recursive) {
 		for (String child : EAIResourceRepository.getInstance().getReferences(id)) {
+			// java-based arrays like [B don't need to be added...
+			if (!references.contains(child) && !child.startsWith("[")) {
+				references.add(child);
+				if (recursive) {
+					getAllReferences(child, references, recursive);
+				}
+			}
+		}
+	}
+	
+	private void getAllDependencies(String id, Set<String> dependencies, boolean recursive) {
+		for (String child : EAIResourceRepository.getInstance().getDependencies(id)) {
+			if (!dependencies.contains(child)) {
+				dependencies.add(child);
+				if (recursive) {
+					getAllDependencies(child, dependencies, recursive);
+				}
+			}
+		}
+	}
+	
+	@WebResult(name = "nodes")
+	public List<NodeDescription> references(@NotNull @WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {
+		Set<String> references = new LinkedHashSet<String>();
+		references.add(id);
+		getAllReferences(id, references, recursive != null && recursive);
+		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+		for (String child : references) {
 			Entry entry = EAIResourceRepository.getInstance().getEntry(child);
 			if (entry != null) {
 				NodeDescription description = getDescription(entry, false);
@@ -55,9 +85,12 @@ public class Node {
 	}
 	
 	@WebResult(name = "nodes")
-	public List<NodeDescription> dependencies(@NotNull @WebParam(name = "id") String id) {
+	public List<NodeDescription> dependencies(@NotNull @WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {
+		Set<String> dependencies = new LinkedHashSet<String>();
+		dependencies.add(id);
+		getAllDependencies(id, dependencies, recursive != null && recursive);
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
-		for (String child : EAIResourceRepository.getInstance().getDependencies(id)) {
+		for (String child : dependencies) {
 			Entry entry = EAIResourceRepository.getInstance().getEntry(child);
 			if (entry != null) {
 				NodeDescription description = getDescription(entry, false);
@@ -65,6 +98,30 @@ public class Node {
 			}
 		}
 		return nodes;
+	}
+	
+	@WebResult(name = "externalDependencies")
+	public List<ExternalDependency> externalDependencies(@WebParam(name = "id") String id) {
+		List<ExternalDependency> dependencies = new ArrayList<ExternalDependency>();
+		Entry entry = EAIResourceRepository.getInstance().getEntry(id);
+		if (entry.isNode()) {
+			Set<String> references = new LinkedHashSet<String>();
+			getAllReferences(id, references, true);
+			for (String reference : references) {
+				Artifact resolve = EAIResourceRepository.getInstance().resolve(reference);
+				if (resolve instanceof ExternalDependencyArtifact) {
+					dependencies.addAll(((ExternalDependencyArtifact) resolve).getExternalDependencies());
+				}
+			}
+		}
+		else {
+			for (ExternalDependencyArtifact artifact : EAIResourceRepository.getInstance().getArtifacts(ExternalDependencyArtifact.class)) {
+				if (id == null || artifact.getId().equals(id) || artifact.getId().startsWith(id + ".")) {
+					dependencies.addAll(artifact.getExternalDependencies());
+				}
+			}
+		}
+		return dependencies;
 	}
 	
 	@WebResult(name = "nodes")
