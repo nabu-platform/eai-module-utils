@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import be.nabu.eai.repository.EAIResourceRepository;
-import be.nabu.eai.repository.api.Feature;
 import be.nabu.eai.repository.api.FeatureConfigurator;
-import be.nabu.eai.repository.api.FeaturedArtifact;
 import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.artifacts.api.Feature;
+import be.nabu.libs.artifacts.api.FeaturedArtifact;
 import be.nabu.libs.artifacts.api.InterruptibleArtifact;
 import be.nabu.libs.authentication.api.Device;
 import be.nabu.libs.authentication.api.Token;

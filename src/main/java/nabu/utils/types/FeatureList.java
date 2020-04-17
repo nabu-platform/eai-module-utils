@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import be.nabu.eai.repository.api.Feature;
+import be.nabu.libs.artifacts.api.Feature;
 
 @XmlRootElement
 public class FeatureList {
