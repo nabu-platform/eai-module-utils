@@ -17,6 +17,9 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
@@ -24,6 +27,8 @@ import be.nabu.utils.security.SecurityUtils;
 
 @WebService
 public class Security {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@WebResult(name = "bytes")
 	public byte [] digest(@WebParam(name = "stream") InputStream input, @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
@@ -37,7 +42,13 @@ public class Security {
 	
 	@WebResult(name = "valid")
 	public java.lang.Boolean validateHash(@WebParam(name = "string") java.lang.String content, @NotNull @WebParam(name = "hash") java.lang.String hash, @NotNull @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
-		return content == null || hash == null ? false : SecurityUtils.check(content, hash, algorithm);
+		try {
+			return content == null || hash == null ? false : SecurityUtils.check(content, hash, algorithm);
+		}
+		catch (Exception e) {
+			logger.warn("Could not validate hash", e);
+			return false;
+		}
 	}
 	
 	@WebResult(name = "encrypted")

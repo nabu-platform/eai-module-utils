@@ -31,6 +31,13 @@ public class Uri {
 	
 	@WebResult(name = "uri")
 	public URI fromComponents(@WebParam(name = "components") UriComponents components) throws URISyntaxException {
+		// reset default ports to null, we don't need to mention them
+		if ("https".equalsIgnoreCase(components.getScheme()) && components.getPort() != null && components.getPort() == 443) {
+			components.setPort(null);
+		}
+		if ("http".equalsIgnoreCase(components.getScheme()) && components.getPort() != null && components.getPort() == 80) {
+			components.setPort(null);
+		}
 		return new URI(
 			components.getScheme(),
 			components.getUserInfo(),
