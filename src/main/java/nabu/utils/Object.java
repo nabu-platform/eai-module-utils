@@ -60,6 +60,11 @@ public class Object {
 		return validator.validate(object);
 	}
 	
+	@WebResult(name = "string")
+	public String toString(@WebParam(name = "object") java.lang.Object object) {
+		return object == null ? null : object.toString();
+	}
+	
 	@WebResult(name = "properties")
 	@SuppressWarnings("rawtypes")
 	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "separator") java.lang.String separator) {

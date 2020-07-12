@@ -268,6 +268,12 @@ public class Runtime {
 		return descriptions;
 	}
 	
+	@WebResult(name = "correlationId")
+	@NotNull
+	public String getCorrelationId() {
+		return ServiceRuntime.getRuntime().getCorrelationId();
+	}
+	
 	@WebResult(name = "features")
 	public FeatureList getFeatures(@WebParam(name = "id") String id) {
 		FeatureList list = new FeatureList();

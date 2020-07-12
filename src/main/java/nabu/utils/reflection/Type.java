@@ -6,6 +6,7 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.ParameterDescription;
+import nabu.utils.types.TypeDescription;
 
 import java.lang.String;
 import java.lang.Object;
@@ -131,6 +132,34 @@ public class Type {
 		}
 		return null;
 	}
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "description")
+	public TypeDescription whatIs(@WebParam(name = "object") Object object) {
+		if (object == null) {
+			return null;
+		}
+		TypeDescription description = new TypeDescription();
+		DefinedSimpleType<? extends Object> wrap = SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(object.getClass());
+		if (wrap != null) {
+			description.setSimple(true);
+			description.setId(wrap.getId());
+			description.setName(wrap.getName());
+		}
+		else {
+			if (!(object instanceof ComplexContent)) {
+				object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+			}
+			if (object != null) {
+				description.setComplex(true);
+				ComplexType type = ((ComplexContent) object).getType();
+				if (type instanceof DefinedType) {
+					description.setId(((DefinedType) type).getId());
+				}
+			}
+		}
+		return description;
+	}
+	
 	// maybe expose this at some point in the future
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@WebResult(name = "type")

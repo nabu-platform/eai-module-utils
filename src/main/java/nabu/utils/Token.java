@@ -83,4 +83,5 @@ public class Token {
 	public Principal newDevicePrincipal(final @NotNull @WebParam(name = "name") java.lang.String name, final @NotNull @WebParam(name = "device") Device device) {
 		return new DevicePrincipalImplementation(name, device);
 	}
+	
 }

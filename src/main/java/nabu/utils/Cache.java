@@ -3,6 +3,7 @@ package nabu.utils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.lang.String;
 
 import javax.jws.WebParam;
@@ -16,10 +17,12 @@ import nabu.utils.types.CacheProviderOverview;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.CacheProviderArtifact;
 import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.cache.api.AnnotatableCache;
 import be.nabu.libs.cache.api.CacheEntry;
 import be.nabu.libs.cache.api.CacheWithHash;
 import be.nabu.libs.cache.api.ExplorableCache;
 import be.nabu.libs.cache.api.LimitedCache;
+import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService
 public class Cache {
@@ -108,19 +111,49 @@ public class Cache {
 		}
 	}
 	
-	public void clear(@NotNull @WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
-		Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
-		if (resolve instanceof CacheProviderArtifact) {
-			if (cacheId != null) {
-				be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(cacheId);
-				if (cache != null) {
+	public void clear(@WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId, @WebParam(name = "annotations") List<KeyValuePair> properties) throws IOException {
+		Map<java.lang.String, java.lang.String> annotations = properties == null ? null : new Properties().toMap(properties);
+		if (cacheProviderId != null) {
+			Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
+			if (resolve instanceof CacheProviderArtifact) {
+				clearSingle(cacheId, resolve, annotations);
+			}
+		}
+		else {
+			for (CacheProviderArtifact cacheProvider : EAIResourceRepository.getInstance().getArtifacts(CacheProviderArtifact.class)) {
+				clearSingle(cacheId, cacheProvider, annotations);
+			}
+		}
+	}
+
+	private void clearSingle(String cacheId, Artifact resolve, Map<java.lang.String, java.lang.String> annotations) throws IOException {
+		if (cacheId != null) {
+			be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(cacheId);
+			if (cache != null) {
+				// if you want an annotated clear, don't clear everything
+				if (annotations != null && !annotations.isEmpty()) {
+					// if we can't do an annotated clear, we clear nothing
+					if (cache instanceof AnnotatableCache) {
+						((AnnotatableCache) cache).clear(annotations);
+					}
+				}
+				else {
 					cache.clear();
 				}
 			}
-			else {
-				for (String name : ((CacheProviderArtifact) resolve).getCaches()) {
-					be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(name);
-					if (cache != null) {
+		}
+		else {
+			for (String name : ((CacheProviderArtifact) resolve).getCaches()) {
+				be.nabu.libs.cache.api.Cache cache = ((CacheProviderArtifact) resolve).get(name);
+				if (cache != null) {
+					// if you want an annotated clear, don't clear everything
+					if (annotations != null && !annotations.isEmpty()) {
+						// if we can't do an annotated clear, we clear nothing
+						if (cache instanceof AnnotatableCache) {
+							((AnnotatableCache) cache).clear(annotations);
+						}
+					}
+					else {
 						cache.clear();
 					}
 				}

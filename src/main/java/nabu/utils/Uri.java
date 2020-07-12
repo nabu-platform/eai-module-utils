@@ -21,7 +21,7 @@ public class Uri {
 	
 	@WebResult(name = "components")
 	public UriComponents toComponents(@WebParam(name = "uri") URI uri) {
-		return UriComponents.build(uri);
+		return uri == null ? null : UriComponents.build(uri);
 	}
 	
 	@WebResult(name = "uri")
@@ -31,6 +31,9 @@ public class Uri {
 	
 	@WebResult(name = "uri")
 	public URI fromComponents(@WebParam(name = "components") UriComponents components) throws URISyntaxException {
+		if (components == null) {
+			return null;
+		}
 		// reset default ports to null, we don't need to mention them
 		if ("https".equalsIgnoreCase(components.getScheme()) && components.getPort() != null && components.getPort() == 443) {
 			components.setPort(null);

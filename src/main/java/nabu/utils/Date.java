@@ -119,6 +119,9 @@ public class Date {
 	
 	@WebResult(name = "date")
 	public java.util.Date incrementDuration(@WebParam(name = "start") java.util.Date start, @WebParam(name = "times") Integer times, @WebParam(name = "duration") Duration duration, @WebParam(name = "timezone") TimeZone timezone) {
+		if (duration == null) {
+			return start;
+		}
 //		Instant instant = Instant.ofEpochMilli(start.getTime());
 		if (times == null) {
 			times = 1;
