@@ -3,6 +3,7 @@ package nabu.utils.types;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "nodeDescription")
@@ -12,6 +13,7 @@ public class NodeDescription {
 	private String type, name, artifactClass, id;
 	private boolean leaf;
 	private List<NodeDescription> nodes;
+	private int priority;
 
 	public NodeDescription() {
 		// auto construct
@@ -67,4 +69,12 @@ public class NodeDescription {
 		this.nodes = nodes;
 	}
 
+	@XmlTransient
+	public int getPriority() {
+		return priority;
+	}
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+	
 }

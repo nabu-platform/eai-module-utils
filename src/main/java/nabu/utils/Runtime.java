@@ -17,9 +17,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import be.nabu.eai.api.Hidden;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.FeatureConfigurator;
+import be.nabu.eai.server.CEPProcessor;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.Feature;
 import be.nabu.libs.artifacts.api.FeaturedArtifact;
@@ -229,9 +232,20 @@ public class Runtime {
 		return ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
 	}
 	
+	@Deprecated
+	@Hidden
 	public void fireEvent(@WebParam(name = "event") java.lang.Object event) {
 		if (executionContext.getEventTarget() != null) {
 			executionContext.getEventTarget().fire(event, this);
+		}
+	}
+	
+	@Deprecated
+	@Hidden
+	// should implement: be.nabu.eai.server.api.EventHandler.handle
+	public void subscribeEvents(@WebParam(name = "serviceId") java.lang.String serviceId) {
+		if (executionContext.getServiceContext().getServiceRunner() instanceof be.nabu.eai.server.Server) {
+			((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getProcessor().add(serviceId);
 		}
 	}
 	
@@ -274,19 +288,43 @@ public class Runtime {
 		return ServiceRuntime.getRuntime().getCorrelationId();
 	}
 	
+	private static java.util.Map<String, List<Feature>> features;
+	
+	private static java.util.Map<String, List<Feature>> getAvailableFeatures() {
+		if (features == null) {
+			synchronized(Runtime.class) {
+				if (features == null) {
+					java.util.Map<String, List<Feature>> features = new HashMap<String, List<Feature>>();
+					EAIResourceRepository repository = EAIResourceRepository.getInstance();
+					for (FeaturedArtifact artifact : repository.getArtifacts(FeaturedArtifact.class)) {
+						List<Feature> availableFeatures = artifact.getAvailableFeatures();
+						if (availableFeatures != null) {
+							features.put(artifact.getId(), availableFeatures);
+						}
+					}
+					Runtime.features = features;
+				}
+			}
+		}
+		return features;
+	}
+	
+	public void scanFeatures() {
+		features = null;
+		getAvailableFeatures();
+	}
+	
 	@WebResult(name = "features")
 	public FeatureList getFeatures(@WebParam(name = "id") String id) {
 		FeatureList list = new FeatureList();
 		
 		java.util.Map<String, Feature> features = new HashMap<String, Feature>();
 		EAIResourceRepository repository = EAIResourceRepository.getInstance();
-		for (FeaturedArtifact artifact : repository.getArtifacts(FeaturedArtifact.class)) {
-			if (id == null || artifact.getId().equals(id) || artifact.getId().startsWith(id + ".")) {
-				List<Feature> availableFeatures = artifact.getAvailableFeatures();
-				if (availableFeatures != null) {
-					for (Feature feature : availableFeatures) {
-						features.put(feature.getName(), feature);
-					}
+		Map<java.lang.String, List<Feature>> availableFeatures = getAvailableFeatures();
+		for (String artifactId : availableFeatures.keySet()) {
+			if (id == null || artifactId.equals(id) || artifactId.startsWith(id + ".")) {
+				for (Feature feature : availableFeatures.get(artifactId)) {
+					features.put(feature.getName(), feature);
 				}
 			}
 		}

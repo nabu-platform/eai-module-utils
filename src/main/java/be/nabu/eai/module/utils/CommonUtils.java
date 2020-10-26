@@ -2,6 +2,7 @@ package be.nabu.eai.module.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public class CommonUtils {
 			throw new IllegalArgumentException("No grouping fields found for type: " + type);
 		}
 		// first we group our elements by the fieldNames
-		Map<List<Object>, List<Object>> mapped = new HashMap<List<Object>, List<Object>>(); 
+		Map<List<Object>, List<Object>> mapped = new LinkedHashMap<List<Object>, List<Object>>(); 
 		for (Object instance : instances) {
 			if (!(instance instanceof ComplexContent)) {
 				instance = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(instance);

@@ -85,7 +85,7 @@ public class Type {
 	}
 	
 	@WebResult(name = "parameters")
-	public List<ParameterDescription> describe(@WebParam(name = "typeId") String id) {
+	public List<ParameterDescription> describe(@WebParam(name = "typeId") String id, @WebParam(name = "recursive") Boolean recursive) {
 		if (id == null) {
 			return null;
 		}
@@ -93,7 +93,7 @@ public class Type {
 		if (type == null) {
 			throw new IllegalArgumentException("Type not found: " + id);
 		}
-		return Node.toParameters((ComplexType) type);
+		return Node.toParameters((ComplexType) type, recursive != null && recursive);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -132,6 +132,24 @@ public class Type {
 		}
 		return null;
 	}
+	
+	@WebResult
+	public boolean is(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "typeId") String typeId) {
+		if (typeInstance != null) {
+			ComplexContent content = typeInstance instanceof ComplexContent ? ((ComplexContent) typeInstance) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(typeInstance);
+			if (content != null) {
+				ComplexType type = content.getType();
+				while (type != null) {
+					if (type instanceof DefinedType && ((DefinedType) type).getId().equals(typeId)) {
+						return true;
+					}
+					type = (ComplexType) type.getSuperType();
+				}
+			}
+		}
+		return false;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "description")
 	public TypeDescription whatIs(@WebParam(name = "object") Object object) {

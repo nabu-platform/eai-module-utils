@@ -37,8 +37,11 @@ import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.api.Type;
 import be.nabu.libs.types.api.TypeConverter;
 import be.nabu.libs.types.java.BeanInstance;
+import be.nabu.libs.types.mask.MaskedContent;
 import be.nabu.libs.types.properties.EnumerationProperty;
+import be.nabu.libs.types.properties.IdentifiableProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.types.properties.MinOccursProperty;
 import be.nabu.libs.validator.api.Validation;
 import be.nabu.libs.validator.api.Validator;
 
@@ -47,6 +50,112 @@ public class Object {
 	
 	private TypeConverter converter = TypeConverterFactory.getInstance().getConverter();
 
+	// anonimize an object
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "anonymized")
+	public java.lang.Object anonymize(@WebParam(name = "object") java.lang.Object object) {
+		if (object == null) {
+			return object;
+		}
+		else if (!(object instanceof ComplexContent)) {
+			object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+			if (object == null) {
+				return object;
+			}
+		}
+		// we do a masked one so we can do changes without impacting the original object, it is more or less a cheap but effective clone
+		ComplexContent anonymized = new MaskedContent((ComplexContent) object, ((ComplexContent) object).getType());
+		anonymize(anonymized);
+		return anonymized;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void anonymize(ComplexContent content) {
+		for (Element<?> child : TypeUtils.getAllChildren(content.getType())) {
+			java.lang.Object object = content.get(child.getName());
+			if (object != null) {
+				Value<Boolean> property = child.getProperty(IdentifiableProperty.getInstance());
+				// if identifiable...let's anonimize it
+				if (property != null && property.getValue() != null && property.getValue()) {
+					if (child.getType().isList(child.getProperties())) {
+						CollectionHandlerProvider handler = CollectionHandlerFactory.getInstance().getHandler().getHandler(object.getClass());
+						// should be done with indexes etc, but...is slower and has very few usecases
+						List list = new ArrayList();
+	//					java.lang.Object list = handler.create(object.getClass(), 0);
+						// if we need to anonimize entire complex contents, we just leave it empty, so we have an empty list
+						for (java.lang.Object single : handler.getAsIterable(object)) {
+							if (child.getType() instanceof SimpleType) {
+								list.add(anonymizeSimple(child, single));
+							}
+						}
+						content.set(child.getName(), list);
+					}
+					else if (child.getType() instanceof SimpleType) {
+						content.set(child.getName(), anonymizeSimple(child, object));
+					}
+					// if we need to anonimize an entire object, we just set it to null
+					else {
+						content.set(child.getName(), null);
+					}
+				}
+				// if the child itself does not have to be anonimized but it is a complex type, recurse
+				else if (child.getType() instanceof ComplexType) {
+					if (child.getType().isList(child.getProperties())) {
+						CollectionHandlerProvider handler = CollectionHandlerFactory.getInstance().getHandler().getHandler(object.getClass());
+						// should be done with indexes etc, but...is slower and has very few usecases
+						List list = new ArrayList();
+						for (java.lang.Object single : handler.getAsIterable(object)) {
+							if (!(single instanceof ComplexContent)) {
+								single = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(single);
+							}
+							if (single != null) {
+								anonymize((ComplexContent) single);
+							}
+							list.add(single);
+						}
+						content.set(child.getName(), list);
+					}
+					else {
+						if (!(object instanceof ComplexContent)) {
+							object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+						}
+						if (object != null) {
+							anonymize(object);
+						}
+						content.set(child.getName(), object);
+					}
+				}
+			}
+		}
+	}
+	
+	private java.lang.Object anonymizeSimple(Element<?> element, java.lang.Object simple) {
+		Value<Integer> minOccurs = element.getProperty(MinOccursProperty.getInstance());
+		// if it is optional, we don't even try to anonimize it
+		if (minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0) {
+			return null;
+		}
+		SimpleType<?> type = (SimpleType<?>) element.getType();
+		// any number is reset to 0
+		if (Number.class.isAssignableFrom(type.getInstanceClass())) {
+			simple = 0;
+		}
+		else if (UUID.class.isAssignableFrom(type.getInstanceClass()) || String.class.isAssignableFrom(type.getInstanceClass())) {
+			simple = UUID.randomUUID();
+		}
+		else if (Date.class.isAssignableFrom(type.getInstanceClass())) {
+			simple = new Date();
+		}
+		else if (Boolean.class.isAssignableFrom(type.getInstanceClass())) {
+			simple = false;
+		}
+		// any other data type does not have proper anonimization routines yet, let's throw an exception
+		else {
+			throw new IllegalArgumentException("Can not anonimize type: " + type.getInstanceClass());
+		}
+		return simple;
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@WebResult(name = "validations")
 	public List<Validation<?>> validate(@WebParam(name = "object") java.lang.Object object) {

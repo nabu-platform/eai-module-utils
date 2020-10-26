@@ -1,15 +1,18 @@
 package nabu.utils.types;
 
+import be.nabu.libs.types.base.Scope;
+
 public class ParameterDescription {
 	private String name, type, typeName, description, pattern;
-	private boolean isList, isOptional, simple, generated;
+	private boolean isList, isOptional, simple, generated, identifiable;
+	private Scope scope;
 	private Integer minimum, maximum;
 	
 	public ParameterDescription() {
 		// auto construct
 	}
 
-	public ParameterDescription(String name, String type, String typeName, String description, boolean isList, boolean isOptional, boolean isSimple, boolean isGenerated) {
+	public ParameterDescription(String name, String type, String typeName, String description, boolean isList, boolean isOptional, boolean isSimple, boolean isGenerated, boolean identifiable) {
 		this.name = name;
 		this.type = type;
 		this.typeName = typeName;
@@ -18,6 +21,7 @@ public class ParameterDescription {
 		this.isOptional = isOptional;
 		this.simple = isSimple;
 		this.generated = isGenerated;
+		this.identifiable = identifiable;
 	}
 
 	public String getName() {
@@ -96,5 +100,21 @@ public class ParameterDescription {
 
 	public void setMaximum(Integer maximum) {
 		this.maximum = maximum;
+	}
+
+	public Scope getScope() {
+		return scope;
+	}
+
+	public void setScope(Scope scope) {
+		this.scope = scope;
+	}
+
+	public boolean isIdentifiable() {
+		return identifiable;
+	}
+
+	public void setIdentifiable(boolean identifiable) {
+		this.identifiable = identifiable;
 	}
 }

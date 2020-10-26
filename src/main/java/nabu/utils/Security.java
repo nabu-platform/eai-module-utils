@@ -20,6 +20,11 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.eai.repository.api.VirusInfection;
+import be.nabu.eai.repository.api.VirusScanner;
+import be.nabu.libs.services.ServiceRuntime;
+import be.nabu.libs.services.ServiceUtils;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
@@ -29,6 +34,24 @@ import be.nabu.utils.security.SecurityUtils;
 public class Security {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	@WebResult(name = "result")
+	public VirusInfection scanForVirus(@WebParam(name = "scannerId") java.lang.String scannerId, @WebParam(name = "stream") InputStream input) {
+		VirusScanner scanner;
+		if (scannerId == null) {
+			java.lang.String context = ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
+			scanner = EAIResourceRepository.getInstance().resolveFor(context, VirusScanner.class);
+		}
+		else {
+			scanner = (VirusScanner) EAIResourceRepository.getInstance().resolve(scannerId);
+		}
+		// if you want to be able to scan "best effort" (so basically if you have configured one), use features to toggle it
+		// as an example if you want a framework that performs a virus scan if available -> hide it behind a feature
+		if (scanner == null) {
+			throw new IllegalStateException("No virus scanner found");
+		}
+		return input == null ? null : scanner.scan(input);
+	}
 	
 	@WebResult(name = "bytes")
 	public byte [] digest(@WebParam(name = "stream") InputStream input, @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
