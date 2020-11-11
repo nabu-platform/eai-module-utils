@@ -22,6 +22,7 @@ import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.Service;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
 
@@ -107,6 +108,7 @@ public class Server {
 		}
 	}
 
+	@ServiceDescription(comment = "Generate a new globally unique identifier")
 	@WebResult(name = "uuid")
 	@NotNull
 	public UUID uuid() {

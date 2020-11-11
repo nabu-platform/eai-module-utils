@@ -11,6 +11,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.base.Duration;
 import nabu.utils.types.DateProperties;
 import nabu.utils.types.DateValues;
@@ -101,22 +102,26 @@ public class Date {
 		}
 	}
 	
+	@ServiceDescription(comment = "Generate a timestamp containing the current date")
 	@WebResult(name = "date")
 	@NotNull
 	public java.util.Date now() {
 		return new java.util.Date();
 	}
 	
+	@ServiceDescription(comment = "Parse a string into a date object")
 	@WebResult(name = "date")
 	public java.util.Date parse(@WebParam(name = "string") String value, @NotNull @WebParam(name = "properties") DateProperties properties) throws ParseException {
 		return value == null ? null : properties.getFormatter().parse(value);
 	}
 
+	@ServiceDescription(comment = "Format a date object into a string")
 	@WebResult(name = "string")
 	public String format(@WebParam(name = "date") java.util.Date value, @NotNull @WebParam(name = "properties") DateProperties properties) {
 		return properties.getFormatter().format(value == null ? new java.util.Date() : value);
 	}
 	
+	@ServiceDescription(comment = "Increment a date with a certain duration")
 	@WebResult(name = "date")
 	public java.util.Date incrementDuration(@WebParam(name = "start") java.util.Date start, @WebParam(name = "times") Integer times, @WebParam(name = "duration") Duration duration, @WebParam(name = "timezone") TimeZone timezone) {
 		if (duration == null) {
@@ -181,6 +186,7 @@ public class Date {
 //		return new java.util.Date(instant.toEpochMilli());
 	}
 	
+	@ServiceDescription(comment = "Increment a date with a certain time increment")
 	@WebResult(name = "date")
 	public java.util.Date increment(@WebParam(name = "start") java.util.Date start, @WebParam(name = "increment") Integer increment, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "timezone") TimeZone timezone) {
 		if (start == null) {
@@ -198,6 +204,7 @@ public class Date {
 		return unit.increment(start, increment, timezone);
 	}
 	
+	@ServiceDescription(comment = "Generate a range of dates based on a time increment")
 	@WebResult(name = "dates")
 	public java.util.List<java.util.Date> range(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @WebParam(name = "increment") Integer increment, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "startInclusive") Boolean startInclusive, @WebParam(name = "endInclusive") Boolean endInclusive, @WebParam(name = "timezone") TimeZone timezone) {
 		if (start == null) {
@@ -236,6 +243,7 @@ public class Date {
 		return dates;
 	}
 	
+	@ServiceDescription(comment = "Generate a range of dates based on a duration")
 	@WebResult(name = "dates")
 	public java.util.List<java.util.Date> rangeDuration(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @NotNull @WebParam(name = "duration") Duration duration, @WebParam(name = "startInclusive") Boolean startInclusive, @WebParam(name = "endInclusive") Boolean endInclusive, @WebParam(name = "timezone") TimeZone timezone) {
 		if (start == null) {
@@ -268,6 +276,7 @@ public class Date {
 		return dates;
 	}
 	
+	@ServiceDescription(comment = "Calculate the difference between two dates")
 	@WebResult(name = "diff")
 	public double diff(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "absolute") Boolean absolute, @WebParam(name = "timezone") TimeZone timezone, @WebParam(name = "round") Boolean round) {
 		if (start == null) {
@@ -293,6 +302,7 @@ public class Date {
 		return value;
 	}
 	
+	@ServiceDescription(comment = "Transform a date into a timestamp")
 	@WebResult(name = "timestamp")
 	public Long toTimestamp(@WebParam(name = "date") java.util.Date date, @WebParam(name = "asSeconds") java.lang.Boolean asSeconds) {
 		Long timestamp = date == null ? null : date.getTime();
@@ -302,6 +312,7 @@ public class Date {
 		return timestamp;
 	}
 	
+	@ServiceDescription(comment = "Transform a timestamp into a date")
 	@WebResult(name = "date")
 	public java.util.Date fromTimestamp(@WebParam(name = "timestamp") Long timestamp, @WebParam(name = "asSeconds") java.lang.Boolean asSeconds) {
 		if (timestamp != null && asSeconds != null && asSeconds) {
@@ -310,6 +321,7 @@ public class Date {
 		return timestamp == null ? null : new java.util.Date(timestamp);
 	}
 	
+	@ServiceDescription(comment = "Parse a date into its separate values")
 	@WebResult(name = "values")
 	public DateValues toValues(@WebParam(name = "date") java.util.Date date, @WebParam(name = "timezone") TimeZone timezone) {
 		Calendar calendar = Calendar.getInstance(timezone != null ? timezone : TimeZone.getDefault());
@@ -328,6 +340,7 @@ public class Date {
 		return values;
 	}
 	
+	@ServiceDescription(comment = "Format a date from its separate values")
 	@WebResult(name = "date")
 	public java.util.Date fromValues(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
 		Calendar calendar = Calendar.getInstance(timezone != null ? timezone : TimeZone.getDefault());
@@ -358,11 +371,13 @@ public class Date {
 		return calendar.getTime();
 	}
 	
+	@ServiceDescription(comment = "Normalize a date")
 	@WebResult(name = "normalized")
 	public DateValues normalize(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
 		return toValues(fromValues(values, timezone), timezone);
 	}
 	
+	@ServiceDescription(comment = "Transform between time units")
 	@WebResult(name = "amount")
 	public Long toTimeUnit(@WebParam(name = "amount") Long amount, @WebParam(name = "fromTimeUnit") TimeUnit fromTimeUnit, @NotNull @WebParam(name = "toTimeUnit") TimeUnit toTimeUnit) {
 		if (amount == null) {

@@ -22,6 +22,7 @@ import be.nabu.libs.cache.api.CacheEntry;
 import be.nabu.libs.cache.api.CacheWithHash;
 import be.nabu.libs.cache.api.ExplorableCache;
 import be.nabu.libs.cache.api.LimitedCache;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService

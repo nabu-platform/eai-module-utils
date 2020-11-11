@@ -17,10 +17,12 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import be.nabu.eai.api.NamingConvention;
+import be.nabu.libs.services.api.ServiceDescription;
 
 @WebService
 public class String {
 	
+	@ServiceDescription(comment = "Apply a naming convention to a string")
 	@WebResult(name = "conventionized")
 	public java.lang.String conventionize(@WebParam(name = "content") java.lang.String content, @WebParam(name = "from") NamingConvention from, @WebParam(name = "to") NamingConvention to) {
 		if (content == null) {
@@ -32,11 +34,13 @@ public class String {
 		return to.apply(content, from == null ? NamingConvention.LOWER_CAMEL_CASE : from);
 	}
 	
+	@ServiceDescription(comment = "Get the total size of a string")
 	@WebResult(name = "size")
 	public java.lang.Integer size(@WebParam(name = "string") java.lang.String content) {
 		return content != null ? content.length() : null;
 	}
 
+	@ServiceDescription(comment = "Find matching parts of a string")
 	@WebResult(name = "matches")
 	public List<java.lang.String> find(@WebParam(name = "content") java.lang.String content, @WebParam(name = "find") java.lang.String find) {
 		final Pattern pattern = Pattern.compile(find);
@@ -53,6 +57,7 @@ public class String {
 		return matches;
 	}
 	
+	@ServiceDescription(comment = "Replace part of a string")
 	@WebResult(name = "content")
 	public java.lang.String replace(@WebParam(name = "content") java.lang.String content, @WebParam(name = "match") java.lang.String find, @WebParam(name = "replace") java.lang.String replace, @WebParam(name = "useRegex") Boolean useRegex) {
 		if (content == null) {
@@ -70,21 +75,25 @@ public class String {
 		return useRegex ? content.replaceAll(find, replace) : content.replace(find, replace);
 	}
 	
+	@ServiceDescription(comment = "Parse a string into a byte array")
 	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
 		return string == null ? null : string.getBytes(charset == null ? Charset.defaultCharset() : charset);
 	}
 	
+	@ServiceDescription(comment = "Parse a string into a byte stream")
 	@WebResult(name = "stream")
 	public InputStream toStream(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
 		return string == null ? null : new ByteArrayInputStream(toBytes(string, charset));
 	}
 	
+	@ServiceDescription(comment = "Split a string into multiple parts")
 	@WebResult(name = "parts")
 	public List<java.lang.String> split(@WebParam(name = "string") java.lang.String string, @NotNull @WebParam(name = "separator") java.lang.String separator) {
 		return string == null ? null : new ArrayList<java.lang.String>(Arrays.asList(string.split(separator)));
 	}
 	
+	@ServiceDescription(comment = "Join multiple parts into a single string")
 	@WebResult(name = "string")
 	public java.lang.String join(@WebParam(name = "parts") List<java.lang.String> strings, @WebParam(name = "separator") java.lang.String separator) {
 		if (strings == null) {
@@ -111,16 +120,19 @@ public class String {
 		return isFirst ? null : builder.toString();
 	}
 	
+	@ServiceDescription(comment = "Uppercase all the letters in a string")
 	@WebResult(name = "upper")
 	public java.lang.String upper(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.toUpperCase();
 	}
 	
+	@ServiceDescription(comment = "Lowercase all the letters in a string")
 	@WebResult(name = "lower")
 	public java.lang.String lower(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.toLowerCase();
 	}
 	
+	@ServiceDescription(comment = "Get part of a string")
 	@WebResult(name = "substring")
 	public java.lang.String substring(@WebParam(name = "string") java.lang.String string, @WebParam(name = "start") Integer start, @WebParam(name = "stop") Integer stop) {
 		if (string == null || (start == null && stop == null)) {
@@ -135,11 +147,13 @@ public class String {
 		return string.substring(start, stop);
 	}
 	
+	@ServiceDescription(comment = "Parse a hexadecimal string into bytes")
 	@WebResult(name = "bytes")
 	public byte[] fromHexString(@WebParam(name = "hexString") java.lang.String string) throws IOException {
 		return new BigInteger(string, 16).toByteArray();
 	}
 	
+	@ServiceDescription(comment = "Format a string using the given parameters")
 	@WebResult(name = "formatted")
 	public java.lang.String format(@WebParam(name = "template") java.lang.String template, @WebParam(name = "parameters") List<java.lang.Object> parameters) {
 		if (template == null) {
@@ -148,6 +162,7 @@ public class String {
 		return java.lang.String.format(template, parameters == null ? new Object[0] : parameters.toArray());
 	}
 	
+	@ServiceDescription(comment = "Trim the whitespace on each side of the string")
 	@WebResult(name = "trimmed")
 	public java.lang.String trim(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.trim();
