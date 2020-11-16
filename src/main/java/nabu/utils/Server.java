@@ -23,6 +23,7 @@ import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceDescription;
+import be.nabu.libs.services.api.ServiceRunner;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
 
@@ -184,5 +185,34 @@ public class Server {
 	
 	public void setProperty(@NotNull @WebParam(name = "key") java.lang.String key, @WebParam(name = "value") java.lang.String value) {
 		System.setProperty(key, value);
+	}
+	
+	public void bringOnline() {
+		ServiceRunner runner = EAIResourceRepository.getInstance().getServiceRunner();
+		if (runner instanceof be.nabu.eai.server.Server) {
+			((be.nabu.eai.server.Server) runner).bringOnline();
+		}
+		else {
+			throw new IllegalStateException("Can not find the server");
+		}
+	}
+	public void bringOffline() {
+		ServiceRunner runner = EAIResourceRepository.getInstance().getServiceRunner();
+		if (runner instanceof be.nabu.eai.server.Server) {
+			((be.nabu.eai.server.Server) runner).bringOffline();
+		}
+		else {
+			throw new IllegalStateException("Can not find the server");
+		}
+	}
+	@WebResult(name = "online")
+	public boolean isOnline() {
+		ServiceRunner runner = EAIResourceRepository.getInstance().getServiceRunner();
+		if (runner instanceof be.nabu.eai.server.Server) {
+			return !((be.nabu.eai.server.Server) runner).isOffline();
+		}
+		else {
+			throw new IllegalStateException("Can not find the server");
+		}
 	}
 }
