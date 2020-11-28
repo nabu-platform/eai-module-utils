@@ -25,6 +25,7 @@ import be.nabu.eai.repository.api.VirusInfection;
 import be.nabu.eai.repository.api.VirusScanner;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
+import be.nabu.libs.services.api.ServiceException;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
@@ -36,7 +37,7 @@ public class Security {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@WebResult(name = "result")
-	public VirusInfection scanForVirus(@WebParam(name = "scannerId") java.lang.String scannerId, @WebParam(name = "stream") InputStream input) {
+	public VirusInfection scanForVirus(@WebParam(name = "scannerId") java.lang.String scannerId, @WebParam(name = "stream") InputStream input) throws ServiceException {
 		VirusScanner scanner;
 		if (scannerId == null) {
 			java.lang.String context = ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
