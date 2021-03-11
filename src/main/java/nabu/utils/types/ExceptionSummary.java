@@ -7,12 +7,13 @@ import be.nabu.libs.services.api.ServiceException;
 
 public class ExceptionSummary {
 	
-	private String code, message, exceptionStack, serviceStack;
+	private String code, message, exceptionStack, serviceStack, coreMessage;
 
 	public static ExceptionSummary build(Exception exception) {
 		ExceptionSummary summary = new ExceptionSummary();
 		Throwable current = exception;
 		summary.setMessage(current.getMessage());
+		summary.setCoreMessage(current.getMessage());
 		boolean firstServiceStack = true;
 		while (current != null) {
 			if (current instanceof ServiceException) {
@@ -20,6 +21,7 @@ public class ExceptionSummary {
 				// the code and message are more likely the actual cause
 				summary.setMessage(current.getMessage());
 				summary.setCode(((ServiceException) current).getCode());
+				summary.setCoreMessage(((ServiceException) current).getCoreMessage());
 				if (firstServiceStack && ((ServiceException) current).getServiceStack() != null && !((ServiceException) current).getServiceStack().isEmpty()) {
 					summary.setServiceStack(((ServiceException) current).getServiceStack().toString());
 					firstServiceStack = false;
@@ -65,6 +67,14 @@ public class ExceptionSummary {
 
 	public void setServiceStack(String serviceStack) {
 		this.serviceStack = serviceStack;
+	}
+
+	public String getCoreMessage() {
+		return coreMessage;
+	}
+
+	public void setCoreMessage(String coreMessage) {
+		this.coreMessage = coreMessage;
 	}
 	
 }

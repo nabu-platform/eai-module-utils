@@ -281,6 +281,14 @@ public class List {
 					}
 					int comparison = 0;
 					for (java.lang.String field : fields) {
+						boolean nullsFirst = true;
+						if (field.toLowerCase().endsWith(" nulls first")) {
+							field = field.substring(0, field.length() - "nulls first".length()).trim();
+						}
+						if (field.toLowerCase().endsWith(" nulls last")) {
+							field = field.substring(0, field.length() - "nulls last".length()).trim();
+							nullsFirst = false;
+						}
 						// fields should never have whitespace in them, but you can say "asc" or "desc" 
 						java.lang.String [] parts = field.split("[\\s]+");
 						java.lang.Object value1 = ((ComplexContent) o1).get(parts[0]);
@@ -290,12 +298,12 @@ public class List {
 								continue;
 							}
 							else {
-								comparison = -1;
+								comparison = nullsFirst ? -1 : 1;
 								break;
 							}
 						}
 						else if (value2 == null) {
-							comparison = 1;
+							comparison = nullsFirst ? 1 : -1;
 							break;
 						}
 						if (!(value1 instanceof Comparable) || !(value2 instanceof Comparable)) {

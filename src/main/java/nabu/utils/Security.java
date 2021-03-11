@@ -28,6 +28,7 @@ import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.DigestAlgorithm;
+import be.nabu.utils.security.MacAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
 import be.nabu.utils.security.SecurityUtils;
 
@@ -57,6 +58,10 @@ public class Security {
 	@WebResult(name = "bytes")
 	public byte [] digest(@WebParam(name = "stream") InputStream input, @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
 		return input == null ? null : SecurityUtils.digest(input, algorithm);
+	}
+	
+	public java.lang.String mac(@WebParam(name = "key") byte[] key, @WebParam(name = "stream") InputStream content, @WebParam(name = "algorithm") MacAlgorithm algorithm) throws NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalStateException {
+		return SecurityUtils.encodeMac(key, content, algorithm.name());
 	}
 	
 	@WebResult(name = "hash")

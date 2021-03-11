@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import nabu.utils.types.ExceptionSummary;
 import nabu.utils.types.FeatureList;
 import nabu.utils.types.ServiceInstance;
+import nabu.utils.types.ValidationSummary;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import java.util.Map;
 import be.nabu.eai.api.Hidden;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.FeatureConfigurator;
-import be.nabu.eai.server.CEPProcessor;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.Feature;
 import be.nabu.libs.artifacts.api.FeaturedArtifact;
@@ -38,6 +38,7 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
+import be.nabu.libs.validator.api.Validation;
 
 @WebService
 public class Runtime {
@@ -177,6 +178,11 @@ public class Runtime {
 	@WebResult(name = "summary")
 	public ExceptionSummary summarizeException(@WebParam(name = "exception") Exception exception) {
 		return exception == null ? null : ExceptionSummary.build(exception);
+	}
+	
+	@WebResult(name = "summary")
+	public ValidationSummary summarizeValidations(@WebParam(name = "validations") List<Validation<?>> validations) {
+		return validations == null || validations.isEmpty() ? null : ValidationSummary.build(validations);
 	}
 	
 	@WebResult(name = "pipeline")

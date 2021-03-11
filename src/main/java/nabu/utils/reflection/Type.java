@@ -7,9 +7,11 @@ import javax.validation.constraints.NotNull;
 
 import nabu.utils.types.ParameterDescription;
 import nabu.utils.types.TypeDescription;
+import nabu.utils.types.TypeInspection;
 
 import java.lang.String;
 import java.lang.Object;
+import java.util.ArrayList;
 import java.util.List;
 
 import be.nabu.eai.repository.EAIResourceRepository;
@@ -94,6 +96,34 @@ public class Type {
 			throw new IllegalArgumentException("Type not found: " + id);
 		}
 		return Node.toParameters((ComplexType) type, recursive != null && recursive);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "inspection")
+	public TypeInspection inspect(@WebParam(name = "object") Object object) {
+		if (object == null) {
+			return null;
+		}
+		if (!(object instanceof ComplexContent)) {
+			object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+			if (object == null) {
+				throw new IllegalArgumentException("This type of object is currently not supported");
+			}
+		}
+		TypeInspection typeInspection = new TypeInspection();
+		typeInspection.setHierarchy(new ArrayList<String>());
+		ComplexType type = ((ComplexContent) object).getType();
+		if (type instanceof DefinedType) {
+			typeInspection.setId(((DefinedType) type).getId());
+			typeInspection.getHierarchy().add(((DefinedType) type).getId());
+		}
+		while (type.getSuperType() instanceof ComplexType) {
+			type = (ComplexType) type.getSuperType();
+			if (type instanceof DefinedType) {
+				typeInspection.getHierarchy().add(((DefinedType) type).getId());	
+			}
+		}
+		return typeInspection;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -16,6 +17,7 @@ import javax.jws.WebService;
 
 import be.nabu.eai.api.Hidden;
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.eai.repository.api.Entry;
 import be.nabu.eai.repository.events.ResourceEvent;
 import be.nabu.eai.repository.events.ResourceEvent.ResourceState;
 import be.nabu.libs.resources.ResourceFactory;
@@ -23,12 +25,14 @@ import be.nabu.libs.resources.ResourceReadableContainer;
 import be.nabu.libs.resources.ResourceUtils;
 import be.nabu.libs.resources.ResourceWritableContainer;
 import be.nabu.libs.resources.URIUtils;
+import be.nabu.libs.resources.api.AppendableResource;
 import be.nabu.libs.resources.api.ManageableContainer;
 import be.nabu.libs.resources.api.ReadableResource;
 import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.resources.api.ResourceProperties;
 import be.nabu.libs.resources.api.ResourceResolver;
 import be.nabu.libs.resources.api.WritableResource;
+import be.nabu.libs.resources.impl.ResourcePropertiesImpl;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 import be.nabu.utils.io.api.WritableContainer;
@@ -62,6 +66,52 @@ public class Resource {
 		finally {
 			if (parent instanceof Closeable) {
 				((Closeable) parent).close();
+			}
+		}
+		// rewrite for repository access, for example resources distributed in nar files are not directly accessible otherwise
+		URI repositoryRoot = ResourceUtils.getURI(EAIResourceRepository.getInstance().getRoot().getContainer());
+		if (repositoryRoot != null) {
+			java.lang.String repositoryUri = repositoryRoot.toASCIIString();
+			if (!repositoryUri.endsWith("/")) {
+				repositoryUri += "/";
+			}
+			for (int j = 0; j < list.size(); j++) {
+				ResourceProperties property = list.get(j);
+				// if it is in the repository, let's check if it's an artifact
+				java.lang.String propertyUri = property.getUri().toASCIIString();
+				if (property instanceof ResourcePropertiesImpl && propertyUri.startsWith(repositoryUri)) {
+					Entry entry = EAIResourceRepository.getInstance().getRoot();
+					java.lang.String [] specificParts = propertyUri.substring(repositoryUri.length()).split("/");
+					for (int i = 0; i < specificParts.length; i++) {
+						java.lang.String part = specificParts[i];
+						// if we have nar file, it will be mounted as a regular artifact
+						if (part.endsWith(".nar")) {
+							part = part.substring(0, part.length() - ".nar".length());
+						}
+						// if we dive into the reserved folders, we have our match
+						if (EAIResourceRepository.PUBLIC.equals(part) || EAIResourceRepository.PROTECTED.equals(part) || EAIResourceRepository.PRIVATE.equals(part)) {
+							java.lang.String resultingUri = "repository:" + entry.getId() + ":";
+							for (int k = i; k < specificParts.length; k++) {
+								resultingUri += "/" + specificParts[k];
+							}
+							try {
+								((ResourcePropertiesImpl) property).setUri(new URI(resultingUri));
+							}
+							catch (URISyntaxException e) {
+								throw new RuntimeException(e);
+							}
+							break;
+						}
+						Entry child = entry.getChild(part);
+						// if we can't find a child by that name, we are on to something else
+						if (child == null) {
+							break;
+						}
+						else {
+							entry = child;
+						}
+					}
+				}
 			}
 		}
 		return list;
@@ -107,7 +157,7 @@ public class Resource {
 		return resolve != null;
 	}
 	
-	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content, @WebParam(name = "principal") Principal principal) throws IOException {
+	public void write(@WebParam(name = "uri") URI uri, @WebParam(name = "stream") InputStream content, @WebParam(name = "append") Boolean append, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri != null || content != null) {
 			// for optimal signalling to connected systems we need to know if the file already existed (update) or was created in the process
 			// this may require different actions from people watching the file system
@@ -120,16 +170,22 @@ public class Resource {
 			if (resource == null) {
 				throw new FileNotFoundException("Could not find or create the resource " + ResourceUtils.cleanForLogging(uri));
 			}
-			if (!(resource instanceof WritableResource)) {
+			if (append != null && append && !(resource instanceof AppendableResource)) {
+				throw new IOException("The resource at " + ResourceUtils.cleanForLogging(uri) + " is not appendable");
+			}
+			else if (!(resource instanceof WritableResource)) {
 				throw new IOException("The resource at " + ResourceUtils.cleanForLogging(uri) + " is not writable");
 			}
-			WritableContainer<ByteBuffer> writableContainer = new ResourceWritableContainer((WritableResource) resource);;
+			WritableContainer<ByteBuffer> writableContainer = append != null && append
+				? ((AppendableResource) resource).getAppendable()
+				: new ResourceWritableContainer((WritableResource) resource);
 			try {
 				IOUtils.copyBytes(IOUtils.wrap(content), writableContainer);
 				trigger(uri, state);
 			}
 			finally {
 				writableContainer.close();
+				resource.close();
 			}
 		}
 	}

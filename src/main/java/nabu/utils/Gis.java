@@ -71,7 +71,7 @@ public class Gis {
 		);
 	}
 	
-	@WebResult(name = "distance")
+	@WebResult(name = "distance")	// in meters it seems!
 	public double distance(@NotNull @WebParam(name = "from") Coordinate from, @NotNull @WebParam(name = "to") Coordinate to) {
 		// based on https://en.wikipedia.org/wiki/Haversine_formula
 		// and http://stackoverflow.com/questions/837872/calculate-distance-in-meters-when-you-know-longitude-and-latitude-in-java
