@@ -18,6 +18,10 @@ public class Lock {
 	
 	private ExecutionContext context;
 	
+	// no longer destroying locks, we generally don't use variable lock names so it shouldn't pile up too much in memory (otherwise this may become a memory leak!)
+	// the problem is if we unlock it and then destroy it (without any kind of synchronization), we can interfere with other cluster members who just got the lock
+	// hazelcast documentation is not clear in how they resolve this, in their examples there is no destroy
+	// creating a new lock to destroy this lock seems overkill
 	public void lock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local) {
 		final ClusterLock lock = getCluster(local).lock(name);
 		lock.lock();
@@ -29,7 +33,7 @@ public class Lock {
 				if (lock.isLockedByCurrentThread()) {
 					lock.unlock();
 				}
-				lock.destroy();
+//				lock.destroy();
 			}
 		}));
 	}
@@ -43,7 +47,7 @@ public class Lock {
 					if (lock.isLockedByCurrentThread()) {
 						lock.unlock();
 					}
-					lock.destroy();
+//					lock.destroy();
 				}
 			}));
 			return true;

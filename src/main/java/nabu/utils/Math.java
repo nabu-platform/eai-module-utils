@@ -34,6 +34,20 @@ public class Math {
 		return sum;
 	}
 	
+	@WebResult(name = "result")
+	public Double multiply(@WebParam(name = "values") java.util.List<Double> values) {
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		double result = 1;
+		for (Double value : values) {
+			if (value != null) {
+				result *= value;
+			}
+		}
+		return result;
+	}
+	
 	@WebResult(name = "maximum")
 	public Double maximum(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {

@@ -21,6 +21,38 @@ import be.nabu.libs.services.api.ServiceDescription;
 
 @WebService
 public class String {
+
+	@WebResult(name = "padded")
+	@ServiceDescription(comment = "By default the value will stay on the right with padding being applied on the left. If you want to align the value on the left, set the boolean leftAlign to true.")
+	public java.lang.String pad(@WebParam(name = "content") java.lang.String content, @WebParam(name = "pad") java.lang.String pad, @WebParam(name = "length") java.lang.Integer length, @WebParam(name = "leftAlign") Boolean leftAlign) {
+		if (length == null) {
+			return null;
+		}
+		if (content == null) {
+			content = "";
+		}
+		if (pad == null || pad.isEmpty()) {
+			pad = " ";
+		}
+		while (content.length() < length) {
+			int padLength = java.lang.Math.min(pad.length(), length - content.length());
+			if (padLength < pad.length()) {
+				if (leftAlign) {
+					pad = pad.substring(0, padLength);
+				}
+				else {
+					pad = pad.substring(pad.length() - padLength);
+				}
+			}
+			if (leftAlign) {
+				content += pad;
+			}
+			else {
+				content = pad + content;
+			}
+		}
+		return content;
+	}
 	
 	@ServiceDescription(comment = "Apply a naming convention to a string")
 	@WebResult(name = "conventionized")
