@@ -62,11 +62,11 @@ public class DateProperties {
 								formatter = new TimeFormat(locale);
 							break;
 							default:
-								formatter = new SimpleDateFormat(xsdFormat.getFormat());
+								formatter = locale == null ? new SimpleDateFormat(xsdFormat.getFormat()) : new SimpleDateFormat(xsdFormat.getFormat(), locale);
 						}
 					}
 					else {
-						formatter = new SimpleDateFormat(format);
+						formatter = locale == null ? new SimpleDateFormat(format) : new SimpleDateFormat(format, locale);
 					}
 					formatter.setTimeZone(timezone == null ? TimeZone.getDefault() : timezone);
 					this.formatter = formatter;
