@@ -9,9 +9,12 @@ import javax.jws.WebService;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.server.rest.ServerREST;
 import be.nabu.libs.events.api.EventDispatcher;
+import be.nabu.libs.services.ServiceRuntime;
+import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.cep.api.CommonEvent;
 import be.nabu.utils.cep.impl.CEPUtils;
+import be.nabu.utils.cep.impl.ComplexEventImpl;
 
 @WebService
 public class Event {
@@ -33,6 +36,30 @@ public class Event {
 			if (complexEventDispatcher != null) {
 				complexEventDispatcher.fire(event, this);
 			}
+		}
+	}
+	
+	// annotations are meant as short key/value pairs like for example contract numbers, client numbers etc which give more context to the event stream
+	// the values here should not be long jsonified content, that should be sent in a separate event in the data attribute
+	public void annotate(@WebParam(name = "artifactId") java.lang.String artifactId, @WebParam(name = "key") java.lang.String key, @WebParam(name = "value") java.lang.String value, @WebParam(name = "message") java.lang.String message, @WebParam(name = "description") java.lang.String description) {
+		EventDispatcher complexEventDispatcher = EAIResourceRepository.getInstance().getComplexEventDispatcher();
+		if (complexEventDispatcher != null) {
+			if (artifactId == null) {
+				ServiceRuntime parent = ServiceRuntime.getRuntime().getParent();
+				if (parent != null && parent.getService() instanceof DefinedService) {
+					artifactId = ((DefinedService) parent.getService()).getId();
+				}
+			}
+			ComplexEventImpl complexEventImpl = new ComplexEventImpl();
+			complexEventImpl.setEventCategory("annotation");
+			complexEventImpl.setEventName(key);
+			complexEventImpl.setArtifactId(artifactId);
+			complexEventImpl.setMessage(message);
+			complexEventImpl.setReason(description);
+			// at first we took "data" here, the thing is however you likely want to search on the value itself
+			// indexing the data field is generally less useful, but the code field is almost certainly already indexed
+			complexEventImpl.setCode(value);
+			complexEventDispatcher.fire(complexEventImpl, this);
 		}
 	}
 	
