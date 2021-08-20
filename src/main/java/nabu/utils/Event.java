@@ -51,6 +51,7 @@ public class Event {
 				}
 			}
 			ComplexEventImpl complexEventImpl = new ComplexEventImpl();
+			complexEventImpl.setCreated(new java.util.Date());
 			complexEventImpl.setEventCategory("annotation");
 			complexEventImpl.setEventName(key);
 			complexEventImpl.setArtifactId(artifactId);
