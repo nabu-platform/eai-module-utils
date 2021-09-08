@@ -21,19 +21,34 @@ import be.nabu.utils.io.api.ByteBuffer;
 @WebService
 public class Transcoder {
 	
+	public enum Base64Type {
+		STANDARD,
+		URL
+	}
+	
 	@WebResult(name = "stream")
 	public InputStream transcode(@WebParam(name = "stream") InputStream input, @NotNull @WebParam(name = "transcoder") be.nabu.utils.codec.api.Transcoder<ByteBuffer> transcoder) throws IOException {
 		return IOUtils.toInputStream(TranscoderUtils.wrapReadable(IOUtils.wrap(input), transcoder), true);
 	}
 	
 	@WebResult(name = "transcoder")
-	public Base64Encoder base64Encoder() {
-		return new Base64Encoder();
+	public Base64Encoder base64Encoder(@WebParam(name = "type") Base64Type type) {
+		Base64Encoder base64Encoder = new Base64Encoder();
+		if (Base64Type.URL.equals(type)) {
+			base64Encoder.setUseBase64Url(true);
+			// no line skipping
+			base64Encoder.setBytesPerLine(0);
+		}
+		return base64Encoder;
 	}
 	
 	@WebResult(name = "transcoder")
-	public Base64Decoder base64Decoder() {
-		return new Base64Decoder();
+	public Base64Decoder base64Decoder(@WebParam(name = "type") Base64Type type) {
+		Base64Decoder base64Decoder = new Base64Decoder();
+		if (Base64Type.URL.equals(type)) {
+			base64Decoder.setUseBase64Url(true);
+		}
+		return base64Decoder;
 	}
 	
 	@WebResult(name = "transcoder")

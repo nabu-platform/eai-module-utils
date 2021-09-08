@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -123,7 +124,7 @@ public class Server {
 			length = 8;
 		}
 		StringBuilder builder = new StringBuilder();
-		Random random = new Random();
+		SecureRandom random = new SecureRandom();
 		for (int i = 0; i < length; i++) {
 			if (chars == null || chars.isEmpty()) {
 				int nextInt = random.nextInt(simplePasswordCharacters.length);
