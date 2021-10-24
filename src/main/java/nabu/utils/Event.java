@@ -13,6 +13,7 @@ import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.cep.api.CommonEvent;
+import be.nabu.utils.cep.api.ComplexEvent;
 import be.nabu.utils.cep.impl.CEPUtils;
 import be.nabu.utils.cep.impl.ComplexEventImpl;
 
@@ -20,6 +21,11 @@ import be.nabu.utils.cep.impl.ComplexEventImpl;
 public class Event {
 	
 	private ExecutionContext executionContext;
+	
+	@WebResult(name = "event")
+	public java.lang.Object create(@WebParam(name = "event") ComplexEvent event) {
+		return event;
+	}
 	
 	public void fire(@WebParam(name = "event") java.lang.Object event) {
 		if (executionContext.getEventTarget() != null) {

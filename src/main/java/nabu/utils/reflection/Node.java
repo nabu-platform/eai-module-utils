@@ -55,6 +55,9 @@ public class Node {
 	
 	private void getAllReferences(String id, Set<String> references, boolean recursive) {
 		for (String child : EAIResourceRepository.getInstance().getReferences(id)) {
+			if (child == null) {
+				continue;
+			}
 			// java-based arrays like [B don't need to be added...
 			if (!references.contains(child) && !child.startsWith("[")) {
 				references.add(child);

@@ -23,6 +23,8 @@ import java.util.Map;
 import be.nabu.eai.api.Hidden;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.FeatureConfigurator;
+import be.nabu.eai.repository.api.FeatureDescription;
+import be.nabu.eai.repository.api.FeatureProviderService;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.Feature;
 import be.nabu.libs.artifacts.api.FeaturedArtifact;
@@ -321,7 +323,7 @@ public class Runtime {
 	}
 	
 	@WebResult(name = "features")
-	public FeatureList getFeatures(@WebParam(name = "id") String id) {
+	public FeatureList getFeatures(@WebParam(name = "id") String id, @WebParam(name = "token") Token token) {
 		FeatureList list = new FeatureList();
 		
 		java.util.Map<String, Feature> features = new HashMap<String, Feature>();
@@ -351,13 +353,39 @@ public class Runtime {
 					continue;
 				}
 			}
-			List<String> enabledFeatures = configurator.getEnabledFeatures();
+			List<String> enabledFeatures = configurator.getEnabledFeatures(token);
 			if (enabledFeatures != null) {
 				allEnabled.addAll(enabledFeatures);
 			}
 			Date lastModified = configurator.getLastModified();
 			if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
 				list.setLastModified(lastModified);
+			}
+		}
+		for (FeatureProviderService provider : repository.getArtifacts(FeatureProviderService.class)) {
+			List<FeatureDescription> result = provider.features(token);
+			if (result != null) {
+				for (FeatureDescription description : result) {
+					Boolean featureEnabled = description.getEnabled();
+					if (featureEnabled != null && featureEnabled) {
+						if (description.getContext() != null && !description.getContext().trim().isEmpty()) {
+							boolean matches = false;
+							for (String context : description.getContext().split("[\\s]*,[\\s]*")) {
+								if (id.equals(context) || id.startsWith(context + ".")) {
+									matches = true;
+								}
+							}
+							if (!matches) {
+								continue;
+							}
+							allEnabled.add(description.getName());
+						}
+					}
+					Date lastModified = description.getLastModified();
+					if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
+						list.setLastModified(lastModified);
+					}
+				}
 			}
 		}
 		

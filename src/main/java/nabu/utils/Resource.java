@@ -61,7 +61,24 @@ public class Resource {
 		java.util.List<ResourceProperties> list = new ArrayList<ResourceProperties>();
 		be.nabu.libs.resources.api.Resource parent = ResourceFactory.getInstance().resolve(uri, principal);
 		try {
-			list(recursive, fileFilter, list, parent);
+			list(recursive, fileFilter, list, parent, uri);
+			// this is of the format repository:artifactId:/path/to/stuff
+			// however, if we pass it in the above, it will not have a path and end up with repository:/myresource.txt for example
+			if ("repository".equals(uri.getScheme())) {
+				java.lang.String fullUri = uri.toASCIIString();
+				for (ResourceProperties properties : list) {
+					if (properties instanceof ResourcePropertiesImpl) {
+						if ("repository".equals(properties.getUri().getScheme())) {
+							try {
+								((ResourcePropertiesImpl) properties).setUri(new URI(fullUri.replaceAll("[/]+$", "") + properties.getUri().getPath()));
+							}
+							catch (URISyntaxException e) {
+								throw new RuntimeException(e);
+							}
+						}
+					}
+				}
+			}
 		}
 		finally {
 			if (parent instanceof Closeable) {
@@ -117,14 +134,14 @@ public class Resource {
 		return list;
 	}
 
-	private void list(Boolean recursive, java.lang.String fileFilter, java.util.List<ResourceProperties> list, be.nabu.libs.resources.api.Resource parent) {
+	private void list(Boolean recursive, java.lang.String fileFilter, java.util.List<ResourceProperties> list, be.nabu.libs.resources.api.Resource parent, URI uri) {
 		if (parent instanceof ResourceContainer) {
 			for (be.nabu.libs.resources.api.Resource child : (ResourceContainer<?>) parent) {
 				if (fileFilter == null || child.getName().matches(fileFilter)) {
-					list.add(ResourceUtils.properties(child));
+					list.add(ResourceUtils.properties(child, uri));
 				}
 				if (recursive != null && recursive && child instanceof ResourceContainer) {
-					list(recursive, fileFilter, list, child);
+					list(recursive, fileFilter, list, child, URIUtils.getChild(uri, child.getName()));
 				}
 			}
 		}

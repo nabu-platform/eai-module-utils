@@ -19,6 +19,7 @@ public class CommonInterfaceLister implements InterfaceLister {
 					List<InterfaceDescription> descriptions = new ArrayList<InterfaceDescription>();
 					descriptions.add(new InterfaceDescriptionImpl("Common", "Comparator", "java.util.Comparator.compare"));
 					descriptions.add(new InterfaceDescriptionImpl("Cache", "Annotater", "be.nabu.libs.cache.api.CacheAnnotater.annotate"));
+					descriptions.add(new InterfaceDescriptionImpl("Features", "Lister", "be.nabu.eai.repository.api.FeatureProviderService.features"));
 					CommonInterfaceLister.descriptions = descriptions;
 				}
 			}
