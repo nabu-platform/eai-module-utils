@@ -42,9 +42,9 @@ public class Resource {
 	
 	@WebResult(name = "properties")
 	public ResourceProperties properties(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
-		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, principal);
+		be.nabu.libs.resources.api.Resource resolve = uri == null ? null : ResourceFactory.getInstance().resolve(uri, principal);
 		try {
-			return uri == null ? null : ResourceUtils.properties(resolve);
+			return resolve == null ? null : ResourceUtils.properties(resolve);
 		}
 		finally {
 			if (resolve instanceof Closeable) {
