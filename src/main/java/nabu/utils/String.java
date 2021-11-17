@@ -54,6 +54,11 @@ public class String {
 		return content;
 	}
 	
+	@WebResult(name = "reversed")
+	public java.lang.String reverse(@WebParam(name = "content") java.lang.String content) {
+		return content == null ? null : new StringBuilder(content).reverse().toString();
+	}
+	
 	@ServiceDescription(comment = "Apply a naming convention to a string")
 	@WebResult(name = "conventionized")
 	public java.lang.String conventionize(@WebParam(name = "content") java.lang.String content, @WebParam(name = "from") NamingConvention from, @WebParam(name = "to") NamingConvention to) {
