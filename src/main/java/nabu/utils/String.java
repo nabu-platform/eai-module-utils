@@ -124,7 +124,7 @@ public class String {
 		return string == null ? null : new ByteArrayInputStream(toBytes(string, charset));
 	}
 	
-	@ServiceDescription(comment = "Split a string into multiple parts")
+	@ServiceDescription(comment = "Split {string|a string} into multiple parts using {separator|a regex separator}")
 	@WebResult(name = "parts")
 	public List<java.lang.String> split(@WebParam(name = "string") java.lang.String string, @NotNull @WebParam(name = "separator") java.lang.String separator) {
 		return string == null ? null : new ArrayList<java.lang.String>(Arrays.asList(string.split(separator)));

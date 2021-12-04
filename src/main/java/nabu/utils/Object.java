@@ -51,7 +51,7 @@ public class Object {
 	
 	private TypeConverter converter = TypeConverterFactory.getInstance().getConverter();
 
-	@ServiceDescription(comment = "Anonymize the data in an object")
+	@ServiceDescription(comment = "Anonymize the data in {object|an object}")
 	// anonimize an object
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "anonymized")
@@ -158,7 +158,7 @@ public class Object {
 		return simple;
 	}
 	
-	@ServiceDescription(comment = "Validate the content of an object")
+	@ServiceDescription(comment = "Validate the content of {object|an object}")
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@WebResult(name = "validations")
 	public List<Validation<?>> validate(@WebParam(name = "object") java.lang.Object object) {
@@ -172,13 +172,13 @@ public class Object {
 		return validator.validate(object);
 	}
 	
-	@ServiceDescription(comment = "Format an object into a string")
+	@ServiceDescription(comment = "Format {object|an object} into a string")
 	@WebResult(name = "string")
 	public String toString(@WebParam(name = "object") java.lang.Object object) {
 		return object == null ? null : object.toString();
 	}
 	
-	@ServiceDescription(comment = "Transform an object into key/value pairs")
+	@ServiceDescription(comment = "Transform {object|an object} into key/value pairs")
 	@WebResult(name = "properties")
 	@SuppressWarnings("rawtypes")
 	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "separator") java.lang.String separator) {
@@ -245,7 +245,7 @@ public class Object {
 		return changed;
 	}
 	
-	@ServiceDescription(comment = "Clone an object")
+	@ServiceDescription(comment = "Clone {object|an object}")
 	@WebResult(name = "duplicate")
 	@SuppressWarnings("rawtypes")
 	public java.lang.Object duplicate(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "deep") Boolean deep) {
@@ -275,7 +275,7 @@ public class Object {
 		return duplicate;
 	}
 
-	@ServiceDescription(comment = "Get the first non-null option in a list")
+	@ServiceDescription(comment = "Get the first non-null entry in {options|a list}")
 	@WebResult(name = "first")
 	public java.lang.Object first(@WebParam(name = "options") List<java.lang.Object> options) {
 		if (options != null) {
@@ -288,7 +288,7 @@ public class Object {
 		return null;
 	}
 	
-	@ServiceDescription(comment = "Get the last non-null option in a list")
+	@ServiceDescription(comment = "Get the last non-null entry in {options|a list}")
 	@WebResult(name = "last")
 	public java.lang.Object last(@WebParam(name = "options") List<java.lang.Object> options) {
 		java.lang.Object last = null;

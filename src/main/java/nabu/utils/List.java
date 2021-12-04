@@ -23,6 +23,7 @@ import be.nabu.libs.evaluator.types.api.TypeOperation;
 import be.nabu.libs.evaluator.types.operations.TypesOperationProvider;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.pojo.POJOUtils;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
@@ -368,6 +369,7 @@ public class List {
 	}
 	
 	@WebResult(name = "size")
+	@ServiceDescription(comment = "Get the size of {list|a list}")
 	@NotNull
 	public Integer size(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
 		return list == null ? 0 : list.size();
