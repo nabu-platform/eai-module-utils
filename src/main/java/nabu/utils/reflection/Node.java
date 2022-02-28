@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -302,19 +303,27 @@ public class Node {
 	static NodeDescription getDescription(Entry entry, Boolean recursive) {
 		String type = null;
 		String artifactClass = null;
+		be.nabu.eai.repository.api.Node node = null;
 		if (entry.isNode()) {
-			artifactClass = entry.getNode().getArtifactClass().getName();
-			if (Service.class.isAssignableFrom(entry.getNode().getArtifactClass())) {
+			node = entry.getNode();
+			artifactClass = node.getArtifactClass().getName();
+			if (Service.class.isAssignableFrom(node.getArtifactClass())) {
 				type = "service";
 			}
-			else if (ComplexType.class.isAssignableFrom(entry.getNode().getArtifactClass())) {
+			else if (ComplexType.class.isAssignableFrom(node.getArtifactClass())) {
 				type = "complexType";
 			}
-			else if (SimpleType.class.isAssignableFrom(entry.getNode().getArtifactClass())) {
+			else if (SimpleType.class.isAssignableFrom(node.getArtifactClass())) {
 				type = "simpleType";
 			}
 		}
 		NodeDescription description = new NodeDescription(entry.getId(), entry.getName(), type, artifactClass, entry.isLeaf());
+		if (node != null) {
+			description.setComment(node.getComment());
+			description.setDescription(node.getDescription());
+			description.setTags(node.getTags());
+			description.setSummary(node.getSummary());
+		}
 		if (recursive != null && recursive) {
 			List<NodeDescription> children = new ArrayList<NodeDescription>();
 			for (Entry child : entry) {
@@ -443,5 +452,57 @@ public class Node {
 				exceptions(child, descriptions, recursive);
 			}
 		}
+	}
+	
+	public static <T> List<String> availableTags(String contextId, List<String> mustHaveTags, Class<T> clazz) {
+		Set<String> tags = new TreeSet<String>();
+		EAIResourceRepository repository = EAIResourceRepository.getInstance();
+		for (T found : repository.getArtifacts(clazz)) {
+			Artifact artifact = (Artifact) found;
+			if (contextId == null || artifact.getId().equals(contextId) || artifact.getId().startsWith(contextId + ".")) {
+				be.nabu.eai.repository.api.Node node = repository.getNode(artifact.getId());
+				if (node != null && node.getTags() != null) {
+					if (mustHaveTags != null) {
+						boolean hasTags = true;
+						for (String mustHaveTag : mustHaveTags) {
+							if (node.getTags().contains(mustHaveTag)) {
+								hasTags = false;
+								break;
+							}
+						}
+						if (!hasTags) {
+							continue;
+						}
+					}
+					tags.addAll(node.getTags());
+				}
+			}
+		}
+		return new ArrayList<String>(tags);
+	}
+	
+	// multiple tags is an AND operation
+	// current known limitations: case sensitive tags, probably want to move away from that in the future
+	public static <T> List<NodeDescription> listByTag(String contextId, List<String> tags, Class<T> clazz) {
+		List<NodeDescription> artifacts = new ArrayList<NodeDescription>();
+		EAIResourceRepository repository = EAIResourceRepository.getInstance();
+		for (T found : repository.getArtifacts(clazz)) {
+			Artifact artifact = (Artifact) found;
+			if (contextId == null || artifact.getId().equals(contextId) || artifact.getId().startsWith(contextId + ".")) {
+				be.nabu.eai.repository.api.Node node = repository.getNode(artifact.getId());
+				if (node != null && node.getTags() != null) {
+					boolean matches = true;
+					for (String tag : tags) {
+						if (!node.getTags().contains(tag)) {
+							matches = false;
+						}
+					}
+					if (matches) {
+						artifacts.add(Node.getDescription(repository.getEntry(artifact.getId()), false));
+					}
+				}
+			}
+		}
+		return artifacts;
 	}
 }

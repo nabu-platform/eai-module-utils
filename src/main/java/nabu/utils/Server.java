@@ -22,14 +22,18 @@ import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
+import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceRunner;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
+import nabu.utils.types.ImageInformation;
 
 @WebService
 public class Server {
+	
+	private ExecutionContext executionContext;
 	
 	public static char [] simplePasswordCharacters = new char [] {
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -49,6 +53,18 @@ public class Server {
 	}
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public ImageInformation image() {
+		if (executionContext.getServiceContext().getServiceRunner() instanceof be.nabu.eai.server.Server) {
+			ImageInformation information = new ImageInformation();
+			information.setCreated(((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getImageDate());
+			information.setName(((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getImageName());
+			information.setEnvironment(((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getImageEnvironment());
+			information.setVersion(((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getImageVersion());
+			return information;
+		}
+		return null;
+	}
 	
 	public void log(@WebParam(name = "message") String message, @WebParam(name = "logger") String loggerName, @WebParam(name = "level") LogLevel level, @WebParam(name = "exception") Exception exception) {
 		if (message == null && exception != null) {

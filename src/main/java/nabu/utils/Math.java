@@ -2,6 +2,7 @@ package nabu.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.jws.WebParam;
@@ -18,6 +19,15 @@ public class Math {
 		}
 		BigDecimal bigDecimal = BigDecimal.valueOf(value);
 		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode).doubleValue();
+	}
+	
+	@WebResult(name = "absolute")
+	public java.util.List<Double> absolute(@WebParam(name = "values") java.util.List<Double> values) {
+		java.util.List<Double> result = new ArrayList<Double>();
+		for (Double value : values) {
+			result.add(value == null ? value : (Double) java.lang.Math.abs(value));
+		}
+		return result;
 	}
 	
 	@WebResult(name = "sum")

@@ -29,9 +29,9 @@ public class Stream {
 	}
 	
 	@ServiceDescription(comment = "Close a closeable object")
-	public void close(@WebParam(name = "closeable") Closeable closeable) throws IOException {
-		if (closeable != null) {
-			closeable.close();
+	public void close(@WebParam(name = "closeable") java.lang.Object closeable) throws IOException {
+		if (closeable instanceof Closeable) {
+			((Closeable) closeable).close();
 		}
 	}
 }

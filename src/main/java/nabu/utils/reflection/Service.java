@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -17,6 +19,7 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.services.DefinedServiceResolverFactory;
 import be.nabu.libs.services.ServiceUtils;
@@ -28,6 +31,7 @@ import be.nabu.libs.services.api.ServiceInterface;
 import be.nabu.libs.services.api.ServiceResult;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
+import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.binding.api.Window;
 import be.nabu.libs.types.binding.xml.XMLBinding;
@@ -139,4 +143,13 @@ public class Service {
 		return nodes;
 	}
 	
+	@WebResult(name = "tags")
+	public List<String> availableTags(@WebParam(name = "contextId") String contextId, @WebParam(name = "tags") List<String> mustHaveTags) {
+		return Node.availableTags(contextId, mustHaveTags, DefinedService.class);
+	}
+	
+	@WebResult(name = "services")
+	public List<NodeDescription> listByTag(@WebParam(name = "contextId") String contextId, @NotNull @WebParam(name = "tags") List<String> mustHaveTags) {
+		return Node.listByTag(contextId, mustHaveTags, DefinedService.class);
+	}
 }

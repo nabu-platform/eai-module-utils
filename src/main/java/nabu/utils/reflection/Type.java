@@ -5,6 +5,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import nabu.utils.types.NodeDescription;
 import nabu.utils.types.ParameterDescription;
 import nabu.utils.types.TypeDescription;
 import nabu.utils.types.TypeInspection;
@@ -13,9 +14,12 @@ import java.lang.String;
 import java.lang.Object;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.SimpleTypeWrapperFactory;
@@ -262,5 +266,15 @@ public class Type {
 	public Object toTypeInstance(@WebParam(name = "parameters") List<ParameterDescription> parameters) {
 		ComplexType type = (ComplexType) toType(parameters);
 		return type.newInstance();
+	}
+	
+	@WebResult(name = "tags")
+	public List<String> availableTags(@WebParam(name = "contextId") String contextId, @WebParam(name = "tags") List<String> mustHaveTags) {
+		return Node.availableTags(contextId, mustHaveTags, DefinedType.class);
+	}
+	
+	@WebResult(name = "types")
+	public List<NodeDescription> listByTag(@WebParam(name = "contextId") String contextId, @NotNull @WebParam(name = "tags") List<String> mustHaveTags) {
+		return Node.listByTag(contextId, mustHaveTags, DefinedType.class);
 	}
 }
