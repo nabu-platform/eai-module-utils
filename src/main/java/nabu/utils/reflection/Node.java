@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import be.nabu.libs.types.TypeUtils;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.Element;
+import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.base.Scope;
 import be.nabu.libs.types.properties.CommentProperty;
@@ -45,6 +47,7 @@ import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
 import be.nabu.libs.types.properties.PatternProperty;
 import be.nabu.libs.types.properties.ScopeProperty;
+import be.nabu.libs.types.utils.KeyValuePairImpl;
 import be.nabu.libs.validator.api.Validation;
 import nabu.utils.types.NodeDescription;
 import nabu.utils.types.ParameterDescription;
@@ -199,7 +202,7 @@ public class Node {
 		Entry entry = id == null 
 			? EAIResourceRepository.getInstance().getRoot()
 			: EAIResourceRepository.getInstance().getEntry(id);
-		return getDescription(entry, false);
+		return entry == null ? null : getDescription(entry, false);
 	}
 	
 	@WebResult(name = "services")
@@ -323,6 +326,16 @@ public class Node {
 			description.setDescription(node.getDescription());
 			description.setTags(node.getTags());
 			description.setSummary(node.getSummary());
+			Map<String, String> properties = node.getProperties();
+			if (properties != null && !properties.isEmpty()) {
+				List<KeyValuePair> keyValuePairs = new ArrayList<KeyValuePair>();
+				Iterator<java.util.Map.Entry<String, String>> iterator = properties.entrySet().iterator();
+				while (iterator.hasNext()) {
+					java.util.Map.Entry<String, String> next = iterator.next();
+					keyValuePairs.add(new KeyValuePairImpl(next.getKey(), next.getValue()));
+				}
+				description.setProperties(keyValuePairs);
+			}
 		}
 		if (recursive != null && recursive) {
 			List<NodeDescription> children = new ArrayList<NodeDescription>();

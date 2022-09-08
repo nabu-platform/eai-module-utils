@@ -28,6 +28,7 @@ import be.nabu.libs.resources.URIUtils;
 import be.nabu.libs.resources.api.AppendableResource;
 import be.nabu.libs.resources.api.ManageableContainer;
 import be.nabu.libs.resources.api.ReadableResource;
+import be.nabu.libs.resources.api.RenameableResource;
 import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.resources.api.ResourceProperties;
 import be.nabu.libs.resources.api.ResourceResolver;
@@ -162,6 +163,27 @@ public class Resource {
 		return new BufferedInputStream(IOUtils.toInputStream(new ResourceReadableContainer((ReadableResource) resolved)));
 	}
 
+	public void rename(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal, @WebParam(name = "newName") java.lang.String newName) throws IOException {
+		if (uri == null) {
+			return;
+		}
+		be.nabu.libs.resources.api.Resource resolve = ResourceFactory.getInstance().resolve(uri, principal);
+		if (resolve instanceof RenameableResource) {
+			((RenameableResource) resolve).rename(newName);
+		}
+		else if (resolve.getParent() instanceof ManageableContainer) {
+			ManageableContainer<?> parent = (ManageableContainer<?>) resolve.getParent();
+			ResourceUtils.copy(resolve, parent, newName);
+			parent.delete(resolve.getName());
+		}
+		else {
+			throw new IllegalStateException("Can not rename resource, it is not renameable and the parent is not modifiable: " + uri);
+		}
+		if (resolve instanceof Closeable) {
+			((Closeable) resolve).close();
+		}
+	}
+	
 	@WebResult(name = "exists")
 	public boolean exists(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
 		if (uri == null) {

@@ -17,12 +17,12 @@ import nabu.utils.types.CacheProviderOverview;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.CacheProviderArtifact;
 import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.artifacts.api.CacheableArtifact;
 import be.nabu.libs.cache.api.AnnotatableCache;
 import be.nabu.libs.cache.api.CacheEntry;
 import be.nabu.libs.cache.api.CacheWithHash;
 import be.nabu.libs.cache.api.ExplorableCache;
 import be.nabu.libs.cache.api.LimitedCache;
-import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService
@@ -119,10 +119,16 @@ public class Cache {
 			if (resolve instanceof CacheProviderArtifact) {
 				clearSingle(cacheId, resolve, annotations);
 			}
+			else if (resolve instanceof CacheableArtifact) {
+				((CacheableArtifact) resolve).resetCache();
+			}
 		}
 		else {
 			for (CacheProviderArtifact cacheProvider : EAIResourceRepository.getInstance().getArtifacts(CacheProviderArtifact.class)) {
 				clearSingle(cacheId, cacheProvider, annotations);
+			}
+			for (CacheableArtifact cacheable : EAIResourceRepository.getInstance().getArtifacts(CacheableArtifact.class)) {
+				cacheable.resetCache();
 			}
 		}
 	}

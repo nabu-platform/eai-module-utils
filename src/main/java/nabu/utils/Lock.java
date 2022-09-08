@@ -22,12 +22,18 @@ public class Lock {
 	// the problem is if we unlock it and then destroy it (without any kind of synchronization), we can interfere with other cluster members who just got the lock
 	// hazelcast documentation is not clear in how they resolve this, in their examples there is no destroy
 	// creating a new lock to destroy this lock seems overkill
-	public void lock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local) {
+	// @2022-09-02: discovered a potential memory leak for long running (daemon) services
+	// the root transaction is never committed for daemons, so the transactioncloseable we add to that root transaction may never be committed unless you explicitly manage it via sequence or do an intentional commit
+	// e.g. the task executor daemon performed a tryLock and a correctly scoped unlock, but failed to account for the buildup in the root transaction
+	// one task-heavy server in particular that was looked at had (over a period of time) accumulated 1.1GB of objects from the tryLock, out of a heapdump of 2.5gb
+	// we advise sequence based management of default transactions because this is easiest, especially in daemons
+	// but in those rare cases that it is relevant, we want to give you control over the transaction it ends up in which is why the transactionId was added as a way of controlling this
+	public void lock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local, @WebParam(name = "transactionId") java.lang.String transactionId) {
 		final ClusterLock lock = getCluster(local).lock(name);
 		lock.lock();
 
 		// make sure we release the lock in case the runtime ends suddenly (e.g. abort)
-		context.getTransactionContext().add(null, new TransactionCloseable(new AutoCloseable() {
+		context.getTransactionContext().add(transactionId, new TransactionCloseable(new AutoCloseable() {
 			@Override
 			public void close() throws Exception {
 				if (lock.isLockedByCurrentThread()) {
@@ -38,10 +44,10 @@ public class Lock {
 		}));
 	}
 	@WebResult(name = "locked")
-	public boolean tryLock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local) {
+	public boolean tryLock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local, @WebParam(name = "transactionId") java.lang.String transactionId) {
 		final ClusterLock lock = getCluster(local).lock(name);
 		if (lock.tryLock()) {
-			context.getTransactionContext().add(null, new TransactionCloseable(new AutoCloseable() {
+			context.getTransactionContext().add(transactionId, new TransactionCloseable(new AutoCloseable() {
 				@Override
 				public void close() throws Exception {
 					if (lock.isLockedByCurrentThread()) {

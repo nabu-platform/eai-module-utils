@@ -7,7 +7,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
@@ -108,7 +110,7 @@ public class Service {
 	
 	// with the implementations you can refer to a path (the key) which supports a certain implementation
 	@WebResult(name = "implementations")
-	public List<NodeDescription> listImplementations(@NotNull @WebParam(name = "interfaceId") String interfaceId, @WebParam(name = "implementations") List<KeyValuePair> implementations) throws ClassNotFoundException {
+	public List<NodeDescription> listImplementations(@NotNull @WebParam(name = "interfaceId") String interfaceId, @WebParam(name = "implementations") List<KeyValuePair> implementations, @WebParam(name = "properties") List<KeyValuePair> properties) throws ClassNotFoundException {
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
 		List<DefinedService> artifacts = EAIResourceRepository.getInstance().getArtifacts(DefinedService.class);
 		for (DefinedService service : artifacts) {
@@ -124,7 +126,28 @@ public class Service {
 						Integer matchPercentage = ServiceUtils.getMatchPercentage(service, implementations);
 						if (matchPercentage != null) {
 							description.setPriority(matchPercentage);
-							nodes.add(description);
+							boolean matches = true;
+							// we can filter on specific properties that must be annotated
+							if (properties != null && !properties.isEmpty()) {
+								List<KeyValuePair> nodeProperties = description.getProperties();
+									
+								Map<String, String> map = new HashMap<String, String>();
+								if (nodeProperties != null) {
+									for (KeyValuePair property : nodeProperties) {
+										map.put(property.getKey(), property.getValue());
+									}
+								}
+								for (KeyValuePair mustMatch : properties) {
+									String actualValue = map.get(mustMatch.getKey());
+									if (!mustMatch.getValue().equals(actualValue)) {
+										matches = false;
+										break;
+									}
+								}
+							}
+							if (matches) {
+								nodes.add(description);
+							}
 						}
 					}
 				}

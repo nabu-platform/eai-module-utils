@@ -130,7 +130,7 @@ public class String {
 		return string == null ? null : new ArrayList<java.lang.String>(Arrays.asList(string.split(separator)));
 	}
 	
-	@ServiceDescription(comment = "Join multiple parts into a single string")
+	@ServiceDescription(comment = "Join {parts|multiple parts} into a single string using {separator|a seperator}")
 	@WebResult(name = "string")
 	public java.lang.String join(@WebParam(name = "parts") List<java.lang.String> strings, @WebParam(name = "separator") java.lang.String separator) {
 		if (strings == null) {

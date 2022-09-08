@@ -6,8 +6,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+import be.nabu.libs.types.api.KeyValuePair;
+
 @XmlRootElement(name = "nodeDescription")
-@XmlType(propOrder = { "id", "type", "name", "artifactClass", "leaf", "nodes", "summary", "description", "tags", "comment" })
+@XmlType(propOrder = { "id", "type", "name", "artifactClass", "leaf", "nodes", "summary", "description", "tags", "comment", "properties" })
 public class NodeDescription {
 
 	private String type, name, artifactClass, id;
@@ -16,6 +18,7 @@ public class NodeDescription {
 	private int priority;
 	private String summary, description, comment;
 	private List<String> tags;
+	private List<KeyValuePair> properties;
 
 	public NodeDescription() {
 		// auto construct
@@ -109,6 +112,14 @@ public class NodeDescription {
 
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+
+	public List<KeyValuePair> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(List<KeyValuePair> properties) {
+		this.properties = properties;
 	}
 	
 }

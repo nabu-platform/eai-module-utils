@@ -218,8 +218,10 @@ public class List {
 		if (list == null) {
 			list = new ArrayList<java.lang.Object>();
 		}
-		for (java.lang.Object object : objects) {
-			remove(list, object);
+		if (objects != null) {
+			for (java.lang.Object object : objects) {
+				remove(list, object);
+			}
 		}
 		return list;
 	}
