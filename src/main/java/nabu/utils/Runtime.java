@@ -25,6 +25,7 @@ import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.FeatureConfigurator;
 import be.nabu.eai.repository.api.FeatureDescription;
 import be.nabu.eai.repository.api.FeatureProviderService;
+import be.nabu.libs.artifacts.FeatureImpl;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.Feature;
 import be.nabu.libs.artifacts.api.FeaturedArtifact;
@@ -323,85 +324,123 @@ public class Runtime {
 	}
 	
 	@WebResult(name = "features")
-	public FeatureList getFeatures(@WebParam(name = "id") String id, @WebParam(name = "token") Token token) {
+	public FeatureList getFeatures(@WebParam(name = "id") String id, @WebParam(name = "token") Token token, @WebParam(name = "enabledOnly") Boolean enabledOnly) {
 		FeatureList list = new FeatureList();
 		
-		java.util.Map<String, Feature> features = new HashMap<String, Feature>();
-		EAIResourceRepository repository = EAIResourceRepository.getInstance();
-		Map<java.lang.String, List<Feature>> availableFeatures = getAvailableFeatures();
-		for (String artifactId : availableFeatures.keySet()) {
-			if (id == null || artifactId.equals(id) || artifactId.startsWith(id + ".")) {
-				for (Feature feature : availableFeatures.get(artifactId)) {
-					features.put(feature.getName(), feature);
-				}
-			}
-		}
-
 		List<Feature> enabled = new ArrayList<Feature>();
 		List<Feature> disabled = new ArrayList<Feature>();
-		
-		List<String> allEnabled = new ArrayList<String>();
-		for (FeatureConfigurator configurator : repository.getArtifacts(FeatureConfigurator.class)) {
-			if (configurator.getContext() != null && !configurator.getContext().trim().isEmpty() && id != null) {
-				boolean matches = false;
-				for (String context : configurator.getContext().split("[\\s]*,[\\s]*")) {
-					if (id.equals(context) || id.startsWith(context + ".")) {
-						matches = true;
-					}
-				}
-				if (!matches) {
-					continue;
-				}
-			}
-			List<String> enabledFeatures = configurator.getEnabledFeatures(token);
-			if (enabledFeatures != null) {
-				allEnabled.addAll(enabledFeatures);
-			}
-			Date lastModified = configurator.getLastModified();
-			if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
-				list.setLastModified(lastModified);
-			}
-		}
-		for (FeatureProviderService provider : repository.getArtifacts(FeatureProviderService.class)) {
-			List<FeatureDescription> result = provider.features(token);
-			if (result != null) {
-				for (FeatureDescription description : result) {
-					Boolean featureEnabled = description.getEnabled();
-					if (featureEnabled != null && featureEnabled) {
-						if (description.getContext() != null && !description.getContext().trim().isEmpty()) {
-							boolean matches = false;
-							for (String context : description.getContext().split("[\\s]*,[\\s]*")) {
-								if (id.equals(context) || id.startsWith(context + ".")) {
-									matches = true;
-								}
-							}
-							if (!matches) {
-								continue;
-							}
-							allEnabled.add(description.getName());
-						}
-					}
-					Date lastModified = description.getLastModified();
-					if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
-						list.setLastModified(lastModified);
-					}
-				}
-			}
-		}
-		
-		for (String feature : features.keySet()) {
-			if (features.containsKey(feature)) {
-				if (allEnabled.contains(feature)) {
-					enabled.add(features.get(feature));
-				}
-				else {
-					disabled.add(features.get(feature));
-				}
-			}
-		}
-		
 		list.setEnabled(enabled);
 		list.setDisabled(disabled);
+		
+		if (enabledOnly != null && enabledOnly) {
+			EAIResourceRepository repository = EAIResourceRepository.getInstance();
+			Date latest = null;
+			for (FeatureConfigurator configurator : repository.getArtifacts(FeatureConfigurator.class)) {
+				List<String> enabledFeatureNames = configurator.getEnabledFeatures(token);
+				if (enabledFeatureNames != null) {
+					for (String feature : enabledFeatureNames) {
+						enabled.add(new FeatureImpl(feature, null));
+					}
+				}
+				if (latest == null || latest.before(configurator.getLastModified())) {
+					latest = configurator.getLastModified();
+				}
+			}
+			for (FeatureProviderService provider : repository.getArtifacts(FeatureProviderService.class)) {
+				List<FeatureDescription> features = provider.features(token);
+				if (features != null) {
+					for (FeatureDescription description : features) {
+						Boolean featureEnabled = description.getEnabled();
+						if (featureEnabled != null && featureEnabled) {
+							enabled.add(new FeatureImpl(description.getName(), null));
+						}
+						Date lastModified = description.getLastModified();
+						if (latest == null || latest.before(lastModified)) {
+							latest = lastModified;
+						}
+					}
+				}
+			}
+			if (EAIResourceRepository.isDevelopment()) {
+				enabled.add(new FeatureImpl("DEV", null));
+			}
+			else {
+				enabled.add(new FeatureImpl("LIVE", null));
+			}
+			list.setLastModified(latest);
+			return list;
+		}
+		else {
+			java.util.Map<String, Feature> features = new HashMap<String, Feature>();
+			EAIResourceRepository repository = EAIResourceRepository.getInstance();
+			Map<java.lang.String, List<Feature>> availableFeatures = getAvailableFeatures();
+			for (String artifactId : availableFeatures.keySet()) {
+				if (id == null || artifactId.equals(id) || artifactId.startsWith(id + ".")) {
+					for (Feature feature : availableFeatures.get(artifactId)) {
+						features.put(feature.getName(), feature);
+					}
+				}
+			}
+			List<String> allEnabled = new ArrayList<String>();
+			for (FeatureConfigurator configurator : repository.getArtifacts(FeatureConfigurator.class)) {
+				if (configurator.getContext() != null && !configurator.getContext().trim().isEmpty() && id != null) {
+					boolean matches = false;
+					for (String context : configurator.getContext().split("[\\s]*,[\\s]*")) {
+						if (id.equals(context) || id.startsWith(context + ".")) {
+							matches = true;
+						}
+					}
+					if (!matches) {
+						continue;
+					}
+				}
+				List<String> enabledFeatures = configurator.getEnabledFeatures(token);
+				if (enabledFeatures != null) {
+					allEnabled.addAll(enabledFeatures);
+				}
+				Date lastModified = configurator.getLastModified();
+				if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
+					list.setLastModified(lastModified);
+				}
+			}
+			for (FeatureProviderService provider : repository.getArtifacts(FeatureProviderService.class)) {
+				List<FeatureDescription> result = provider.features(token);
+				if (result != null) {
+					for (FeatureDescription description : result) {
+						Boolean featureEnabled = description.getEnabled();
+						if (featureEnabled != null && featureEnabled) {
+							if (description.getContext() != null && !description.getContext().trim().isEmpty()) {
+								boolean matches = false;
+								for (String context : description.getContext().split("[\\s]*,[\\s]*")) {
+									if (id.equals(context) || id.startsWith(context + ".")) {
+										matches = true;
+									}
+								}
+								if (!matches) {
+									continue;
+								}
+								allEnabled.add(description.getName());
+							}
+						}
+						Date lastModified = description.getLastModified();
+						if (lastModified != null && (list.getLastModified() == null || list.getLastModified().before(lastModified))) {
+							list.setLastModified(lastModified);
+						}
+					}
+				}
+			}
+			
+			for (String feature : features.keySet()) {
+				if (features.containsKey(feature)) {
+					if (allEnabled.contains(feature)) {
+						enabled.add(features.get(feature));
+					}
+					else {
+						disabled.add(features.get(feature));
+					}
+				}
+			}
+		}
 		return list;
 	}
 }
