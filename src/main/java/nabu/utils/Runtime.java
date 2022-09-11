@@ -68,6 +68,11 @@ public class Runtime {
 		return executionContext.getSecurityContext().getToken();
 	}
 	
+	@WebResult(name = "uptime")
+	public Date uptime() {
+		return EAIResourceRepository.getInstance().getStarted();
+	}
+	
 	@WebResult(name = "device")
 	public Device getCurrentDevice() {
 		return getDeviceFromToken(executionContext.getSecurityContext().getToken());
