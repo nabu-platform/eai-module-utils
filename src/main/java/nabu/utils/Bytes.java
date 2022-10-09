@@ -34,4 +34,9 @@ public class Bytes {
 	public java.lang.String toHexString(@WebParam(name = "bytes") byte [] bytes) throws IOException {
 		return bytes == null ? null : IOUtils.toString(new HexReadableCharContainer(IOUtils.wrap(bytes, true)));
 	}
+	
+	@WebResult(name = "size")
+	public Integer size(@WebParam(name = "bytes") byte [] bytes) {
+		return bytes == null ? null : bytes.length;
+	}
 }

@@ -46,6 +46,7 @@ import be.nabu.libs.types.properties.IdentifiableProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
 import be.nabu.libs.types.properties.PatternProperty;
+import be.nabu.libs.types.properties.PrimaryKeyProperty;
 import be.nabu.libs.types.properties.ScopeProperty;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
 import be.nabu.libs.validator.api.Validation;
@@ -276,6 +277,7 @@ public class Node {
 			Value<String> comment = element.getProperty(CommentProperty.getInstance());
 			Value<Boolean> generatedProperty = element.getProperty(GeneratedProperty.getInstance());
 			Value<Boolean> identifiableProperty = element.getProperty(IdentifiableProperty.getInstance());
+			Value<Boolean> primaryKey = element.getProperty(PrimaryKeyProperty.getInstance());
 			Value<String> pattern = element.getProperty(PatternProperty.getInstance());
 			String childName = (parent == null ? "" : parent + ".") + element.getName();
 			ParameterDescription description = new ParameterDescription(childName, element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
@@ -289,6 +291,7 @@ public class Node {
 			Value<Scope> scope = element.getProperty(ScopeProperty.getInstance());
 			description.setScope(scope != null ? scope.getValue() : null);
 			description.setPattern(pattern == null ? null : pattern.getValue());
+			description.setPrimary(primaryKey != null && primaryKey.getValue() != null && primaryKey.getValue());
 			// TODO: add more
 			parameters.add(description);
 			// TODO: in the future maybe you can choose whether you want the recursiveness to be done in a single long list or nested

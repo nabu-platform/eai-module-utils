@@ -32,12 +32,15 @@ public class Transcoder {
 	}
 	
 	@WebResult(name = "transcoder")
-	public Base64Encoder base64Encoder(@WebParam(name = "type") Base64Type type) {
+	public Base64Encoder base64Encoder(@WebParam(name = "type") Base64Type type, @WebParam(name = "bytesPerLine") Integer bytesPerLine) {
 		Base64Encoder base64Encoder = new Base64Encoder();
 		if (Base64Type.URL.equals(type)) {
 			base64Encoder.setUseBase64Url(true);
 			// no line skipping
 			base64Encoder.setBytesPerLine(0);
+		}
+		if (bytesPerLine != null) {
+			base64Encoder.setBytesPerLine(bytesPerLine);
 		}
 		return base64Encoder;
 	}

@@ -4,7 +4,7 @@ import be.nabu.libs.types.base.Scope;
 
 public class ParameterDescription {
 	private String name, type, typeName, description, pattern;
-	private boolean isList, isOptional, simple, generated, identifiable;
+	private boolean isList, isOptional, simple, generated, identifiable, primary;
 	private Scope scope;
 	private Integer minimum, maximum;
 	
@@ -117,4 +117,13 @@ public class ParameterDescription {
 	public void setIdentifiable(boolean identifiable) {
 		this.identifiable = identifiable;
 	}
+
+	public boolean isPrimary() {
+		return primary;
+	}
+
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
+	}
+	
 }
