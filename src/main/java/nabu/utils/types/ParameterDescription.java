@@ -3,7 +3,7 @@ package nabu.utils.types;
 import be.nabu.libs.types.base.Scope;
 
 public class ParameterDescription {
-	private String name, type, typeName, description, pattern;
+	private String name, type, typeName, description, pattern, collectionName;
 	private boolean isList, isOptional, simple, generated, identifiable, primary;
 	private Scope scope;
 	private Integer minimum, maximum;
@@ -125,5 +125,13 @@ public class ParameterDescription {
 	public void setPrimary(boolean primary) {
 		this.primary = primary;
 	}
-	
+
+	public String getCollectionName() {
+		return collectionName;
+	}
+
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
+
 }

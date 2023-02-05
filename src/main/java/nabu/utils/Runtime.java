@@ -8,6 +8,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import nabu.utils.types.ContextInformation;
 import nabu.utils.types.ExceptionSummary;
 import nabu.utils.types.FeatureList;
 import nabu.utils.types.ServiceInstance;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import be.nabu.eai.api.Hidden;
 import be.nabu.eai.repository.EAIResourceRepository;
+import be.nabu.eai.repository.api.Entry;
 import be.nabu.eai.repository.api.FeatureConfigurator;
 import be.nabu.eai.repository.api.FeatureDescription;
 import be.nabu.eai.repository.api.FeatureProviderService;
@@ -41,6 +43,9 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
+import be.nabu.libs.types.base.ComplexElementImpl;
+import be.nabu.libs.types.structure.Structure;
+import be.nabu.libs.types.structure.StructureInstance;
 import be.nabu.libs.validator.api.Validation;
 
 @WebService
@@ -193,6 +198,40 @@ public class Runtime {
 		return validations == null || validations.isEmpty() ? null : ValidationSummary.build(validations);
 	}
 	
+	@WebResult(name = "information")
+	public ContextInformation getContextInformation(@WebParam(name = "id") String id) {
+		if (id == null) {
+			id = ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
+		}
+		// everything in the nabu namespace is the utility package
+		if (id.startsWith("nabu.")) {
+			ContextInformation contextInformation = new ContextInformation();
+			contextInformation.setProject("nabu");
+			contextInformation.setProjectType("utility");
+			return contextInformation;
+		}
+		Entry entry = EAIResourceRepository.getInstance().getEntry(id);
+		while (entry != null && (entry.getCollection() == null || !entry.getCollection().getType().equalsIgnoreCase("project"))) {
+			entry = entry.getParent();
+		}
+		// if we have an entry at this point, we can get some information about it
+		if (entry != null) {
+			String subType = entry.getCollection().getSubType();
+			if (subType == null) {
+				subType = entry.getId().equals("nabu") ? "utility" : "application";
+			}
+			ContextInformation contextInformation = new ContextInformation();
+			contextInformation.setProject(entry.getId());
+			contextInformation.setProjectType(subType);
+			return contextInformation;
+		}
+		// for backwards compatibility, we assume an unmarked folder is an application type project
+		ContextInformation contextInformation = new ContextInformation();
+		contextInformation.setProject(id.replaceAll("^([^.]+)\\..*$", "$1"));
+		contextInformation.setProjectType("application");
+		return contextInformation;
+	}
+	
 	@WebResult(name = "pipeline")
 	public Object getPipeline(@WebParam(name = "offset") Integer offset, @WebParam(name = "serviceId") String serviceId) {
 		// if you look with a service filter, you want to find the first hit
@@ -217,7 +256,18 @@ public class Runtime {
 				offset--;
 			}
 		}
-		return runtime.getServiceInstance() instanceof ServiceInstanceWithPipeline ? ((ServiceInstanceWithPipeline) runtime.getServiceInstance()).getPipeline() : null;
+		if (runtime.getServiceInstance() instanceof ServiceInstanceWithPipeline) {
+			return ((ServiceInstanceWithPipeline) runtime.getServiceInstance()).getPipeline();
+		}
+		else {
+			Structure structure = new Structure();
+			structure.add(new ComplexElementImpl("input", runtime.getService().getServiceInterface().getInputDefinition(), structure));
+			structure.add(new ComplexElementImpl("output", runtime.getService().getServiceInterface().getOutputDefinition(), structure));
+			StructureInstance instance = structure.newInstance();
+			instance.set("input", runtime.getInput());
+			instance.set("output", runtime.getOutput());
+			return instance;
+		}
 	}
 	
 	public void interrupt(@WebParam(name = "artifactId") String artifactId) {

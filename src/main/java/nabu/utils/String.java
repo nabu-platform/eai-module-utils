@@ -37,14 +37,14 @@ public class String {
 		while (content.length() < length) {
 			int padLength = java.lang.Math.min(pad.length(), length - content.length());
 			if (padLength < pad.length()) {
-				if (leftAlign) {
+				if (leftAlign != null && leftAlign) {
 					pad = pad.substring(0, padLength);
 				}
 				else {
 					pad = pad.substring(pad.length() - padLength);
 				}
 			}
-			if (leftAlign) {
+			if (leftAlign != null && leftAlign) {
 				content += pad;
 			}
 			else {

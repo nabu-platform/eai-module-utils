@@ -29,6 +29,7 @@ import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
+import be.nabu.libs.types.java.BeanInstance;
 import be.nabu.libs.types.structure.StructureInstanceDowncastReference;
 import be.nabu.libs.types.structure.StructureInstanceUpcastReference;
 
@@ -376,4 +377,24 @@ public class List {
 	public Integer size(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
 		return list == null ? 0 : list.size();
 	}
+	
+	@SuppressWarnings("rawtypes")
+	@WebResult(name = "map")
+	public java.util.Map<java.lang.String, java.lang.Object> toMap(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "keyField") java.lang.String keyField, @WebParam(name = "valueField") java.lang.String valueField) {
+		java.util.Map<java.lang.String, java.lang.Object> map = new HashMap<java.lang.String, java.lang.Object>();
+		if (list != null) {
+			for (java.lang.Object single : list) {
+				if (single != null) {
+					BeanInstance beanInstance = new BeanInstance(single);
+					java.lang.Object key = beanInstance.get(keyField);
+					if (key != null) {
+						java.lang.Object value = beanInstance.get(valueField);
+						map.put(key.toString(), value);
+					}
+				}
+			}
+		}
+		return map;
+	}
+	
 }

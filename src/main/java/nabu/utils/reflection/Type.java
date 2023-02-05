@@ -90,6 +90,18 @@ public class Type {
 		return null;
 	}
 	
+	@WebResult(name = "description")
+	public ParameterDescription details(@WebParam(name = "typeId") String id, @WebParam(name = "recursive") Boolean recursive) {
+		if (id == null) {
+			return null;
+		}
+		DefinedType type = DefinedTypeResolverFactory.getInstance().getResolver().resolve(id);
+		if (type == null) {
+			throw new IllegalArgumentException("Type not found: " + id);
+		}
+		return Node.describeType(type);
+	}
+	
 	@WebResult(name = "parameters")
 	public List<ParameterDescription> describe(@WebParam(name = "typeId") String id, @WebParam(name = "recursive") Boolean recursive) {
 		if (id == null) {

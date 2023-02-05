@@ -29,6 +29,7 @@ import be.nabu.libs.artifacts.api.RestartableArtifact;
 import be.nabu.libs.artifacts.api.StartableArtifact;
 import be.nabu.libs.artifacts.api.StoppableArtifact;
 import be.nabu.libs.artifacts.api.TwoPhaseStartableArtifact;
+import be.nabu.libs.property.ValueUtils;
 import be.nabu.libs.property.api.Value;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
@@ -40,11 +41,13 @@ import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.base.Scope;
+import be.nabu.libs.types.properties.CollectionNameProperty;
 import be.nabu.libs.types.properties.CommentProperty;
 import be.nabu.libs.types.properties.GeneratedProperty;
 import be.nabu.libs.types.properties.IdentifiableProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
+import be.nabu.libs.types.properties.NameProperty;
 import be.nabu.libs.types.properties.PatternProperty;
 import be.nabu.libs.types.properties.PrimaryKeyProperty;
 import be.nabu.libs.types.properties.ScopeProperty;
@@ -272,28 +275,30 @@ public class Node {
 	private static List<ParameterDescription> toParameters(ComplexType type, boolean recursive, String parent, List<ComplexType> ignore) {
 		List<ParameterDescription> parameters = new ArrayList<ParameterDescription>();
 		for (Element<?> element : TypeUtils.getAllChildren(type)) {
-			Value<Integer> maxOccurs = element.getProperty(MaxOccursProperty.getInstance());
-			Value<Integer> minOccurs = element.getProperty(MinOccursProperty.getInstance());
-			Value<String> comment = element.getProperty(CommentProperty.getInstance());
-			Value<Boolean> generatedProperty = element.getProperty(GeneratedProperty.getInstance());
-			Value<Boolean> identifiableProperty = element.getProperty(IdentifiableProperty.getInstance());
-			Value<Boolean> primaryKey = element.getProperty(PrimaryKeyProperty.getInstance());
-			Value<String> pattern = element.getProperty(PatternProperty.getInstance());
+//			Value<Integer> maxOccurs = element.getProperty(MaxOccursProperty.getInstance());
+//			Value<Integer> minOccurs = element.getProperty(MinOccursProperty.getInstance());
+//			Value<String> comment = element.getProperty(CommentProperty.getInstance());
+//			Value<Boolean> generatedProperty = element.getProperty(GeneratedProperty.getInstance());
+//			Value<Boolean> identifiableProperty = element.getProperty(IdentifiableProperty.getInstance());
+//			Value<Boolean> primaryKey = element.getProperty(PrimaryKeyProperty.getInstance());
+//			Value<String> pattern = element.getProperty(PatternProperty.getInstance());
 			String childName = (parent == null ? "" : parent + ".") + element.getName();
-			ParameterDescription description = new ParameterDescription(childName, element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
-				element.getType().getName(element.getProperties()),
-				comment == null ? null : comment.getValue(),
-				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1,
-				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0,
-				element.getType() instanceof SimpleType,
-				generatedProperty != null && generatedProperty.getValue() != null && generatedProperty.getValue(),
-				identifiableProperty != null && identifiableProperty.getValue() != null && identifiableProperty.getValue());
-			Value<Scope> scope = element.getProperty(ScopeProperty.getInstance());
-			description.setScope(scope != null ? scope.getValue() : null);
-			description.setPattern(pattern == null ? null : pattern.getValue());
-			description.setPrimary(primaryKey != null && primaryKey.getValue() != null && primaryKey.getValue());
+//			ParameterDescription description = new ParameterDescription(childName, element.getType() instanceof DefinedType ? ((DefinedType) element.getType()).getId() : null,
+//				element.getType().getName(element.getProperties()),
+//				comment == null ? null : comment.getValue(),
+//				maxOccurs != null && maxOccurs.getValue() != null && maxOccurs.getValue() != 1,
+//				minOccurs != null && minOccurs.getValue() != null && minOccurs.getValue() == 0,
+//				element.getType() instanceof SimpleType,
+//				generatedProperty != null && generatedProperty.getValue() != null && generatedProperty.getValue(),
+//				identifiableProperty != null && identifiableProperty.getValue() != null && identifiableProperty.getValue());
+//			Value<Scope> scope = element.getProperty(ScopeProperty.getInstance());
+//			description.setScope(scope != null ? scope.getValue() : null);
+//			description.setPattern(pattern == null ? null : pattern.getValue());
+//			description.setPrimary(primaryKey != null && primaryKey.getValue() != null && primaryKey.getValue());
+//			description.setCollectionName(ValueUtils.getValue(CollectionNameProperty.getInstance(), element.getProperties()));
 			// TODO: add more
-			parameters.add(description);
+//			parameters.add(description);
+			parameters.add(describeType(element.getType(), element.getProperties()));
 			// TODO: in the future maybe you can choose whether you want the recursiveness to be done in a single long list or nested
 			// the nested has much less use atm
 			if (element.getType() instanceof ComplexType && recursive && !ignore.contains(element.getType())) {
@@ -304,6 +309,32 @@ public class Node {
 			}
 		}
 		return parameters;
+	}
+	
+	public static ParameterDescription describeType(be.nabu.libs.types.api.Type type, Value<?>...properties) {
+		if (properties == null || properties.length == 0) {
+			properties = type.getProperties();
+		}
+		Integer maxOccurs = ValueUtils.getValue(MaxOccursProperty.getInstance(), properties);
+		Integer minOccurs = ValueUtils.getValue(MinOccursProperty.getInstance(), properties);
+		Boolean generated = ValueUtils.getValue(GeneratedProperty.getInstance(), properties);
+		Boolean identifiable = ValueUtils.getValue(IdentifiableProperty.getInstance(), properties);
+		Boolean primary = ValueUtils.getValue(PrimaryKeyProperty.getInstance(), properties);
+		ParameterDescription description = new ParameterDescription(
+			ValueUtils.getValue(NameProperty.getInstance(), properties), 
+			type instanceof DefinedType ? ((DefinedType) type).getId() : null,
+			type.getName(),
+			ValueUtils.getValue(CommentProperty.getInstance(), properties),
+			maxOccurs != null && maxOccurs != 1,
+			minOccurs != null && minOccurs == 0,
+			type instanceof SimpleType,
+			generated != null && generated,
+			identifiable != null && identifiable);
+		description.setScope(ValueUtils.getValue(ScopeProperty.getInstance(), properties));
+		description.setPattern(ValueUtils.getValue(PatternProperty.getInstance(), properties));
+		description.setPrimary(primary != null && primary);
+		description.setCollectionName(ValueUtils.getValue(CollectionNameProperty.getInstance(), properties));
+		return description;
 	}
 
 	static NodeDescription getDescription(Entry entry, Boolean recursive) {
