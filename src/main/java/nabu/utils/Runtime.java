@@ -352,6 +352,13 @@ public class Runtime {
 		return ServiceRuntime.getRuntime().getCorrelationId();
 	}
 	
+	// in the end we didn't need it (yet)
+//	public void setCorrelationId(@WebParam(name = "correlationId") String correlationId) {
+//		// there is little use for setting the correlation id for _this_ service, it is the runtime of the java call running this particular method
+//		// however, we are likely interested in setting the correlation id of the service that called this
+//		ServiceRuntime.getRuntime().getParent().setCorrelationId(correlationId);
+//	}
+	
 	private static java.util.Map<String, List<Feature>> features;
 	
 	private static java.util.Map<String, List<Feature>> getAvailableFeatures() {

@@ -378,18 +378,22 @@ public class List {
 		return list == null ? 0 : list.size();
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "unchecked" })
 	@WebResult(name = "map")
 	public java.util.Map<java.lang.String, java.lang.Object> toMap(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "keyField") java.lang.String keyField, @WebParam(name = "valueField") java.lang.String valueField) {
 		java.util.Map<java.lang.String, java.lang.Object> map = new HashMap<java.lang.String, java.lang.Object>();
 		if (list != null) {
 			for (java.lang.Object single : list) {
 				if (single != null) {
-					BeanInstance beanInstance = new BeanInstance(single);
-					java.lang.Object key = beanInstance.get(keyField);
-					if (key != null) {
-						java.lang.Object value = beanInstance.get(valueField);
-						map.put(key.toString(), value);
+					if (!(single instanceof ComplexContent)) {
+						single = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(single);
+					}
+					if (single != null) {
+						java.lang.Object key = ((ComplexContent) single).get(keyField);
+						if (key != null) {
+							java.lang.Object value = ((ComplexContent) single).get(valueField);
+							map.put(key.toString(), value);
+						}
 					}
 				}
 			}

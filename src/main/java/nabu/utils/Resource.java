@@ -287,7 +287,7 @@ public class Resource {
 			try {
 				FileVisitorImplementation visitor = new FileVisitorImplementation(fileFilter, recursive, startingDir, groupRegex, limit, expectedGroupSize, groups, currentFound);
 				Files.walkFileTree(startingDir, visitor);
-				System.out.println("Found " + visitor.getFound() + ", skipped " + visitor.getSkipped() + ", checked " + visitor.getChecked());
+//				System.out.println("Found " + visitor.getFound() + ", skipped " + visitor.getSkipped() + ", checked " + visitor.getChecked());
 				List<List<ResourceProperties>> matrix = new ArrayList<List<ResourceProperties>>(groups.values());
 				// return the biggest groups up to limit (if set)
 				if (limit != null) {
@@ -297,7 +297,7 @@ public class Resource {
 							return o2.size() - o1.size();
 						}
 					});
-					System.out.println("Groups are: " + groups.keySet());
+//					System.out.println("Groups are: " + groups.keySet());
 					int counter = 0;
 					for (List<ResourceProperties> single : matrix) {
 						list.addAll(single);
