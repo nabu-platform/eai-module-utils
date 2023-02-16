@@ -27,6 +27,11 @@ public class Transaction {
 		return UUID.randomUUID().toString();
 	}
 	
+	@WebResult(name = "transactionId")
+	public String defaultTransactionId() {
+		return executionContext.getTransactionContext().getDefaultTransactionId();
+	}
+	
 	public void commit(@WebParam(name = "transactionId") String transactionId) {
 		executionContext.getTransactionContext().commit(transactionId);
 	}

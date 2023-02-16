@@ -344,6 +344,14 @@ public class Date {
 	@WebResult(name = "date")
 	public java.util.Date fromValues(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
 		Calendar calendar = Calendar.getInstance(timezone != null ? timezone : TimeZone.getDefault());
+		// the day of week is 1-based, 1 being sunday by default
+		// put these two at the top so they are overridden by specific date/month values
+		if (values.getDayOfWeek() != null) {
+			calendar.set(Calendar.DAY_OF_WEEK, values.getDayOfWeek() == 7 ? 1 : values.getDayOfWeek() + 1);
+		}
+		if (values.getWeekOfYear() != null) {
+			calendar.set(Calendar.WEEK_OF_YEAR, values.getWeekOfYear());
+		}
 		if (values.getYear() != null) {
 			calendar.set(Calendar.YEAR, values.getYear());
 		}
@@ -365,9 +373,6 @@ public class Date {
 		if (values.getMillisecond() != null) {
 			calendar.set(Calendar.MILLISECOND, values.getMillisecond());
 		}
-		/*if (values.getDayOfWeek() != null) {
-			calendar.set(Calendar.DAY_OF_WEEK, values.getDayOfWeek() == 7 ? 1 : values.getDayOfWeek() + 1);
-		}*/
 		return calendar.getTime();
 	}
 	
