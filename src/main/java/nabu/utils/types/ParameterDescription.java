@@ -4,7 +4,7 @@ import be.nabu.libs.types.base.Scope;
 
 public class ParameterDescription {
 	private String name, type, typeName, description, pattern, collectionName;
-	private boolean isList, isOptional, simple, generated, identifiable, primary;
+	private boolean isList, isOptional, simple, generated, identifiable, primary, translatable;
 	private Scope scope;
 	private Integer minimum, maximum;
 	
@@ -132,6 +132,14 @@ public class ParameterDescription {
 
 	public void setCollectionName(String collectionName) {
 		this.collectionName = collectionName;
+	}
+
+	public boolean isTranslatable() {
+		return translatable;
+	}
+
+	public void setTranslatable(boolean translatable) {
+		this.translatable = translatable;
 	}
 
 }

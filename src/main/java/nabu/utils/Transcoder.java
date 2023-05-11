@@ -15,6 +15,7 @@ import be.nabu.utils.codec.impl.DeflateTranscoder;
 import be.nabu.utils.codec.impl.GZIPDecoder;
 import be.nabu.utils.codec.impl.GZIPEncoder;
 import be.nabu.utils.codec.impl.InflateTranscoder;
+import be.nabu.utils.codec.impl.DeflateTranscoder.DeflaterLevel;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 
@@ -63,11 +64,11 @@ public class Transcoder {
 		return new GZIPDecoder();
 	}
 	@WebResult(name = "transcoder")
-	public DeflateTranscoder deflateEncoder() {
-		return new DeflateTranscoder();
+	public DeflateTranscoder deflateEncoder(@WebParam(name = "nowrap") Boolean nowrap) {
+		return new DeflateTranscoder(DeflaterLevel.BEST_COMPRESSION, nowrap != null && nowrap);
 	}
 	@WebResult(name = "transcoder")
-	public InflateTranscoder deflateDecoder() {
-		return new InflateTranscoder();
+	public InflateTranscoder deflateDecoder(@WebParam(name = "nowrap") Boolean nowrap) {
+		return new InflateTranscoder(nowrap != null && nowrap);
 	}
 }

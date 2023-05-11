@@ -180,12 +180,17 @@ public class Object {
 	
 	@ServiceDescription(comment = "Transform {object|an object} into key/value pairs")
 	@WebResult(name = "properties")
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "unchecked" })
 	public List<KeyValuePair> toProperties(@WebParam(name = "object") java.lang.Object object, @WebParam(name = "separator") java.lang.String separator) {
 		List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
 		if (object != null) {
-			ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : new BeanInstance(object);
-			toProperties(content, properties, null, separator == null ? "." : separator);
+			if (!(object instanceof ComplexContent)) {
+				object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+				if (object == null) {
+					throw new IllegalArgumentException("Object could not be cast to complex content");
+				}
+			}
+			toProperties((ComplexContent) object, properties, null, separator == null ? "." : separator);
 		}
 		return properties;
 	}

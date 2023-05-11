@@ -5,6 +5,7 @@ import java.util.List;
 public class TypeInspection {
 	private String id;
 	private List<String> hierarchy;
+	private List<ParameterDescription> parameters;
 	public String getId() {
 		return id;
 	}
@@ -16,5 +17,11 @@ public class TypeInspection {
 	}
 	public void setHierarchy(List<String> hierarchy) {
 		this.hierarchy = hierarchy;
+	}
+	public List<ParameterDescription> getParameters() {
+		return parameters;
+	}
+	public void setParameters(List<ParameterDescription> parameters) {
+		this.parameters = parameters;
 	}
 }

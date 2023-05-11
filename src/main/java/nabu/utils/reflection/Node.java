@@ -51,6 +51,7 @@ import be.nabu.libs.types.properties.NameProperty;
 import be.nabu.libs.types.properties.PatternProperty;
 import be.nabu.libs.types.properties.PrimaryKeyProperty;
 import be.nabu.libs.types.properties.ScopeProperty;
+import be.nabu.libs.types.properties.TranslatableProperty;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
 import be.nabu.libs.validator.api.Validation;
 import nabu.utils.types.NodeDescription;
@@ -320,6 +321,7 @@ public class Node {
 		Boolean generated = ValueUtils.getValue(GeneratedProperty.getInstance(), properties);
 		Boolean identifiable = ValueUtils.getValue(IdentifiableProperty.getInstance(), properties);
 		Boolean primary = ValueUtils.getValue(PrimaryKeyProperty.getInstance(), properties);
+		Boolean translatable = ValueUtils.getValue(TranslatableProperty.getInstance(), properties);
 		ParameterDescription description = new ParameterDescription(
 			ValueUtils.getValue(NameProperty.getInstance(), properties), 
 			type instanceof DefinedType ? ((DefinedType) type).getId() : null,
@@ -334,6 +336,7 @@ public class Node {
 		description.setPattern(ValueUtils.getValue(PatternProperty.getInstance(), properties));
 		description.setPrimary(primary != null && primary);
 		description.setCollectionName(ValueUtils.getValue(CollectionNameProperty.getInstance(), properties));
+		description.setTranslatable(translatable != null && translatable);
 		return description;
 	}
 

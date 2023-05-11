@@ -116,7 +116,7 @@ public class Type {
 	
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "inspection")
-	public TypeInspection inspect(@WebParam(name = "object") Object object) {
+	public TypeInspection inspect(@WebParam(name = "object") Object object, @WebParam(name = "recursive") Boolean recursive) {
 		if (object == null) {
 			return null;
 		}
@@ -133,6 +133,7 @@ public class Type {
 			typeInspection.setId(((DefinedType) type).getId());
 			typeInspection.getHierarchy().add(((DefinedType) type).getId());
 		}
+		typeInspection.setParameters(Node.toParameters((ComplexType) type, recursive != null && recursive));
 		while (type.getSuperType() instanceof ComplexType) {
 			type = (ComplexType) type.getSuperType();
 			if (type instanceof DefinedType) {
@@ -179,7 +180,7 @@ public class Type {
 		return null;
 	}
 	
-	@WebResult
+	@WebResult(name = "is")
 	public boolean is(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "typeId") String typeId) {
 		if (typeInstance != null) {
 			ComplexContent content = typeInstance instanceof ComplexContent ? ((ComplexContent) typeInstance) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(typeInstance);

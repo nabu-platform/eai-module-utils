@@ -94,7 +94,7 @@ public class String {
 		return matches;
 	}
 	
-	@ServiceDescription(comment = "Replace part of a string")
+	@ServiceDescription(comment = "Replace {match|part} {content|in a string} with {replace|nothing}")
 	@WebResult(name = "content")
 	public java.lang.String replace(@WebParam(name = "content") java.lang.String content, @WebParam(name = "match") java.lang.String find, @WebParam(name = "replace") java.lang.String replace, @WebParam(name = "useRegex") Boolean useRegex) {
 		if (content == null) {

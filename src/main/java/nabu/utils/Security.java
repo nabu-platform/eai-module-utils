@@ -3,8 +3,12 @@ package nabu.utils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
@@ -27,6 +31,7 @@ import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.utils.io.IOUtils;
+import be.nabu.utils.security.BCSecurityUtils;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.MacAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
@@ -90,5 +95,10 @@ public class Security {
 	public InputStream pbeDecrypt(@WebParam(name = "encrypted") InputStream input, @WebParam(name = "password") java.lang.String password, @WebParam(name = "algorithm") PBEAlgorithm algorithm) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
 		byte[] bytes = IOUtils.toBytes(IOUtils.wrap(input));
 		return new ByteArrayInputStream(SecurityUtils.pbeDecrypt(new java.lang.String(bytes, "ASCII"), password, algorithm));
+	}
+	
+	@WebResult(name = "key")
+	public Key parseKeyPem(@WebParam(name = "pem") byte[] pem) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IOException {
+		return BCSecurityUtils.parseKeyPem(new StringReader(new java.lang.String(pem, "ASCII")));
 	}
 }
