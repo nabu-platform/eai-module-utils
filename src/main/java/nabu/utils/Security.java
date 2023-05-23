@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 
@@ -20,9 +22,15 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
+import javax.xml.XMLConstants;
+import javax.xml.crypto.MarshalException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.VirusInfection;
@@ -36,6 +44,7 @@ import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.MacAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
 import be.nabu.utils.security.SecurityUtils;
+import nabu.utils.types.SignatureResult;
 
 @WebService
 public class Security {
@@ -100,5 +109,39 @@ public class Security {
 	@WebResult(name = "key")
 	public Key parseKeyPem(@WebParam(name = "pem") byte[] pem) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IOException {
 		return BCSecurityUtils.parseKeyPem(new StringReader(new java.lang.String(pem, "ASCII")));
+	}
+	
+	@WebResult(name = "certificate")
+	public Certificate parseSerializedCertificate(@WebParam(name = "serialized") java.lang.String serialized) throws CertificateException, IOException {
+		return SecurityUtils.decodeCertificate(serialized);
+	}
+	
+	@WebResult(name = "signatureResult")
+	public SignatureResult verifyXmlSignature(@WebParam(name = "xml") java.lang.String xml, @WebParam(name = "signaturePath") java.lang.String signaturePath, @WebParam(name = "certificate") Certificate certificate) throws MarshalException, SAXException, IOException, ParserConfigurationException {
+		SignatureResult result = new SignatureResult();
+		Document document = toDocument(xml, Charset.forName("UTF-8"), true);
+		result.setValid(SecurityUtils.verifyXml(document.getDocumentElement(), signaturePath, certificate.getPublicKey()));
+		return result;
+	}
+	
+	private static Document toDocument(InputStream xml, boolean namespaceAware) throws SAXException, IOException, ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		// no DTD
+		factory.setValidating(false);
+		factory.setNamespaceAware(namespaceAware);
+		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		// allow no external access, as defined http://docs.oracle.com/javase/7/docs/api/javax/xml/XMLConstants.html#FEATURE_SECURE_PROCESSING an empty string means no protocols are allowed
+		try {
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		}
+		catch (Exception e) {
+			// not supported in later versions..............
+		}
+		return factory.newDocumentBuilder().parse(xml);
+	}
+	
+	private static Document toDocument(java.lang.String xml, Charset encoding, boolean namespaceAware) throws SAXException, IOException, ParserConfigurationException {
+		InputStream input = new ByteArrayInputStream(xml.getBytes(encoding));
+		return toDocument(input, namespaceAware);
 	}
 }

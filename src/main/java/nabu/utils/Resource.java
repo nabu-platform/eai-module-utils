@@ -197,6 +197,14 @@ public class Resource {
 		}
 	}
 	
+	@WebResult(name = "properties")
+	public ResourceProperties guess(@WebParam(name = "uri") URI uri) throws IOException {
+		ResourcePropertiesImpl properties = new ResourcePropertiesImpl();
+		properties.setName(uri.getPath().replaceAll("^.*?/([^/]+)$", "$1"));
+		properties.setContentType(URLConnection.guessContentTypeFromName(properties.getName()));
+		return properties;
+	}
+	
 	@WebResult(name = "children")
 	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter, @WebParam(name = "principal") Principal principal, @WebParam(name = "limit") Integer limit, @WebParam(name = "groupRegex") java.lang.String groupRegex, @WebParam(name = "expectedGroupSize") Integer expectedGroupSize) throws IOException {
 		if (uri == null) {
