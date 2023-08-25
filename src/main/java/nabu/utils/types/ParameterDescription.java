@@ -3,7 +3,7 @@ package nabu.utils.types;
 import be.nabu.libs.types.base.Scope;
 
 public class ParameterDescription {
-	private String name, type, typeName, description, pattern, collectionName;
+	private String name, type, typeName, description, pattern, collectionName, path, foreignKey;
 	private boolean isList, isOptional, simple, generated, identifiable, primary, translatable;
 	private Scope scope;
 	private Integer minimum, maximum;
@@ -142,4 +142,19 @@ public class ParameterDescription {
 		this.translatable = translatable;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getForeignKey() {
+		return foreignKey;
+	}
+
+	public void setForeignKey(String foreignKey) {
+		this.foreignKey = foreignKey;
+	}
 }

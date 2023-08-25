@@ -43,6 +43,7 @@ import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.base.Scope;
 import be.nabu.libs.types.properties.CollectionNameProperty;
 import be.nabu.libs.types.properties.CommentProperty;
+import be.nabu.libs.types.properties.ForeignKeyProperty;
 import be.nabu.libs.types.properties.GeneratedProperty;
 import be.nabu.libs.types.properties.IdentifiableProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
@@ -223,7 +224,7 @@ public class Node {
 	}
 
 	private void getAllServices(Entry entry, List<ServiceDescription> nodes, Boolean recursive) {
-		getSingleDescription(nodes, entry);
+//		getSingleDescription(nodes, entry);
 		for (Entry child : entry) {
 			getSingleDescription(nodes, child);
 			if (recursive != null && recursive) {
@@ -251,6 +252,10 @@ public class Node {
 		description.setType("service");
 		description.setArtifactClass(child.getNode().getArtifactClass().getName());
 		description.setLeaf(child.isLeaf());
+		description.setSummary(child.getNode().getSummary());
+		description.setDescription(child.getNode().getDescription());
+		description.setComment(child.getNode().getComment());
+		description.setTags(child.getNode().getTags());
 		DefinedService service = (DefinedService) child.getNode().getArtifact();
 		if (service == null) {
 			throw new RuntimeException("Could not get service from entry: " + child.getId());
@@ -299,7 +304,9 @@ public class Node {
 //			description.setCollectionName(ValueUtils.getValue(CollectionNameProperty.getInstance(), element.getProperties()));
 			// TODO: add more
 //			parameters.add(description);
-			parameters.add(describeType(element.getType(), element.getProperties()));
+			ParameterDescription describeType = describeType(element.getType(), element.getProperties());
+			describeType.setPath(childName.replace('.', '/'));
+			parameters.add(describeType);
 			// TODO: in the future maybe you can choose whether you want the recursiveness to be done in a single long list or nested
 			// the nested has much less use atm
 			if (element.getType() instanceof ComplexType && recursive && !ignore.contains(element.getType())) {
@@ -322,6 +329,7 @@ public class Node {
 		Boolean identifiable = ValueUtils.getValue(IdentifiableProperty.getInstance(), properties);
 		Boolean primary = ValueUtils.getValue(PrimaryKeyProperty.getInstance(), properties);
 		Boolean translatable = ValueUtils.getValue(TranslatableProperty.getInstance(), properties);
+		String foreignKey = ValueUtils.getValue(ForeignKeyProperty.getInstance(), properties);
 		ParameterDescription description = new ParameterDescription(
 			ValueUtils.getValue(NameProperty.getInstance(), properties), 
 			type instanceof DefinedType ? ((DefinedType) type).getId() : null,
@@ -337,6 +345,7 @@ public class Node {
 		description.setPrimary(primary != null && primary);
 		description.setCollectionName(ValueUtils.getValue(CollectionNameProperty.getInstance(), properties));
 		description.setTranslatable(translatable != null && translatable);
+		description.setForeignKey(foreignKey);
 		return description;
 	}
 

@@ -29,7 +29,6 @@ import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
-import be.nabu.libs.types.java.BeanInstance;
 import be.nabu.libs.types.structure.StructureInstanceDowncastReference;
 import be.nabu.libs.types.structure.StructureInstanceUpcastReference;
 
@@ -341,12 +340,46 @@ public class List {
 		return list;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@WebResult(name = "list")
-	public java.util.List<java.lang.Object> unique(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
-		if (list == null) {
+	public java.util.List<java.lang.Object> unique(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "fields") java.util.List<java.lang.String> fields) {
+		if (list == null || list.isEmpty()) {
 			return null;
 		}
-		return new ArrayList<java.lang.Object>(new LinkedHashSet<java.lang.Object>(list));
+		// the old way: we just want a unique resultset of whatever we passed in
+		if (fields == null || fields.isEmpty()) {
+			return new ArrayList<java.lang.Object>(new LinkedHashSet<java.lang.Object>(list));
+		}
+		// if you pass in fields, you want a resultset of objects where those fields are unique
+		java.util.List<java.lang.String> alreadyAdded = new ArrayList<java.lang.String>();
+		java.util.List<java.lang.Object> results = new ArrayList<java.lang.Object>();
+		for (java.lang.Object single : list) {
+			if (single == null) {
+				continue;
+			}
+			if (!(single instanceof ComplexContent)) {
+				single = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(single);
+				if (single == null) {
+					throw new IllegalArgumentException("Not a complex content: " + list);
+				}
+			}
+			java.lang.String key = "";
+			for (java.lang.String field : fields) {
+				java.lang.Object value = ((ComplexContent) single).get(field);
+				if (value != null) {
+					value = ConverterFactory.getInstance().getConverter().convert(value, java.lang.String.class);
+				}
+				if (!key.isEmpty()) {
+					key += "::";
+				}
+				key += value;
+			}
+			if (!alreadyAdded.contains(key)) {
+				alreadyAdded.add(key);
+				results.add(single);
+			}
+		}
+		return results;
 	}
 	
 	@WebResult(name = "minimum")

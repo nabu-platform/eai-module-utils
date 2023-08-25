@@ -63,7 +63,7 @@ import be.nabu.utils.mime.impl.MimeUtils;
 public class Resource {
 	
 	private final class FileVisitorImplementation implements FileVisitor<Path> {
-		private final java.lang.String fileFilter;
+		private final java.lang.String fileFilter, directoryFilter;
 		private final Boolean recursive;
 		private final Path startingDir;
 		private int found = 0, skipped, checked;
@@ -74,8 +74,9 @@ public class Resource {
 		private Map<java.lang.String, List<ResourceProperties>> groups;
 		private Integer currentFound;
 		
-		private FileVisitorImplementation(java.lang.String fileFilter, Boolean recursive, Path startingDir, java.lang.String groupRegex, Integer limit, Integer expectedGroupSize, java.util.Map<java.lang.String, java.util.List<ResourceProperties>> groups, int currentFound) {
+		private FileVisitorImplementation(java.lang.String fileFilter, java.lang.String directoryFilter, Boolean recursive, Path startingDir, java.lang.String groupRegex, Integer limit, Integer expectedGroupSize, java.util.Map<java.lang.String, java.util.List<ResourceProperties>> groups, int currentFound) {
 			this.fileFilter = fileFilter;
+			this.directoryFilter = directoryFilter;
 			this.recursive = recursive;
 			this.startingDir = startingDir;
 			this.groupRegex = groupRegex;
@@ -91,8 +92,43 @@ public class Resource {
 		}
 
 		@Override
-		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-			return startingDir.equals(dir) || (recursive != null && recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+		public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes attrs) throws IOException {
+			// if we have a directory filter, apply it
+			if (directoryFilter != null && !startingDir.equals(directory)) {
+				java.lang.String directoryName = directory.getFileName().toString();
+				// if we don't match, just skip it
+				if (!directoryName.matches(directoryFilter)) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+				// we want to add it to the resultlist
+				else {
+					List<ResourceProperties> groupList = groups.get("$default");
+					// if the group does not exist yet, check if we still want to track it
+					if (groupList == null) {
+						groupList = new ArrayList<ResourceProperties>();
+						groups.put("$default", groupList);
+					}
+					ResourcePropertiesImpl properties = new ResourcePropertiesImpl();
+					properties.setName(directoryName);
+					properties.setContentType(be.nabu.libs.resources.api.Resource.CONTENT_TYPE_DIRECTORY);
+					properties.setReadable(true);
+					properties.setWritable(true);
+					properties.setListable(attrs.isDirectory());
+					properties.setSize(attrs.size());
+					properties.setLastModified(new Date(attrs.lastModifiedTime().toMillis()));
+					properties.setLastAccessed(new Date(attrs.lastAccessTime().toMillis()));
+					URI uri = directory.toUri();
+					try {
+						properties.setUri(new URI("file", null, null, -1, uri.getPath(), uri.getQuery(), uri.getFragment()));
+					}
+					catch (URISyntaxException e) {
+						// should not occur...?
+						throw new RuntimeException(e);
+					}
+					groupList.add(properties);
+				}
+			}
+			return startingDir.equals(directory) || (recursive != null && recursive) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
 		}
 
 		@Override
@@ -100,7 +136,7 @@ public class Resource {
 			checked++;
 			// if we match the original filter, we might be interested
 			java.lang.String fileName = path.getFileName().toString();
-			if (fileFilter == null || fileName.matches(fileFilter)) {
+			if ((fileFilter == null && directoryFilter == null) || (fileFilter != null && fileName.matches(fileFilter))) {
 				List<ResourceProperties> groupList = null;
 				
 				if (groupRegex != null) {
@@ -204,9 +240,9 @@ public class Resource {
 		properties.setContentType(URLConnection.guessContentTypeFromName(properties.getName()));
 		return properties;
 	}
-	
+
 	@WebResult(name = "children")
-	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter, @WebParam(name = "principal") Principal principal, @WebParam(name = "limit") Integer limit, @WebParam(name = "groupRegex") java.lang.String groupRegex, @WebParam(name = "expectedGroupSize") Integer expectedGroupSize) throws IOException {
+	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter, @WebParam(name = "directoryFilter") java.lang.String directoryFilter, @WebParam(name = "principal") Principal principal, @WebParam(name = "limit") Integer limit, @WebParam(name = "groupRegex") java.lang.String groupRegex, @WebParam(name = "expectedGroupSize") Integer expectedGroupSize) throws IOException {
 		if (uri == null) {
 			return null;
 		}
@@ -214,7 +250,7 @@ public class Resource {
 		java.util.List<ResourceProperties> list = new ArrayList<ResourceProperties>();
 		be.nabu.libs.resources.api.Resource parent = ResourceFactory.getInstance().resolve(uri, principal);
 		try {
-			list(recursive, fileFilter, list, parent, uri, limit, groupRegex, expectedGroupSize, groups, 0);
+			list(recursive, fileFilter, directoryFilter, list, parent, uri, limit, groupRegex, expectedGroupSize, groups, 0);
 			// this is of the format repository:artifactId:/path/to/stuff
 			// however, if we pass it in the above, it will not have a path and end up with repository:/myresource.txt for example
 			if ("repository".equals(uri.getScheme())) {
@@ -288,12 +324,12 @@ public class Resource {
 	}
 
 
-	private int list(final Boolean recursive, final java.lang.String fileFilter, final java.util.List<ResourceProperties> list, final be.nabu.libs.resources.api.Resource parent, final URI uri, final Integer limit, final java.lang.String groupRegex, final Integer expectedGroupSize, final java.util.Map<java.lang.String, java.util.List<ResourceProperties>> groups, int currentFound) {
+	private int list(final Boolean recursive, final java.lang.String fileFilter, final java.lang.String directoryFilter, final java.util.List<ResourceProperties> list, final be.nabu.libs.resources.api.Resource parent, final URI uri, final Integer limit, final java.lang.String groupRegex, final Integer expectedGroupSize, final java.util.Map<java.lang.String, java.util.List<ResourceProperties>> groups, int currentFound) {
 		// if we are using a file system a
 		if (parent instanceof FileDirectory) {
 			final Path startingDir = ((FileDirectory) parent).getFile().toPath();
 			try {
-				FileVisitorImplementation visitor = new FileVisitorImplementation(fileFilter, recursive, startingDir, groupRegex, limit, expectedGroupSize, groups, currentFound);
+				FileVisitorImplementation visitor = new FileVisitorImplementation(fileFilter, directoryFilter, recursive, startingDir, groupRegex, limit, expectedGroupSize, groups, currentFound);
 				Files.walkFileTree(startingDir, visitor);
 //				System.out.println("Found " + visitor.getFound() + ", skipped " + visitor.getSkipped() + ", checked " + visitor.getChecked());
 				List<List<ResourceProperties>> matrix = new ArrayList<List<ResourceProperties>>(groups.values());
@@ -327,12 +363,19 @@ public class Resource {
 		}
 		else if (parent instanceof ResourceContainer) {
 			for (be.nabu.libs.resources.api.Resource child : (ResourceContainer<?>) parent) {
-				if (fileFilter == null || child.getName().matches(fileFilter)) {
+				// if you don't fill in any filter, we assume you are interested in all files
+				if (child instanceof ReadableResource && (fileFilter == null && directoryFilter == null) || (fileFilter != null && child.getName().matches(fileFilter))) {
 					list.add(ResourceUtils.properties(child, uri));
 					currentFound++;
 				}
-				if (recursive != null && recursive && child instanceof ResourceContainer) {
-					currentFound = list(recursive, fileFilter, list, child, URIUtils.getChild(uri, child.getName()), limit, groupRegex, expectedGroupSize, groups, currentFound);
+				if (child instanceof ResourceContainer) {
+					if (directoryFilter != null && child.getName().matches(directoryFilter)) {
+						list.add(ResourceUtils.properties(child, uri));
+						currentFound++;
+					}
+					if (recursive != null && recursive) {
+						currentFound = list(recursive, fileFilter, directoryFilter, list, child, URIUtils.getChild(uri, child.getName()), limit, groupRegex, expectedGroupSize, groups, currentFound);
+					}
 				}
 				if (limit != null && currentFound >= limit) {
 					// if we overshot, trim it down

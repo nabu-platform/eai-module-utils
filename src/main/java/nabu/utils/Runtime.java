@@ -287,7 +287,14 @@ public class Runtime {
 	}
 	
 	public void setServiceContext(@WebParam(name = "context") String context) {
-		ServiceUtils.setServiceContext(ServiceRuntime.getRuntime(), context);
+		// the current runtime is the wrapper for this particular method call, if it has no parent, it is not part of a larger managed call
+		// we want to set it in global properties then
+		if (ServiceRuntime.getRuntime().getParent() == null) {
+			ServiceUtils.setServiceContext(null, context);
+		}
+		else {
+			ServiceUtils.setServiceContext(ServiceRuntime.getRuntime(), context);
+		}
 	}
 	
 	@WebResult(name = "serviceContext")

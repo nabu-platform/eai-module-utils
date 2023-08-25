@@ -336,7 +336,8 @@ public class Date {
 		values.setMillisecond(calendar.get(Calendar.MILLISECOND));
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 		values.setDayOfWeek(dayOfWeek == 1 ? 7 : dayOfWeek - 1);
-		values.setWeekOfYear(calendar.get(Calendar.WEEK_OF_YEAR));
+		// if we are sunday, it counts as the start of the next week, we want to reduce the week count by 1
+		values.setWeekOfYear(calendar.get(Calendar.WEEK_OF_YEAR) - (dayOfWeek == 1 ? 1 : 0));
 		return values;
 	}
 	
@@ -350,6 +351,11 @@ public class Date {
 			calendar.set(Calendar.DAY_OF_WEEK, values.getDayOfWeek() == 7 ? 1 : values.getDayOfWeek() + 1);
 		}
 		if (values.getWeekOfYear() != null) {
+			Integer weekOfYear = values.getWeekOfYear();
+			// if we are a sunday, it will count as the start of the next week, we compensate for this in the toValues, recompensate here
+			if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+				weekOfYear++;
+			}
 			calendar.set(Calendar.WEEK_OF_YEAR, values.getWeekOfYear());
 		}
 		if (values.getYear() != null) {

@@ -57,9 +57,29 @@ public class Uri {
 		return URIUtils.encodeURI(uri, includeEncoded == null ? true : includeEncoded);
 	}
 	
+	@WebResult(name = "uri")
+	public String decodeUri(@WebParam(name = "uri") String uri) {
+		return URIUtils.decodeURI(uri);
+	}
+	
+	@WebResult(name = "url")
+	public String encodeUrl(@WebParam(name = "url") String uri) {
+		return URIUtils.encodeURL(uri);
+	}
+	
+	@WebResult(name = "url")
+	public String decodeUrl(@WebParam(name = "url") String uri) {
+		return URIUtils.decodeURL(uri);
+	}
+	
 	@WebResult(name = "component")
 	public String encodeUriComponent(@WebParam(name = "component") String component, @WebParam(name = "includeEncoded") Boolean includeEncoded) {
 		return URIUtils.encodeURIComponent(component, includeEncoded == null ? true : includeEncoded);
+	}
+	
+	@WebResult(name = "component")
+	public String decodeUriComponent(@WebParam(name = "component") String component) {
+		return URIUtils.decodeURIComponent(component);
 	}
 	
 	@WebResult(name = "properties")

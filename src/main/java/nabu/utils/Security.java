@@ -43,6 +43,7 @@ import be.nabu.utils.security.BCSecurityUtils;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.MacAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
+import be.nabu.utils.security.Rfc2898DeriveBytes;
 import be.nabu.utils.security.SecurityUtils;
 import nabu.utils.types.SignatureResult;
 
@@ -117,7 +118,7 @@ public class Security {
 	}
 	
 	@WebResult(name = "signatureResult")
-	public SignatureResult verifyXmlSignature(@WebParam(name = "xml") java.lang.String xml, @WebParam(name = "signaturePath") java.lang.String signaturePath, @WebParam(name = "certificate") Certificate certificate) throws MarshalException, SAXException, IOException, ParserConfigurationException {
+	public SignatureResult xmlSignatureValidate(@WebParam(name = "xml") java.lang.String xml, @WebParam(name = "signaturePath") java.lang.String signaturePath, @WebParam(name = "certificate") Certificate certificate) throws MarshalException, SAXException, IOException, ParserConfigurationException {
 		SignatureResult result = new SignatureResult();
 		Document document = toDocument(xml, Charset.forName("UTF-8"), true);
 		result.setValid(SecurityUtils.verifyXml(document.getDocumentElement(), signaturePath, certificate.getPublicKey()));
@@ -143,5 +144,15 @@ public class Security {
 	private static Document toDocument(java.lang.String xml, Charset encoding, boolean namespaceAware) throws SAXException, IOException, ParserConfigurationException {
 		InputStream input = new ByteArrayInputStream(xml.getBytes(encoding));
 		return toDocument(input, namespaceAware);
+	}
+	
+	@WebResult(name = "encoded")
+	public java.lang.String pbkdf2Generate(@WebParam(name = "content") java.lang.String content) throws InvalidKeyException, NoSuchAlgorithmException, IOException {
+		return Rfc2898DeriveBytes.generateCryptoHash(content);
+	}
+	
+	@WebResult(name = "valid")
+	public java.lang.Boolean pbkdf2Validate(@WebParam(name = "content") java.lang.String content, @WebParam(name = "encoded") java.lang.String encoded) throws InvalidKeyException, NoSuchAlgorithmException, IOException {
+		return Rfc2898DeriveBytes.validateCryptoHash(encoded, content);
 	}
 }
