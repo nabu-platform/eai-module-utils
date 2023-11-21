@@ -3,7 +3,7 @@ package nabu.utils.types;
 import be.nabu.libs.types.base.Scope;
 
 public class ParameterDescription {
-	private String name, type, typeName, description, pattern, collectionName, path, foreignKey;
+	private String name, type, typeName, description, pattern, collectionName, path, foreignKey, alias;
 	private boolean isList, isOptional, simple, generated, identifiable, primary, translatable;
 	private Scope scope;
 	private Integer minimum, maximum;
@@ -157,4 +157,13 @@ public class ParameterDescription {
 	public void setForeignKey(String foreignKey) {
 		this.foreignKey = foreignKey;
 	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+	
 }

@@ -152,16 +152,17 @@ public class Type {
 		else if (!(instance instanceof ComplexContent)) {
 			instance = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(instance);
 		}
-		// check if we are already of the correct type
+		// no longer doing this, we might want to mask specifically to get retain the original as immutable
+//		// check if we are already of the correct type
 		ComplexType type = ((ComplexContent) instance).getType();
-		if (type instanceof DefinedType && ((DefinedType) type).getId().equals(dataType)) {
-			return instance;
-		}
+//		if (type instanceof DefinedType && ((DefinedType) type).getId().equals(dataType)) {
+//			return instance;
+//		}
 		Artifact resolve = EAIResourceRepository.getInstance().resolve(dataType);
 		if (!(resolve instanceof ComplexType)) {
 			throw new IllegalArgumentException("Invalid type, expecting a complex type for: " + dataType);
 		}
-		return type.equals(resolve) ? instance : new MaskedContent((ComplexContent) instance, (ComplexType) resolve);
+		return new MaskedContent((ComplexContent) instance, (ComplexType) resolve);	// type.equals(resolve) ? instance :
 	}
 	
 	@SuppressWarnings("unchecked")

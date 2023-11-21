@@ -19,6 +19,8 @@ import nabu.utils.types.UriComponents;
 @WebService
 public class Uri {
 	
+	private static boolean useOldUriBuilding = Boolean.parseBoolean(System.getProperty("useOldUriBuilding", "false"));
+	
 	@WebResult(name = "components")
 	public UriComponents toComponents(@WebParam(name = "uri") URI uri) {
 		return uri == null ? null : UriComponents.build(uri);
@@ -41,15 +43,20 @@ public class Uri {
 		if ("http".equalsIgnoreCase(components.getScheme()) && components.getPort() != null && components.getPort() == 80) {
 			components.setPort(null);
 		}
-		return new URI(
-			components.getScheme(),
-			components.getUserInfo(),
-			components.getHost(),
-			components.getPort() == null ? -1 : components.getPort(),
-			components.getPath(),
-			components.getQuery(),
-			components.getFragment()
-		);
+		if (useOldUriBuilding) {
+			return new URI(
+				components.getScheme(),
+				components.getUserInfo(),
+				components.getHost(),
+				components.getPort() == null ? -1 : components.getPort(),
+				components.getPath(),
+				components.getQuery(),
+				components.getFragment()
+			);
+		}
+		else {
+			return URIUtils.buildUri(components.getScheme(), components.getUserInfo(), components.getAuthority(), components.getHost(), components.getPort(), components.getPath(), components.getQuery(), components.getFragment());
+		}
 	}
 
 	@WebResult(name = "uri")

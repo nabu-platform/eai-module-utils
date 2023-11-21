@@ -40,7 +40,7 @@ import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.api.SimpleType;
-import be.nabu.libs.types.base.Scope;
+import be.nabu.libs.types.properties.AliasProperty;
 import be.nabu.libs.types.properties.CollectionNameProperty;
 import be.nabu.libs.types.properties.CommentProperty;
 import be.nabu.libs.types.properties.ForeignKeyProperty;
@@ -346,6 +346,7 @@ public class Node {
 		description.setCollectionName(ValueUtils.getValue(CollectionNameProperty.getInstance(), properties));
 		description.setTranslatable(translatable != null && translatable);
 		description.setForeignKey(foreignKey);
+		description.setAlias(ValueUtils.getValue(AliasProperty.getInstance(), properties));
 		return description;
 	}
 

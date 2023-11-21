@@ -27,6 +27,7 @@ import be.nabu.eai.repository.api.Entry;
 import be.nabu.eai.repository.api.FeatureConfigurator;
 import be.nabu.eai.repository.api.FeatureDescription;
 import be.nabu.eai.repository.api.FeatureProviderService;
+import be.nabu.eai.repository.impl.RepositoryArtifactResolver;
 import be.nabu.libs.artifacts.FeatureImpl;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.Feature;
@@ -41,6 +42,7 @@ import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.FeaturedExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
 import be.nabu.libs.types.base.ComplexElementImpl;
@@ -303,6 +305,14 @@ public class Runtime {
 		return ServiceUtils.getServiceContext(ServiceRuntime.getRuntime());
 	}
 	
+	@WebResult(name = "match")
+	public Object getForContext(@WebParam(name = "context") String context, @WebParam(name = "objects") List<Object> objects, @WebParam(name = "contextField") String field) {
+		if (objects == null) {
+			return null;
+		}
+		return RepositoryArtifactResolver.getContextualFor(context, objects, field);
+	}
+	
 	@Deprecated
 	@Hidden
 	public void fireEvent(@WebParam(name = "event") java.lang.Object event) {
@@ -387,11 +397,30 @@ public class Runtime {
 		return features;
 	}
 	
+	@Deprecated
 	public void scanFeatures() {
 		features = null;
 		getAvailableFeatures();
 	}
 	
+	@Deprecated
+	public void toggleFeature(@NotNull @WebParam(name = "feature") String feature, @WebParam(name = "enabled") Boolean enabled) {
+		if (executionContext instanceof FeaturedExecutionContext) {
+			if (enabled != null && enabled) {
+				if (!((FeaturedExecutionContext) executionContext).getEnabledFeatures().contains(feature)) {
+					((FeaturedExecutionContext) executionContext).getEnabledFeatures().add(feature);
+				}
+			}
+			else {
+				((FeaturedExecutionContext) executionContext).getEnabledFeatures().remove(feature);
+			}
+		}
+		else {
+			throw new IllegalStateException("Not a featured execution context");
+		}
+	}
+	
+	@Deprecated
 	@WebResult(name = "features")
 	public FeatureList getFeatures(@WebParam(name = "id") String id, @WebParam(name = "token") Token token, @WebParam(name = "enabledOnly") Boolean enabledOnly) {
 		FeatureList list = new FeatureList();
