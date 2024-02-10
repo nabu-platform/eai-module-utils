@@ -10,10 +10,10 @@ import javax.jws.WebService;
 @WebService
 public class BigMath {
 	@WebResult(name = "rounded")
-	public Double round(@WebParam(name = "value") BigDecimal bigDecimal, @WebParam(name = "precision") Integer precision, @WebParam(name = "roundingMode") RoundingMode roundingMode) {
+	public BigDecimal round(@WebParam(name = "value") BigDecimal bigDecimal, @WebParam(name = "precision") Integer precision, @WebParam(name = "roundingMode") RoundingMode roundingMode) {
 		if (bigDecimal == null) {
 			return null;
 		}
-		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode).doubleValue();
+		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode);
 	}
 }
