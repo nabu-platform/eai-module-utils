@@ -451,5 +451,32 @@ public class Object {
 			}
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "If all data in {object|an object} is null, we return null, otherwise the object")
+	@WebResult(name = "nullified")
+	public java.lang.Object nullify(@WebParam(name = "object") java.lang.Object object) {
+		if (object == null) {
+			return null;
+		}
+		ComplexContent content;
+		if (object instanceof ComplexContent) {
+			content = (ComplexContent) object;
+		}
+		else {
+			content = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+		}
+		// if we couldn't wrap it in a complex, the fact that it is not null means it has a value (or should...)
+		if (content == null) {
+			return object;
+		}
+		for (Element<?> child : TypeUtils.getAllChildren(content.getType())) {
+			java.lang.Object value = content.get(child.getName());
+			if (value != null) {
+				return object;
+			}
+		}
+		return null;
+	}
 	
 }

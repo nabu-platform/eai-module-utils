@@ -32,8 +32,8 @@ public class Enrichment {
 		EAIRepositoryUtils.enrich(objects, language, executionContext);
 	}
 	
-	public void persist(@WebParam(name = "objects") List<java.lang.Object> objects) {
-		// TODO
+	public void persist(@WebParam(name = "objects") List<java.lang.Object> objects, @WebParam(name = "language") java.lang.String language) throws ServiceException {
+		EAIRepositoryUtils.persist(objects, language, executionContext);
 	}
 	
 	@WebResult(name = "configuration")
