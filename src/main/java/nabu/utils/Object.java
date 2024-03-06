@@ -6,6 +6,8 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.String;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -26,17 +28,21 @@ import be.nabu.libs.types.BaseTypeInstance;
 import be.nabu.libs.types.CollectionHandlerFactory;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
+import be.nabu.libs.types.SimpleTypeWrapperFactory;
 import be.nabu.libs.types.TypeConverterFactory;
 import be.nabu.libs.types.TypeUtils;
 import be.nabu.libs.types.api.CollectionHandlerProvider;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
+import be.nabu.libs.types.api.DefinedSimpleType;
 import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.api.Marshallable;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.api.Type;
 import be.nabu.libs.types.api.TypeConverter;
+import be.nabu.libs.types.binding.json.JSONBinding;
 import be.nabu.libs.types.java.BeanInstance;
 import be.nabu.libs.types.mask.MaskedContent;
 import be.nabu.libs.types.properties.EnumerationProperty;
@@ -172,10 +178,44 @@ public class Object {
 		return validator.validate(object);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ServiceDescription(comment = "Format {object|an object} into a string")
 	@WebResult(name = "string")
-	public String toString(@WebParam(name = "object") java.lang.Object object) {
-		return object == null ? null : object.toString();
+	public String toString(@WebParam(name = "object") java.lang.Object object) throws IOException {
+		if (object == null) {
+			return null;
+		}
+		CollectionHandlerProvider handler = CollectionHandlerFactory.getInstance().getHandler().getHandler(object.getClass());
+		if (handler != null) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[");
+			for (java.lang.Object single : handler.getAsIterable(object)) {
+				builder.append(toString(single));
+			}
+			builder.append("]");
+			return builder.toString();
+		}
+		else {
+			DefinedSimpleType<? extends java.lang.Object> wrap = SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(object.getClass());
+			if (wrap instanceof Marshallable) {
+				return ((Marshallable) wrap).marshal(object);
+			}
+			// not very marshallable are we?
+			// in the future we could do fancier stuff for streams and bytes like base64 them
+			else if (wrap != null) {
+				return object.toString();
+			}
+			ComplexContent wrapped = object instanceof ComplexContent ? (ComplexContent) object : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+			if (wrapped != null) {
+				JSONBinding binding = new JSONBinding(wrapped.getType(), Charset.forName("UTF-8"));
+				binding.setPrettyPrint(true);
+				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				binding.marshal(output, wrapped);
+				return new String(output.toByteArray(), "UTF-8");
+			}
+			// ultimate fallback
+			return object.toString();
+		}
 	}
 	
 	@ServiceDescription(comment = "Transform {object|an object} into key/value pairs")
