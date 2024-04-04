@@ -17,7 +17,7 @@ import be.nabu.libs.types.mask.MaskedContent;
 public class CommonUtils {
 	
 	@SuppressWarnings("unchecked")
-	public static List<Object> group(List<Object> instances, ComplexType type) {
+	public static List<Object> group(List<Object> instances, Integer depth, ComplexType type) {
 		if (instances == null) {
 			return null;
 		}
@@ -64,7 +64,7 @@ public class CommonUtils {
 			mapped.get(values).add(content);
 		}
 		// this boolean allows us to check only once if we need further grouping instead of for each value
-		boolean grouping = true;
+		boolean grouping = depth == null || depth > 0;
 		List<Object> result = new ArrayList<Object>();
 		// set the field values
 		for (List<Object> values : mapped.keySet()) {
@@ -73,7 +73,7 @@ public class CommonUtils {
 				newInstance.set(fieldNames.get(i), values.get(i));
 			}
 			if (grouping) {
-				List<Object> group = group(mapped.get(values), groupType);
+				List<Object> group = group(mapped.get(values), depth == null ? null : depth - 1, groupType);
 				// no further grouping necessary
 				if (group == null) {
 					grouping = false;

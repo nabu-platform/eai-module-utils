@@ -3,6 +3,7 @@ package nabu.utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;

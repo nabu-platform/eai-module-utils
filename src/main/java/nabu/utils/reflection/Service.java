@@ -125,7 +125,10 @@ public class Service {
 						NodeDescription description = Node.getDescription(EAIResourceRepository.getInstance().getEntry(service.getId()), false);
 						Integer matchPercentage = ServiceUtils.getMatchPercentage(service, implementations);
 						if (matchPercentage != null) {
-							description.setPriority(matchPercentage);
+							// if we have no priority just yet, set one
+							if (description.getPriority() == null) {
+								description.setPriority(matchPercentage);
+							}
 							boolean matches = true;
 							// we can filter on specific properties that must be annotated
 							if (properties != null && !properties.isEmpty()) {

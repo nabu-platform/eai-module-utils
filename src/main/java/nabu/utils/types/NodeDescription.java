@@ -15,7 +15,7 @@ public class NodeDescription {
 	private String type, name, artifactClass, id;
 	private boolean leaf;
 	private List<NodeDescription> nodes;
-	private int priority;
+	private Integer priority;
 	private String summary, description, comment;
 	private List<String> tags;
 	private List<KeyValuePair> properties;
@@ -75,10 +75,10 @@ public class NodeDescription {
 	}
 
 	@XmlTransient
-	public int getPriority() {
+	public Integer getPriority() {
 		return priority;
 	}
-	public void setPriority(int priority) {
+	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
 

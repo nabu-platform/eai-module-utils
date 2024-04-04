@@ -373,6 +373,7 @@ public class Node {
 			description.setDescription(node.getDescription());
 			description.setTags(node.getTags());
 			description.setSummary(node.getSummary());
+			description.setPriority(node.getPriority());
 			Map<String, String> properties = node.getProperties();
 			if (properties != null && !properties.isEmpty()) {
 				List<KeyValuePair> keyValuePairs = new ArrayList<KeyValuePair>();

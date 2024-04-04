@@ -37,13 +37,13 @@ public class List {
 	
 	private ExecutionContext executionContext;
 	
-	public java.util.List<java.lang.Object> group(@WebParam(name = "list") java.util.List<java.lang.Object> instances, @NotNull @WebParam(name = "definition") java.lang.String name) {
+	public java.util.List<java.lang.Object> group(@WebParam(name = "list") java.util.List<java.lang.Object> instances, @NotNull @WebParam(name = "definition") java.lang.String name, @WebParam(name = "depth") Integer depth) {
 		// detect the fields at each level and group the current list by them, do type masking on the inner document
 		DefinedType resolve = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(name);
 		if (!(resolve instanceof ComplexType)) {
 			throw new IllegalArgumentException("Can not find complex type: " + name);
 		}
-		return CommonUtils.group(instances, (ComplexType) resolve);
+		return CommonUtils.group(instances, depth, (ComplexType) resolve);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -152,7 +152,8 @@ public class List {
 		if (from != null && from >= list.size()) {
 			return null;
 		}
-		return list.subList(from == null ? 0 : from, to == null ? list.size() : java.lang.Math.min(list.size(), to));
+		// wrap it in an array list, otherwise you get an instance of java.util.ArrayList$SubList which the collection handler can not deal with currently
+		return new ArrayList<java.lang.Object>(list.subList(from == null ? 0 : from, to == null ? list.size() : java.lang.Math.min(list.size(), to)));
 	}
 
 	@WebResult(name = "list")
