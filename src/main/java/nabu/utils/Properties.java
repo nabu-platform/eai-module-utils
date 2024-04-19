@@ -4,6 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.lang.String;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.Object;
 
 import javax.jws.WebParam;
@@ -17,7 +21,10 @@ import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
+import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.binding.api.Window;
+import be.nabu.libs.types.binding.json.JSONBinding;
 
 @WebService
 public class Properties {
@@ -56,11 +63,42 @@ public class Properties {
 		if (properties != null) {
 			for (KeyValuePair property : properties) {
 				String key = property.getKey();
-				if (separator == null || !separator.equals("/")) {
-					key = key.replace(separator == null ? "." : separator, "/");
+				if (key == null || key.equals("$all")) {
+					java.lang.String value = property.getValue();
+					if (value != null) {
+						JSONBinding binding = new JSONBinding((ComplexType) resolved, Charset.forName("UTF-8"));
+						try {
+							// updating the instance as a whole or merging every key (even nulls) amounts to the same thing?
+							newInstance = binding.unmarshal(new ByteArrayInputStream(value.getBytes(Charset.forName("UTF-8"))), new Window[0]);
+						}
+						catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
 				}
-				if (newInstance.getType().get(key) != null) {
-					newInstance.set(key, property.getValue());
+				else {
+					if (separator == null || !separator.equals("/")) {
+						key = key.replace(separator == null ? "." : separator, "/");
+					}
+					Element<?> element = newInstance.getType().get(key);
+					if (element != null) {
+						if (element.getType() instanceof ComplexType) {
+							java.lang.String value = property.getValue();
+							if (value != null) {
+								JSONBinding binding = new JSONBinding((ComplexType) element.getType(), Charset.forName("UTF-8"));
+								try {
+									// updating the instance as a whole or merging every key (even nulls) amounts to the same thing?
+									newInstance.set(key, binding.unmarshal(new ByteArrayInputStream(value.getBytes(Charset.forName("UTF-8"))), new Window[0]));
+								}
+								catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+						}
+						else {
+							newInstance.set(key, property.getValue());
+						}
+					}
 				}
 			}
 		}
