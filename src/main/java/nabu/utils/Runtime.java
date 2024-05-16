@@ -528,6 +528,16 @@ public class Runtime {
 				}
 			}
 			
+			features.put("DEV", new FeatureImpl("DEV", null));
+			features.put("LIVE", new FeatureImpl("DEV", null));
+			if (EAIResourceRepository.isDevelopment()) {
+				allEnabled.add("DEV");
+			}
+			else {
+				allEnabled.add("LIVE");
+			}
+			
+			
 			for (String feature : features.keySet()) {
 				if (features.containsKey(feature)) {
 					if (allEnabled.contains(feature)) {

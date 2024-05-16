@@ -6,6 +6,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import be.nabu.eai.repository.EAIExecutionContext;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.server.rest.ServerREST;
 import be.nabu.libs.events.api.EventDispatcher;
@@ -14,6 +15,7 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.utils.cep.api.CommonEvent;
 import be.nabu.utils.cep.api.ComplexEvent;
+import be.nabu.utils.cep.api.EventSeverity;
 import be.nabu.utils.cep.impl.CEPUtils;
 import be.nabu.utils.cep.impl.ComplexEventImpl;
 
@@ -71,9 +73,9 @@ public class Event {
 	}
 	
 	// should implement: be.nabu.eai.server.api.EventHandler.handle
-	public void subscribe(@WebParam(name = "serviceId") java.lang.String serviceId) {
+	public void subscribe(@WebParam(name = "serviceId") java.lang.String serviceId, @WebParam(name = "prioritySeverity") EventSeverity prioritySeverity) {
 		if (executionContext.getServiceContext().getServiceRunner() instanceof be.nabu.eai.server.Server) {
-			((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getProcessor().add(serviceId);
+			((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getProcessor().add(serviceId, prioritySeverity);
 		}
 	}
 	
@@ -96,4 +98,11 @@ public class Event {
 		}
 		return null;
 	}
+	
+//	// toggle whether or not events should be fired by this runtime
+//	public void toggleFire(@WebParam(name = "enableEventFiring") boolean enableEventFiring) {
+//		if (executionContext instanceof EAIExecutionContext) {
+//			((EAIExecutionContext) executionContext).setDisableEvents(!enableEventFiring);
+//		}
+//	}
 }
