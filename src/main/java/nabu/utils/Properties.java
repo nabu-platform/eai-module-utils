@@ -80,6 +80,7 @@ public class Properties {
 					if (separator == null || !separator.equals("/")) {
 						key = key.replace(separator == null ? "." : separator, "/");
 					}
+					boolean set = false;
 					Element<?> element = newInstance.getType().get(key);
 					if (element != null) {
 						if (element.getType() instanceof ComplexType) {
@@ -89,13 +90,14 @@ public class Properties {
 								try {
 									// updating the instance as a whole or merging every key (even nulls) amounts to the same thing?
 									newInstance.set(key, binding.unmarshal(new ByteArrayInputStream(value.getBytes(Charset.forName("UTF-8"))), new Window[0]));
+									set = true;
 								}
 								catch (Exception e) {
 									throw new RuntimeException(e);
 								}
 							}
 						}
-						else {
+						if (!set) {
 							newInstance.set(key, property.getValue());
 						}
 					}
