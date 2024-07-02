@@ -29,11 +29,15 @@ public class Enrichment {
 	private ExecutionContext executionContext;
 	
 	public void apply(@WebParam(name = "objects") List<java.lang.Object> objects, @WebParam(name = "language") java.lang.String language) throws ServiceException {
-		EAIRepositoryUtils.enrich(objects, language, executionContext);
+		if (objects != null && !objects.isEmpty()) {
+			EAIRepositoryUtils.enrich(objects, language, executionContext);
+		}
 	}
 	
 	public void persist(@WebParam(name = "objects") List<java.lang.Object> objects, @WebParam(name = "language") java.lang.String language) throws ServiceException {
-		EAIRepositoryUtils.persist(objects, language, executionContext);
+		if (objects != null && !objects.isEmpty()) {
+			EAIRepositoryUtils.persist(objects, language, executionContext);
+		}
 	}
 	
 	@WebResult(name = "configuration")

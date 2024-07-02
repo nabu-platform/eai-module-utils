@@ -23,6 +23,7 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.SimpleTypeWrapperFactory;
+import be.nabu.libs.types.TypeUtils;
 import be.nabu.libs.types.api.ComplexContent;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedSimpleType;
@@ -221,6 +222,25 @@ public class Type {
 				if (type instanceof DefinedType) {
 					description.setId(((DefinedType) type).getId());
 				}
+			}
+		}
+		return description;
+	}
+	
+	@SuppressWarnings("unchecked")
+	// by default it returns the list of parameters for this object that actually _have_ a value (could be null though)
+	public List<ParameterDescription> keys(Object object) {
+		if (object == null) {
+			return null;
+		}
+		ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+		if (content == null) {
+			return null;
+		}
+		List<ParameterDescription> description = new ArrayList<ParameterDescription>();
+		for (Element<?> element : TypeUtils.getAllChildren(content.getType())) {
+			if (content.has(element.getName())) {
+				description.add(Node.describeType(element.getType(), element.getProperties()));
 			}
 		}
 		return description;

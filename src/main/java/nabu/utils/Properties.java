@@ -23,8 +23,10 @@ import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.Element;
 import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.base.TypeBaseUtils;
 import be.nabu.libs.types.binding.api.Window;
 import be.nabu.libs.types.binding.json.JSONBinding;
+import be.nabu.libs.types.structure.Structure;
 
 @WebService
 public class Properties {
@@ -67,6 +69,8 @@ public class Properties {
 					java.lang.String value = property.getValue();
 					if (value != null) {
 						JSONBinding binding = new JSONBinding((ComplexType) resolved, Charset.forName("UTF-8"));
+						binding.setIgnoreRootIfArrayWrapper(true);
+						// TODO: array support necessary?
 						try {
 							// updating the instance as a whole or merging every key (even nulls) amounts to the same thing?
 							newInstance = binding.unmarshal(new ByteArrayInputStream(value.getBytes(Charset.forName("UTF-8"))), new Window[0]);
@@ -86,10 +90,19 @@ public class Properties {
 						if (element.getType() instanceof ComplexType) {
 							java.lang.String value = property.getValue();
 							if (value != null) {
-								JSONBinding binding = new JSONBinding((ComplexType) element.getType(), Charset.forName("UTF-8"));
+								ComplexType typeToUse = (ComplexType) element.getType();
+								if (element.getType().isList(element.getProperties())) {
+									Structure listWrapper = new Structure();
+									listWrapper.setName("listWrapper");
+									listWrapper.add(TypeBaseUtils.clone(element, listWrapper));
+									typeToUse = listWrapper;
+								}
+								JSONBinding binding = new JSONBinding(typeToUse, Charset.forName("UTF-8"));
+								binding.setIgnoreRootIfArrayWrapper(true);
 								try {
+									ComplexContent unmarshal = binding.unmarshal(new ByteArrayInputStream(value.getBytes(Charset.forName("UTF-8"))), new Window[0]);
 									// updating the instance as a whole or merging every key (even nulls) amounts to the same thing?
-									newInstance.set(key, binding.unmarshal(new ByteArrayInputStream(value.getBytes(Charset.forName("UTF-8"))), new Window[0]));
+									newInstance.set(key, element.getType().equals(typeToUse) ? unmarshal : unmarshal.get(element.getName()));
 									set = true;
 								}
 								catch (Exception e) {

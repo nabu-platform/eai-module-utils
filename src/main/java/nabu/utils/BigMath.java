@@ -19,6 +19,32 @@ public class BigMath {
 		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode);
 	}
 	
+	@WebResult(name = "absolute")
+	public java.util.List<BigDecimal> absoluteDecimals(@WebParam(name = "decimals") java.util.List<BigDecimal> bigDecimal) {
+		if (bigDecimal == null) {
+			return null;
+		}
+		ArrayList<BigDecimal> result = new ArrayList<BigDecimal>();
+		for (BigDecimal decimal : bigDecimal) {
+			if (decimal != null) {
+				result.add(decimal.abs());
+			}
+		}
+		return result;
+	}
+	
+	@WebResult(name = "absolute")
+	public java.util.List<BigInteger> absoluteIntegers(@WebParam(name = "decimals") java.util.List<BigInteger> bigInteger) {
+		if (bigInteger == null) {
+			return null;
+		}
+		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
+		for (BigInteger integer : bigInteger) {
+			result.add(integer.abs());
+		}
+		return result;
+	}
+	
 	@WebResult(name = "result")
 	public BigDecimal sumDecimals(@WebParam(name = "decimals") java.util.List<BigDecimal> decimals) {
 		BigDecimal result = BigDecimal.valueOf(0);

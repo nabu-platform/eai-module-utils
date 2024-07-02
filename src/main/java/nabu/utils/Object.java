@@ -37,6 +37,7 @@ import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedSimpleType;
 import be.nabu.libs.types.api.DefinedType;
 import be.nabu.libs.types.api.Element;
+import be.nabu.libs.types.api.KeyRawValuePair;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.api.Marshallable;
 import be.nabu.libs.types.api.SimpleType;
@@ -49,6 +50,7 @@ import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.IdentifiableProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
+import be.nabu.libs.types.utils.KeyRawValuePairImpl;
 import be.nabu.libs.validator.api.Validation;
 import be.nabu.libs.validator.api.Validator;
 
@@ -75,6 +77,25 @@ public class Object {
 		ComplexContent anonymized = new MaskedContent((ComplexContent) object, ((ComplexContent) object).getType());
 		anonymize(anonymized);
 		return anonymized;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "values")
+	public List<KeyRawValuePair> toValues(@WebParam(name = "object") java.lang.Object object) {
+		if (object == null) {
+			return null;
+		}
+		ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+		if (content == null) {
+			return null;
+		}
+		List<KeyRawValuePair> values = new ArrayList<KeyRawValuePair>();
+		for (Element<?> element : TypeUtils.getAllChildren(content.getType())) {
+			if (content.has(element.getName())) {
+				values.add(new KeyRawValuePairImpl(element.getName(), content.get(element.getName())));
+			}
+		}
+		return values;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -189,7 +210,14 @@ public class Object {
 		if (handler != null) {
 			StringBuilder builder = new StringBuilder();
 			builder.append("[");
+			boolean first = true;
 			for (java.lang.Object single : handler.getAsIterable(object)) {
+				if (first) {
+					first = false;
+				}
+				else {
+					builder.append(",");
+				}
 				builder.append(toString(single));
 			}
 			builder.append("]");
