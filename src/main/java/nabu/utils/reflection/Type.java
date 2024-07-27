@@ -9,6 +9,7 @@ import nabu.utils.types.NodeDescription;
 import nabu.utils.types.ParameterDescription;
 import nabu.utils.types.TypeDescription;
 import nabu.utils.types.TypeInspection;
+import nabu.utils.types.TypeResult;
 
 import java.lang.String;
 import java.lang.Object;
@@ -78,6 +79,20 @@ public class Type {
 		}
 	}
 	
+	public void setAll(@WebParam(name = "values") List<TypeResult> results) {
+		if (results != null && !results.isEmpty()) {
+			for (TypeResult result : results) {
+				if (result.getObject() != null) {
+					ComplexContent content = result.getObject() instanceof ComplexContent ? ((ComplexContent) result.getObject()) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(result.getObject());
+					if (content == null) {
+						throw new IllegalArgumentException("Can not wrap objects of the type: " + result.getObject().getClass().getName());
+					}
+					content.set(result.getPath(), result.getValue());
+				}
+			}
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "value")
 	public Object get(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "path") String path) {
@@ -89,6 +104,22 @@ public class Type {
 			return content.get(path);
 		}
 		return null;
+	}
+	
+	@WebResult(name = "values")
+	public List<TypeResult> getAll(@WebParam(name = "typeInstances") List<Object> typeInstances, @NotNull @WebParam(name = "path") String path) {
+		if (typeInstances == null || typeInstances.isEmpty()) {
+			return null;
+		}
+		List<TypeResult> results = new ArrayList<TypeResult>();
+		for (Object typeInstance : typeInstances) {
+			ComplexContent content = typeInstance instanceof ComplexContent ? ((ComplexContent) typeInstance) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(typeInstance);
+			if (content == null) {
+				throw new IllegalArgumentException("Can not wrap objects of the type: " + typeInstance.getClass().getName());
+			}
+			results.add(new TypeResult(typeInstance, path, content.get(path)));
+		}
+		return results;
 	}
 	
 	@WebResult(name = "description")
@@ -227,24 +258,27 @@ public class Type {
 		return description;
 	}
 	
-	@SuppressWarnings("unchecked")
+	// currently unused (using object toValues instead)
+	// and it seems to conflict with the glue "keys" method
+	// not sure why the map.keys does not conflict?
+//	@SuppressWarnings("unchecked")
 	// by default it returns the list of parameters for this object that actually _have_ a value (could be null though)
-	public List<ParameterDescription> keys(Object object) {
-		if (object == null) {
-			return null;
-		}
-		ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
-		if (content == null) {
-			return null;
-		}
-		List<ParameterDescription> description = new ArrayList<ParameterDescription>();
-		for (Element<?> element : TypeUtils.getAllChildren(content.getType())) {
-			if (content.has(element.getName())) {
-				description.add(Node.describeType(element.getType(), element.getProperties()));
-			}
-		}
-		return description;
-	}
+//	public List<ParameterDescription> keys(Object object) {
+//		if (object == null) {
+//			return null;
+//		}
+//		ComplexContent content = object instanceof ComplexContent ? (ComplexContent) object : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+//		if (content == null) {
+//			return null;
+//		}
+//		List<ParameterDescription> description = new ArrayList<ParameterDescription>();
+//		for (Element<?> element : TypeUtils.getAllChildren(content.getType())) {
+//			if (content.has(element.getName())) {
+//				description.add(Node.describeType(element.getType(), element.getProperties()));
+//			}
+//		}
+//		return description;
+//	}
 	
 	// maybe expose this at some point in the future
 	@SuppressWarnings({ "unchecked", "rawtypes" })

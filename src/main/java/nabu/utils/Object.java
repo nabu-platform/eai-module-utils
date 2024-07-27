@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -50,9 +51,13 @@ import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.IdentifiableProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
 import be.nabu.libs.types.properties.MinOccursProperty;
+import be.nabu.libs.types.properties.SecretProperty;
 import be.nabu.libs.types.utils.KeyRawValuePairImpl;
 import be.nabu.libs.validator.api.Validation;
 import be.nabu.libs.validator.api.Validator;
+import be.nabu.utils.security.DigestAlgorithm;
+import be.nabu.utils.security.SecurityUtils;
+import ch.qos.logback.classic.Logger;
 
 @WebService
 public class Object {
@@ -75,7 +80,25 @@ public class Object {
 		}
 		// we do a masked one so we can do changes without impacting the original object, it is more or less a cheap but effective clone
 		ComplexContent anonymized = new MaskedContent((ComplexContent) object, ((ComplexContent) object).getType());
-		anonymize(anonymized);
+		anonymize(anonymized, IdentifiableProperty.getInstance());
+		return anonymized;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@WebResult(name = "obfuscated")
+	public java.lang.Object obfuscate(@WebParam(name = "object") java.lang.Object object) {
+		if (object == null) {
+			return object;
+		}
+		else if (!(object instanceof ComplexContent)) {
+			object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+			if (object == null) {
+				return object;
+			}
+		}
+		// we do a masked one so we can do changes without impacting the original object, it is more or less a cheap but effective clone
+		ComplexContent anonymized = new MaskedContent((ComplexContent) object, ((ComplexContent) object).getType());
+		anonymize(anonymized, SecretProperty.getInstance());
 		return anonymized;
 	}
 	
@@ -99,11 +122,11 @@ public class Object {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void anonymize(ComplexContent content) {
+	private void anonymize(ComplexContent content, be.nabu.libs.property.api.Property<Boolean> propertyDefinition) {
 		for (Element<?> child : TypeUtils.getAllChildren(content.getType())) {
 			java.lang.Object object = content.get(child.getName());
 			if (object != null) {
-				Value<Boolean> property = child.getProperty(IdentifiableProperty.getInstance());
+				Value<Boolean> property = child.getProperty(propertyDefinition);
 				// if identifiable...let's anonimize it
 				if (property != null && property.getValue() != null && property.getValue()) {
 					if (child.getType().isList(child.getProperties())) {
@@ -138,7 +161,7 @@ public class Object {
 								single = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(single);
 							}
 							if (single != null) {
-								anonymize((ComplexContent) single);
+								anonymize((ComplexContent) single, propertyDefinition);
 							}
 							list.add(single);
 						}
@@ -171,6 +194,17 @@ public class Object {
 		}
 		else if (UUID.class.isAssignableFrom(type.getInstanceClass()) || String.class.isAssignableFrom(type.getInstanceClass())) {
 			simple = UUID.randomUUID();
+		}
+		else if (String.class.isAssignableFrom(type.getInstanceClass())) {
+			if (simple != null) {
+				try {
+					simple = SecurityUtils.hash(simple.toString(), DigestAlgorithm.MD5);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					simple = null;
+				}
+			}
 		}
 		else if (Date.class.isAssignableFrom(type.getInstanceClass())) {
 			simple = new Date();
