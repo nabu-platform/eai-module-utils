@@ -103,7 +103,8 @@ public class Object {
 	}
 	
 	@SuppressWarnings("unchecked")
-	@WebResult(name = "values")
+	@WebResult(name = "values") 
+	// returns only values that HAVE an active value set, can be used for PUT operations to see what was actually set vs what "could" be set
 	public List<KeyRawValuePair> toValues(@WebParam(name = "object") java.lang.Object object) {
 		if (object == null) {
 			return null;
@@ -332,21 +333,38 @@ public class Object {
 			Element<?> sourceElement = sourceContent.getType().get(element.getName());
 			if (sourceElement != null && (ignoredFields == null || !ignoredFields.contains(element.getName()))) {
 				java.lang.Object newValue = sourceContent.get(element.getName());
-				if (newValue != null || includeNull || element.getType().isList(element.getProperties())) {
-					java.lang.Object oldValue = targetContent.get(element.getName());
-					if (oldValue == null || element.getType() instanceof SimpleType) {
+				java.lang.Object oldValue = targetContent.get(element.getName());
+				boolean elementChanged = (newValue != null && oldValue == null)
+						|| (newValue == null && oldValue != null && includeNull)
+						|| (newValue != null && oldValue != null && !oldValue.equals(newValue));
+				// if we are dealing with a list, we do not check beyond an "equals" before actually changing it
+				if (elementChanged) {
+					if (element.getType().isList(element.getProperties())) {
+						// we just set the new value
+						// we don't need primary key matching etc, that is only necessary if we want to detail what exactly changed
+						targetContent.set(element.getName(), newValue);
+					}
+					else if (oldValue == null || element.getType() instanceof SimpleType) {
+						targetContent.set(element.getName(), newValue);
 						// this will make sure the conversions that are necessary have been applied
 						java.lang.Object setNewValue = targetContent.get(element.getName());
-						targetContent.set(element.getName(), newValue);
 						// check if we actually changed the new value
-						if ((newValue == null && setNewValue != null) || (newValue != null && !newValue.equals(setNewValue))) {
-							changed = true;
+						if (oldValue != null && oldValue.equals(setNewValue)) {
+							elementChanged = false;
+						}
+						// if the oldvalue happens to be java.util.Timestamp, it will never match with the date object, even if they point to the exact same moment in time (check java documentation)
+						// to prevent this idiosyncracy, we convert to timestamp
+						else if (oldValue instanceof java.util.Date && setNewValue instanceof java.util.Date) {
+							if (((java.util.Date) oldValue).getTime() == ((java.util.Date) setNewValue).getTime()) {
+								elementChanged = false;
+							}
 						}
 					}
 					else {
-						changed |= mapByKey(newValue, oldValue, includeNull, ignoredFields);
+						elementChanged |= mapByKey(newValue, oldValue, includeNull, ignoredFields);
 					}
 				}
+				changed |= elementChanged;
 			}
 		}
 		return changed;

@@ -14,6 +14,7 @@ import nabu.utils.types.TypeResult;
 import java.lang.String;
 import java.lang.Object;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -152,24 +153,46 @@ public class Type {
 		if (object == null) {
 			return null;
 		}
-		if (!(object instanceof ComplexContent)) {
-			object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
-			if (object == null) {
-				throw new IllegalArgumentException("This type of object is currently not supported");
+		boolean isList = false;
+		if (object instanceof Iterable) {
+			isList = true;
+			Iterator iterator = ((Iterable) object).iterator();
+			if (!iterator.hasNext()) {
+				return null;
 			}
+			object = iterator.next();
 		}
+		be.nabu.libs.types.api.Type resultingType;
 		TypeInspection typeInspection = new TypeInspection();
+		typeInspection.setList(isList);
 		typeInspection.setHierarchy(new ArrayList<String>());
-		ComplexType type = ((ComplexContent) object).getType();
-		if (type instanceof DefinedType) {
-			typeInspection.setId(((DefinedType) type).getId());
-			typeInspection.getHierarchy().add(((DefinedType) type).getId());
+		DefinedSimpleType<? extends Object> wrap = SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(object.getClass());
+		if (wrap != null) {
+			typeInspection.setSimple(true);
+			typeInspection.setId(wrap.getId());
+			typeInspection.setName(wrap.getName());
+			resultingType = wrap;
 		}
-		typeInspection.setParameters(Node.toParameters((ComplexType) type, recursive != null && recursive));
-		while (type.getSuperType() instanceof ComplexType) {
-			type = (ComplexType) type.getSuperType();
-			if (type instanceof DefinedType) {
-				typeInspection.getHierarchy().add(((DefinedType) type).getId());	
+		else {
+			if (!(object instanceof ComplexContent)) {
+				object = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(object);
+				if (object == null) {
+					throw new IllegalArgumentException("This type of object is currently not supported");
+				}
+			}
+			ComplexType type = ((ComplexContent) object).getType();
+			resultingType = type;
+			typeInspection.setParameters(Node.toParameters((ComplexType) type, recursive != null && recursive));
+		}
+		if (resultingType instanceof DefinedType) {
+			typeInspection.setId(((DefinedType) resultingType).getId());
+			typeInspection.setName(resultingType.getName());
+			typeInspection.getHierarchy().add(((DefinedType) resultingType).getId());
+		}
+		while (resultingType.getSuperType() != null) {
+			resultingType = resultingType.getSuperType();
+			if (resultingType instanceof DefinedType) {
+				typeInspection.getHierarchy().add(((DefinedType) resultingType).getId());	
 			}
 		}
 		return typeInspection;
@@ -190,7 +213,8 @@ public class Type {
 //		if (type instanceof DefinedType && ((DefinedType) type).getId().equals(dataType)) {
 //			return instance;
 //		}
-		Artifact resolve = EAIResourceRepository.getInstance().resolve(dataType);
+//		Artifact resolve = EAIResourceRepository.getInstance().resolve(dataType);
+		DefinedType resolve = DefinedTypeResolverFactory.getInstance().getResolver().resolve(dataType);
 		if (!(resolve instanceof ComplexType)) {
 			throw new IllegalArgumentException("Invalid type, expecting a complex type for: " + dataType);
 		}
@@ -236,7 +260,17 @@ public class Type {
 		if (object == null) {
 			return null;
 		}
+		boolean isList = false;
+		if (object instanceof Iterable) {
+			isList = true;
+			Iterator iterator = ((Iterable) object).iterator();
+			if (!iterator.hasNext()) {
+				return null;
+			}
+			object = iterator.next();
+		}
 		TypeDescription description = new TypeDescription();
+		description.setList(isList);
 		DefinedSimpleType<? extends Object> wrap = SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(object.getClass());
 		if (wrap != null) {
 			description.setSimple(true);

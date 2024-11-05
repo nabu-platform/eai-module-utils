@@ -1,11 +1,11 @@
 package be.nabu.eai.module.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import be.nabu.libs.evaluator.impl.ClassicOperation;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.TypeUtils;
 import be.nabu.libs.types.api.ComplexContent;
@@ -55,7 +55,7 @@ public class CommonUtils {
 			ComplexContent content = (ComplexContent) instance;
 			List<Object> values = new ArrayList<Object>();
 			for (String fieldName : fieldNames) {
-				Object value = content.get(fieldName);
+				Object value = ClassicOperation.normalize(content.get(fieldName));
 				values.add(value);
 			}
 			if (!mapped.containsKey(values)) {

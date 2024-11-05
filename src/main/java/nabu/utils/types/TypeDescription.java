@@ -1,7 +1,7 @@
 package nabu.utils.types;
 
 public class TypeDescription {
-	private boolean simple, complex;
+	private boolean simple, complex, list;
 	private String id, name;
 	
 	public boolean isSimple() {
@@ -27,5 +27,11 @@ public class TypeDescription {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public boolean isList() {
+		return list;
+	}
+	public void setList(boolean list) {
+		this.list = list;
 	}
 }
