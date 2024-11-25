@@ -63,6 +63,7 @@ import be.nabu.libs.types.api.Type;
 import be.nabu.libs.types.api.TypeConverter;
 import be.nabu.libs.types.binding.json.JSONBinding;
 import be.nabu.libs.types.java.BeanInstance;
+import be.nabu.libs.types.mask.MaskUtils;
 import be.nabu.libs.types.mask.MaskedContent;
 import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.IdentifiableProperty;
@@ -354,8 +355,12 @@ public class Object {
 				boolean elementChanged = (newValue != null && oldValue == null)
 						|| (newValue == null && oldValue != null && includeNull)
 						|| (newValue != null && oldValue != null && !oldValue.equals(newValue));
-				// if we are dealing with a list, we do not check beyond an "equals" before actually changing it
 				if (elementChanged) {
+					// make sure it is of a compatible type before proceeding
+					if (newValue != null) {
+						newValue = MaskUtils.mask(newValue, element.getType(), element.getProperties());
+					}
+					// if we are dealing with a list, we do not check beyond an "equals" before actually changing it
 					if (element.getType().isList(element.getProperties())) {
 						// we just set the new value
 						// we don't need primary key matching etc, that is only necessary if we want to detail what exactly changed
