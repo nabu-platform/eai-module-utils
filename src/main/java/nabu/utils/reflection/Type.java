@@ -114,6 +114,9 @@ public class Type {
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "value")
 	public Object get(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "path") String path) {
+		if (path == null) {
+			throw new IllegalArgumentException("No path provided");
+		}
 		if (typeInstance != null) {
 			ComplexContent content = typeInstance instanceof ComplexContent ? ((ComplexContent) typeInstance) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(typeInstance);
 			if (content == null) {
