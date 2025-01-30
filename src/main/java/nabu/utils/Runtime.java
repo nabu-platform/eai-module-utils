@@ -44,6 +44,7 @@ import be.nabu.eai.repository.api.Entry;
 import be.nabu.eai.repository.api.FeatureConfigurator;
 import be.nabu.eai.repository.api.FeatureDescription;
 import be.nabu.eai.repository.api.FeatureProviderService;
+import be.nabu.eai.repository.impl.CorrelationIdEnricher;
 import be.nabu.eai.repository.impl.RepositoryArtifactResolver;
 import be.nabu.libs.artifacts.FeatureImpl;
 import be.nabu.libs.artifacts.api.Artifact;
@@ -384,6 +385,11 @@ public class Runtime {
 	@NotNull
 	public String getCorrelationId() {
 		return ServiceRuntime.getRuntime().getCorrelationId();
+	}
+	
+	@WebResult(name = "conversationId")
+	public String getConversationId() {
+		return CorrelationIdEnricher.getConversationId();
 	}
 	
 	// in the end we didn't need it (yet)
