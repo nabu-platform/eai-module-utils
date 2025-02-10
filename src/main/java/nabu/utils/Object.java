@@ -479,7 +479,14 @@ public class Object {
 	}
 	
 	private void singleToProperties(Element<?> child, java.lang.Object value, List<KeyValuePair> properties, String childPath, String separator) {
-		if (value instanceof ComplexContent) {
+		// @2025-02-04 added this
+		// up until this point doing a toProperties on an object that already contains properties (as a native java object) would not work because the "value instanceof ComplexContent" would fail (native object) which means it ends up being cast to string which returns nothing
+		// we have a usecase where we want to store an object as properties in the database, but because it is in a framework, we don't know for sure that the object we are given are not properties in and off itself (especially in more dynamic circumstances)
+		// if necessary we can add a toggle in the future that forces the system to also propertify the properties themselves
+		if (value instanceof KeyValuePair) {
+			properties.add((KeyValuePair) value);
+		}
+		else if (value instanceof ComplexContent) {
 			toProperties((ComplexContent) value, properties, childPath, separator);
 		}
 		else {
