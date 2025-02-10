@@ -392,6 +392,27 @@ public class Runtime {
 		return CorrelationIdEnricher.getConversationId();
 	}
 	
+	@WebResult(name = "narrativeId")
+	public String getNarrativeId() {
+		return ServiceRuntime.getRuntime().getNarrativeId();
+	}
+	
+	public void startNarrative(@WebParam(name = "narrativeId") String narrativeId) {
+		// we don't want to start the narrative in our own limited runtime but in the parent runtime
+		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
+		// if it exists
+		if (runtime != null) {
+			runtime.startNarrative(narrativeId);
+		}
+	}
+	
+	public void stopNarrative(@WebParam(name = "narrativeId") String narrativeId) {
+		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
+		if (runtime != null) {
+			runtime.stopNarrative(narrativeId);
+		}
+	}
+	
 	// in the end we didn't need it (yet)
 //	public void setCorrelationId(@WebParam(name = "correlationId") String correlationId) {
 //		// there is little use for setting the correlation id for _this_ service, it is the runtime of the java call running this particular method
