@@ -397,17 +397,34 @@ public class Runtime {
 		return ServiceRuntime.getRuntime().getNarrativeId();
 	}
 	
-	public void startNarrative(@WebParam(name = "narrativeId") String narrativeId) {
+	// by default it is set in the "current" execution context, you can however set it in a parent execution (e.g. when using service trackers
+	public void startNarrative(@WebParam(name = "narrativeId") String narrativeId, @WebParam(name = "depth") Integer depth) {
 		// we don't want to start the narrative in our own limited runtime but in the parent runtime
 		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
+		if (runtime != null && depth != null) {
+			for (int i = 0; i < depth; i++) {
+				runtime = runtime.getParent();
+				if (runtime == null) {
+					break;
+				}
+			}
+		}
 		// if it exists
 		if (runtime != null) {
 			runtime.startNarrative(narrativeId);
 		}
 	}
 	
-	public void stopNarrative(@WebParam(name = "narrativeId") String narrativeId) {
+	public void stopNarrative(@WebParam(name = "narrativeId") String narrativeId, @WebParam(name = "depth") Integer depth) {
 		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
+		if (runtime != null && depth != null) {
+			for (int i = 0; i < depth; i++) {
+				runtime = runtime.getParent();
+				if (runtime == null) {
+					break;
+				}
+			}
+		}
 		if (runtime != null) {
 			runtime.stopNarrative(narrativeId);
 		}
