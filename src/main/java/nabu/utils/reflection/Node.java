@@ -141,8 +141,8 @@ public class Node {
 	@WebResult(name = "externalDependencies")
 	public List<ExternalDependency> externalDependencies(@WebParam(name = "id") String id) {
 		List<ExternalDependency> dependencies = new ArrayList<ExternalDependency>();
-		Entry entry = EAIResourceRepository.getInstance().getEntry(id);
-		if (entry.isNode()) {
+		Entry entry = id == null ? null : EAIResourceRepository.getInstance().getEntry(id);
+		if (entry == null || entry.isNode()) {
 			Set<String> references = new LinkedHashSet<String>();
 			getAllReferences(id, references, true);
 			for (String reference : references) {
