@@ -31,7 +31,6 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.security.NoSuchAlgorithmException;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -75,7 +74,6 @@ import be.nabu.libs.validator.api.Validation;
 import be.nabu.libs.validator.api.Validator;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.SecurityUtils;
-import ch.qos.logback.classic.Logger;
 
 @WebService
 public class Object {
@@ -336,7 +334,7 @@ public class Object {
 	@ServiceDescription(comment = "Map the fields in an object by name")
 	@SuppressWarnings("unchecked")
 	@WebResult(name = "changed")
-	public boolean mapByKey(@WebParam(name = "from") java.lang.Object source, @WebParam(name = "into") java.lang.Object target, @WebParam(name = "includeNull") java.lang.Boolean includeNull, @WebParam(name = "ignoredFields") List<java.lang.String> ignoredFields) {
+	public boolean mapByKey(@WebParam(name = "from") java.lang.Object source, @WebParam(name = "into") java.lang.Object target, @WebParam(name = "includeNull") java.lang.Boolean includeNull, @WebParam(name = "ignoredFields") List<java.lang.String> ignoredFields, @WebParam(name = "patch") java.lang.Boolean patch) {
 		if (target == null || source == null) {
 			return false;
 		}
@@ -350,6 +348,11 @@ public class Object {
 		for (Element<?> element : TypeUtils.getAllChildren(targetContent.getType())) {
 			Element<?> sourceElement = sourceContent.getType().get(element.getName());
 			if (sourceElement != null && (ignoredFields == null || !ignoredFields.contains(element.getName()))) {
+				if (patch != null && patch) {
+					if (!sourceContent.has(element.getName())) {
+						continue;
+					}
+				}
 				java.lang.Object newValue = sourceContent.get(element.getName());
 				java.lang.Object oldValue = targetContent.get(element.getName());
 				boolean elementChanged = (newValue != null && oldValue == null)
@@ -383,7 +386,7 @@ public class Object {
 						}
 					}
 					else {
-						elementChanged |= mapByKey(newValue, oldValue, includeNull, ignoredFields);
+						elementChanged |= mapByKey(newValue, oldValue, includeNull, ignoredFields, patch);
 					}
 				}
 				changed |= elementChanged;
