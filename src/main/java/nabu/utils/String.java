@@ -203,6 +203,7 @@ public class String {
 	
 	@ServiceDescription(comment = "Parse a hexadecimal string into bytes")
 	@WebResult(name = "bytes")
+	@Deprecated(since = "2025-08-12T13:50:19")
 	public byte[] fromHexString(@WebParam(name = "hexString") java.lang.String string) throws IOException {
 		return new BigInteger(string, 16).toByteArray();
 	}

@@ -56,6 +56,8 @@ import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.authentication.api.WrappedToken;
 import be.nabu.libs.authentication.api.principals.DevicePrincipal;
 import be.nabu.libs.authentication.impl.ImpersonateToken;
+import be.nabu.libs.http.api.HTTPRequest;
+import be.nabu.libs.nio.impl.RequestProcessor;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
@@ -67,6 +69,9 @@ import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.structure.Structure;
 import be.nabu.libs.types.structure.StructureInstance;
 import be.nabu.libs.validator.api.Validation;
+import be.nabu.utils.mime.api.Header;
+import be.nabu.utils.mime.api.ModifiablePart;
+import be.nabu.utils.mime.impl.MimeUtils;
 
 @WebService
 public class Runtime {
@@ -387,6 +392,21 @@ public class Runtime {
 		return ServiceRuntime.getRuntime().getCorrelationId();
 	}
 	
+	@WebResult(name = "sessionId")
+	public String getSessionId() {
+		Object currentRequest = RequestProcessor.getCurrentRequest();
+		if (currentRequest instanceof HTTPRequest) {
+			ModifiablePart content = ((HTTPRequest) currentRequest).getContent();
+			if (content != null) {
+				Header header = MimeUtils.getHeader("Session-Id", content.getHeaders());
+				if (header != null) {
+					return header.getValue();
+				}
+			}
+		}
+		return null;
+	}
+	
 	@WebResult(name = "conversationId")
 	public String getConversationId() {
 		return CorrelationIdEnricher.getConversationId();
@@ -494,6 +514,12 @@ public class Runtime {
 		if (enabledOnly != null && enabledOnly) {
 			EAIResourceRepository repository = EAIResourceRepository.getInstance();
 			Date latest = null;
+			List<String> enabledRepositoryFeatureNames = repository.getEnabledFeatures(token);
+			if (enabledRepositoryFeatureNames != null) {
+				for (String feature : enabledRepositoryFeatureNames) {
+					enabled.add(new FeatureImpl(feature, null));
+				}
+			}
 			for (FeatureConfigurator configurator : repository.getArtifacts(FeatureConfigurator.class)) {
 				List<String> enabledFeatureNames = configurator.getEnabledFeatures(token);
 				if (enabledFeatureNames != null) {
@@ -533,6 +559,7 @@ public class Runtime {
 			java.util.Map<String, Feature> features = new HashMap<String, Feature>();
 			EAIResourceRepository repository = EAIResourceRepository.getInstance();
 			Map<java.lang.String, List<Feature>> availableFeatures = getAvailableFeatures();
+			
 			for (String artifactId : availableFeatures.keySet()) {
 				if (id == null || artifactId.equals(id) || artifactId.startsWith(id + ".")) {
 					for (Feature feature : availableFeatures.get(artifactId)) {
@@ -541,6 +568,12 @@ public class Runtime {
 				}
 			}
 			List<String> allEnabled = new ArrayList<String>();
+			
+			List<String> enabledRepositoryFeatures = repository.getEnabledFeatures(token);
+			if (enabledRepositoryFeatures != null) {
+				allEnabled.addAll(enabledRepositoryFeatures);
+			}
+			
 			for (FeatureConfigurator configurator : repository.getArtifacts(FeatureConfigurator.class)) {
 				if (configurator.getContext() != null && !configurator.getContext().trim().isEmpty() && id != null) {
 					boolean matches = false;

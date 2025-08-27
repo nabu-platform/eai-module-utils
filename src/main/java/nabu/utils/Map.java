@@ -31,6 +31,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.map.MapContentWrapper;
 import nabu.utils.types.Property;
 
 @WebService
@@ -85,5 +86,10 @@ public class Map {
 	@WebResult(name = "values")
 	public Collection<Object> values(@WebParam(name = "map") java.util.Map<String, Object> map) {
 		return map == null ? new ArrayList<Object>() : map.values();
+	}
+	
+	@WebResult(name = "object")
+	public java.lang.Object toObject(@WebParam(name = "map") java.util.Map<String, Object> map) {
+		return new MapContentWrapper().wrap(map);
 	}
 }

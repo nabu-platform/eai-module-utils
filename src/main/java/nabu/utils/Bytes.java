@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.String;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 
 import javax.jws.WebParam;
@@ -50,6 +51,12 @@ public class Bytes {
 	@WebResult(name = "string")
 	public java.lang.String toHexString(@WebParam(name = "bytes") byte [] bytes) throws IOException {
 		return bytes == null ? null : IOUtils.toString(new HexReadableCharContainer(IOUtils.wrap(bytes, true)));
+	}
+	
+	@ServiceDescription(comment = "Parse a hexadecimal string into bytes")
+	@WebResult(name = "bytes")
+	public byte[] fromHexString(@WebParam(name = "hexString") java.lang.String string) throws IOException {
+		return new BigInteger(string, 16).toByteArray();
 	}
 	
 	@WebResult(name = "size")
