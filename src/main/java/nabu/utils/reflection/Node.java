@@ -107,14 +107,26 @@ public class Node {
 	}
 	
 	@WebResult(name = "nodes")
-	public List<NodeDescription> references(@NotNull @WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {
+	public List<NodeDescription> references(@NotNull @WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "type") String artifactClass) {
 		Set<String> references = new LinkedHashSet<String>();
 		references.add(id);
 		getAllReferences(id, references, recursive != null && recursive);
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
+		Class<?> ofType = null;
+		if (artifactClass != null) {
+			try {
+				ofType = Thread.currentThread().getContextClassLoader().loadClass(artifactClass);
+			}
+			catch (Exception e) {
+				// this should not fail if for example the type does not exist, it should simply return nothing
+			}
+		}
 		for (String child : references) {
 			Entry entry = EAIResourceRepository.getInstance().getEntry(child);
 			if (entry != null) {
+				if (ofType != null && !ofType.isAssignableFrom(entry.getNode().getArtifactClass())) {
+					continue;
+				}
 				NodeDescription description = getDescription(entry, false);
 				nodes.add(description); 
 			}
