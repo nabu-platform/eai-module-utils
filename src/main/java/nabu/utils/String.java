@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -184,6 +185,24 @@ public class String {
 	@WebResult(name = "lower")
 	public java.lang.String lower(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.toLowerCase();
+	}
+	
+	private static final Pattern DIACRITICS_AND_FRIENDS = 
+	        Pattern.compile("[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
+	
+	@ServiceDescription(comment = "Normalize {string|the characters in a string}")
+	@WebResult(name = "normalized")
+	public java.lang.String normalize(@WebParam(name = "string") java.lang.String string) {
+		if (string == null) {
+            return null;
+        }
+		
+        // decompose characters into base characters and combining marks
+		// for example é becomes e and ´
+        java.lang.String normalized = Normalizer.normalize(string, Normalizer.Form.NFD);
+        
+        // remove the combining marks
+        return DIACRITICS_AND_FRIENDS.matcher(normalized).replaceAll("");
 	}
 	
 	@ServiceDescription(comment = "Get part of a string")

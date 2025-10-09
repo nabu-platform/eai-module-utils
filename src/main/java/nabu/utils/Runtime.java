@@ -58,6 +58,7 @@ import be.nabu.libs.authentication.api.principals.DevicePrincipal;
 import be.nabu.libs.authentication.impl.ImpersonateToken;
 import be.nabu.libs.http.api.HTTPRequest;
 import be.nabu.libs.nio.impl.RequestProcessor;
+import be.nabu.libs.services.NarrativeParts;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
@@ -65,9 +66,11 @@ import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.FeaturedExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
+import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.structure.Structure;
 import be.nabu.libs.types.structure.StructureInstance;
+import be.nabu.libs.types.utils.KeyValuePairImpl;
 import be.nabu.libs.validator.api.Validation;
 import be.nabu.utils.mime.api.Header;
 import be.nabu.utils.mime.api.ModifiablePart;
@@ -418,7 +421,7 @@ public class Runtime {
 	}
 	
 	// by default it is set in the "current" execution context, you can however set it in a parent execution (e.g. when using service trackers
-	public void startNarrative(@WebParam(name = "narrativeId") String narrativeId, @WebParam(name = "depth") Integer depth) {
+	public void startNarrative(@WebParam(name = "narrativeId") List<String> narrativeId, @WebParam(name = "values") List<KeyValuePair> values, @WebParam(name = "depth") Integer depth) {
 		// we don't want to start the narrative in our own limited runtime but in the parent runtime
 		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
 		if (runtime != null && depth != null) {
@@ -431,11 +434,24 @@ public class Runtime {
 		}
 		// if it exists
 		if (runtime != null) {
-			runtime.startNarrative(narrativeId);
+			if (narrativeId != null) {
+				for (String id : narrativeId) {
+					if (id != null) {
+						runtime.startNarrative(id);
+					}
+				}
+			}
+			if (values != null) {
+				for (KeyValuePair value : values) {
+					if (value.getKey() != null && value.getValue() != null) {
+						runtime.startNarrative(value.getKey(), value.getValue());
+					}
+				}
+			}
 		}
 	}
 	
-	public void stopNarrative(@WebParam(name = "narrativeId") String narrativeId, @WebParam(name = "depth") Integer depth) {
+	public void stopNarrative(@WebParam(name = "narrativeId") List<String> narrativeId, @WebParam(name = "values") List<KeyValuePair> values, @WebParam(name = "depth") Integer depth) {
 		ServiceRuntime runtime = ServiceRuntime.getRuntime().getParent();
 		if (runtime != null && depth != null) {
 			for (int i = 0; i < depth; i++) {
@@ -446,8 +462,55 @@ public class Runtime {
 			}
 		}
 		if (runtime != null) {
-			runtime.stopNarrative(narrativeId);
+			if (narrativeId != null) {
+				for (String id : narrativeId) {
+					if (id != null) {
+						runtime.stopNarrative(id);
+					}
+				}
+			}
+			if (values != null) {
+				for (KeyValuePair value : values) {
+					if (value.getKey() != null) {
+						runtime.stopNarrative(value.getKey(), value.getValue());
+					}
+				}
+			}
 		}
+	}
+	
+	public static class StandardizedNarrativeParts {
+		private List<String> ids;
+		private List<KeyValuePair> values;
+		public List<String> getIds() {
+			return ids;
+		}
+		public void setIds(List<String> ids) {
+			this.ids = ids;
+		}
+		public List<KeyValuePair> getValues() {
+			return values;
+		}
+		public void setValues(List<KeyValuePair> values) {
+			this.values = values;
+		}
+	}
+	
+	@WebResult(name = "parts")
+	public StandardizedNarrativeParts getNarrativeIdParts() {
+		StandardizedNarrativeParts parts = new StandardizedNarrativeParts();
+		NarrativeParts narrativeParts = ServiceRuntime.getRuntime().getNarrativeParts();
+		if (narrativeParts != null) {
+			parts.setIds(narrativeParts.getIds());
+			if (narrativeParts.getValues() != null) {
+				List<KeyValuePair> keyValues = new ArrayList<KeyValuePair>();
+				for (Map.Entry<String, String> entry : narrativeParts.getValues().entrySet()) {
+					keyValues.add(new KeyValuePairImpl(entry.getKey(), entry.getValue()));
+				}
+				parts.setValues(keyValues);
+			}
+		}
+		return parts;
 	}
 	
 	// in the end we didn't need it (yet)
