@@ -237,8 +237,22 @@ public class List {
 			list = new ArrayList<java.lang.Object>();
 		}
 		if (objects != null) {
-			for (java.lang.Object object : objects) {
-				remove(list, object);
+			// IF the objects are fully contained in the list (most often the usecase), this is the fastest way to make sure and remove them all
+			if (list.containsAll(objects)) {
+				list.removeAll(objects);
+			}
+			else {
+				// even if not fully contained, chances are _most_ of the objects are by reference in the list, this is another optimized path that tries to avoid the legacy code
+				java.util.List<java.lang.Object> objectsInList = new ArrayList<java.lang.Object>(objects);
+				objectsInList.retainAll(list);
+				if (!objectsInList.isEmpty()) {
+					list.removeAll(objectsInList);
+					objects.removeAll(objectsInList);
+				}
+				// fallback to old code, not sure if this is _truly_ necessary though
+				for (java.lang.Object object : objects) {
+					remove(list, object);
+				}
 			}
 		}
 		return list;
