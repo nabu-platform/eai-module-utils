@@ -84,7 +84,9 @@ public class Lock {
 	public void unlock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local) throws ServiceException {
 		ClusterLock lock = getCluster(local).lock(name);
 		try {
-			lock.unlock();
+			if (lock.isLockedByCurrentThread()) {
+				lock.unlock();
+			}
 		}
 		catch (Exception e) {
 			throw new ServiceException("LOCK-1", "Could not unlock: " + name, e);

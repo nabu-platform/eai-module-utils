@@ -41,7 +41,7 @@ import be.nabu.libs.services.api.ServiceDescription;
 public class String {
 
 	@WebResult(name = "padded")
-	@ServiceDescription(comment = "By default the value will stay on the right with padding being applied on the left. If you want to align the value on the left, set the boolean leftAlign to true.")
+	@ServiceDescription(comment = "Pad {content|the content} with {pad|a pad} on the left (by default) to {length|a given length}")
 	public java.lang.String pad(@WebParam(name = "content") java.lang.String content, @WebParam(name = "pad") java.lang.String pad, @WebParam(name = "length") java.lang.Integer length, @WebParam(name = "leftAlign") Boolean leftAlign) {
 		if (length == null) {
 			return null;
