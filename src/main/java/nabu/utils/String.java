@@ -239,7 +239,13 @@ public class String {
 	@ServiceDescription(comment = "Trim the whitespace on each side of the string")
 	@WebResult(name = "trimmed")
 	public java.lang.String trim(@WebParam(name = "string") java.lang.String string) {
-		return string == null ? null : string.trim();
+		if (string == null) {
+			return null;
+		}
+		if (!string.isEmpty() && string.charAt(0) == '\uFEFF') {
+			string = string.substring(1);
+		}
+		return string.strip();
 	}
 	
 	@WebResult(name = "groups")
