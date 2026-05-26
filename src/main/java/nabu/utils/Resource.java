@@ -71,6 +71,7 @@ import be.nabu.libs.resources.api.WritableResource;
 import be.nabu.libs.resources.file.FileDirectory;
 import be.nabu.libs.resources.file.FileItem;
 import be.nabu.libs.resources.impl.ResourcePropertiesImpl;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 import be.nabu.utils.io.api.WritableContainer;
@@ -237,6 +238,7 @@ public class Resource {
 			return checked;
 		}
 	}
+	@ServiceDescription(comment = "Get properties for {uri|a URI}")
 	@WebResult(name = "properties")
 	public ResourceProperties properties(@WebParam(name = "uri") URI uri, @WebParam(name = "principal") Principal principal) throws IOException {
 		be.nabu.libs.resources.api.Resource resolve = uri == null ? null : ResourceFactory.getInstance().resolve(uri, principal);
@@ -250,6 +252,7 @@ public class Resource {
 		}
 	}
 	
+	@ServiceDescription(comment = "Guess properties for {uri|a URI}")
 	@WebResult(name = "properties")
 	public ResourceProperties guess(@WebParam(name = "uri") URI uri) throws IOException {
 		ResourcePropertiesImpl properties = new ResourcePropertiesImpl();
@@ -258,6 +261,7 @@ public class Resource {
 		return properties;
 	}
 
+	@ServiceDescription(comment = "List resources under {uri|a URI}")
 	@WebResult(name = "children")
 	public java.util.List<ResourceProperties> list(@WebParam(name = "uri") URI uri, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "fileFilter") java.lang.String fileFilter, @WebParam(name = "directoryFilter") java.lang.String directoryFilter, @WebParam(name = "principal") Principal principal, @WebParam(name = "limit") Integer limit, @WebParam(name = "groupRegex") java.lang.String groupRegex, @WebParam(name = "expectedGroupSize") Integer expectedGroupSize) throws IOException {
 		if (uri == null) {

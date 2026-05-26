@@ -39,6 +39,7 @@ import java.util.TreeSet;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.services.api.DefinedService;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.SimpleTypeWrapperFactory;
@@ -87,6 +88,7 @@ public class Type {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Set {path|a path} on {typeInstance|a type instance}")
 	public void set(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "path") String path, @WebParam(name = "value") Object value) {
 		if (typeInstance != null) {
 			ComplexContent content = typeInstance instanceof ComplexContent ? ((ComplexContent) typeInstance) : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(typeInstance);
@@ -97,6 +99,7 @@ public class Type {
 		}
 	}
 	
+	@ServiceDescription(comment = "Set multiple values from {values|type results}")
 	public void setAll(@WebParam(name = "values") List<TypeResult> results) {
 		if (results != null && !results.isEmpty()) {
 			for (TypeResult result : results) {
@@ -112,6 +115,7 @@ public class Type {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Get {path|a path} from {typeInstance|a type instance}")
 	@WebResult(name = "value")
 	public Object get(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "path") String path) {
 		if (path == null) {
@@ -127,6 +131,7 @@ public class Type {
 		return null;
 	}
 	
+	@ServiceDescription(comment = "Get {path|a path} from multiple instances")
 	@WebResult(name = "values")
 	public List<TypeResult> getAll(@WebParam(name = "typeInstances") List<Object> typeInstances, @NotNull @WebParam(name = "path") String path) {
 		if (typeInstances == null || typeInstances.isEmpty()) {
@@ -143,6 +148,7 @@ public class Type {
 		return results;
 	}
 	
+	@ServiceDescription(comment = "Describe type {typeId|a type id}")
 	@WebResult(name = "description")
 	public ParameterDescription details(@WebParam(name = "typeId") String id, @WebParam(name = "recursive") Boolean recursive) {
 		if (id == null) {
@@ -155,6 +161,7 @@ public class Type {
 		return Node.describeType(type);
 	}
 	
+	@ServiceDescription(comment = "List parameters for {typeId|a type id}")
 	@WebResult(name = "parameters")
 	public List<ParameterDescription> describe(@WebParam(name = "typeId") String id, @WebParam(name = "recursive") Boolean recursive) {
 		if (id == null) {
@@ -168,6 +175,7 @@ public class Type {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Inspect {object|an object}")
 	@WebResult(name = "inspection")
 	public TypeInspection inspect(@WebParam(name = "object") Object object, @WebParam(name = "recursive") Boolean recursive) {
 		if (object == null) {
@@ -219,6 +227,7 @@ public class Type {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Mask {instance|an instance} as {type|a type}")
 	@WebResult(name = "masked")
 	public Object mask(@WebParam(name = "instance") Object instance, @WebParam(name = "type") String dataType) {
 		if (instance == null) {
@@ -242,6 +251,7 @@ public class Type {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Get the type id of {typeInstance|a type instance}")
 	@WebResult(name = "typeId")
 	public String of(@WebParam(name = "typeInstance") Object typeInstance) {
 		if (typeInstance != null) {
@@ -257,6 +267,7 @@ public class Type {
 		return null;
 	}
 	
+	@ServiceDescription(comment = "Check whether {instance|an instance} matches {type|a type}")
 	@WebResult(name = "is")
 	public boolean is(@WebParam(name = "typeInstance") Object typeInstance, @NotNull @WebParam(name = "typeId") String typeId) {
 		if (typeInstance != null) {
@@ -275,6 +286,7 @@ public class Type {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Describe {object|an object}")
 	@WebResult(name = "description")
 	public TypeDescription whatIs(@WebParam(name = "object") Object object) {
 		if (object == null) {
@@ -384,17 +396,20 @@ public class Type {
 		return structure;
 	}
 	
+	@ServiceDescription(comment = "Create a type instance from {parameters|parameters}")
 	@WebResult(name = "typeInstance")
 	public Object toTypeInstance(@WebParam(name = "parameters") List<ParameterDescription> parameters) {
 		ComplexType type = (ComplexType) toType(parameters);
 		return type.newInstance();
 	}
 	
+	@ServiceDescription(comment = "List type tags under {contextId|root}")
 	@WebResult(name = "tags")
 	public List<String> availableTags(@WebParam(name = "contextId") String contextId, @WebParam(name = "tags") List<String> mustHaveTags) {
 		return Node.availableTags(contextId, mustHaveTags, DefinedType.class);
 	}
 	
+	@ServiceDescription(comment = "List types by tag under {contextId|root}")
 	@WebResult(name = "types")
 	public List<NodeDescription> listByTag(@WebParam(name = "contextId") String contextId, @NotNull @WebParam(name = "tags") List<String> mustHaveTags) {
 		return Node.listByTag(contextId, mustHaveTags, DefinedType.class);

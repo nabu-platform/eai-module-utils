@@ -18,6 +18,7 @@
 package nabu.utils;
 
 import java.math.BigDecimal;
+import be.nabu.libs.services.api.ServiceDescription;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Random;
@@ -29,6 +30,7 @@ import javax.jws.WebService;
 @WebService
 public class Math {
 	
+	@ServiceDescription(comment = "Round {value|a number} to {precision|zero} decimals")
 	@WebResult(name = "rounded")
 	public Double round(@WebParam(name = "value") Double value, @WebParam(name = "precision") Integer precision, @WebParam(name = "roundingMode") RoundingMode roundingMode) {
 		if (value == null) {
@@ -38,6 +40,7 @@ public class Math {
 		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode).doubleValue();
 	}
 	
+	@ServiceDescription(comment = "Get the absolute values of {values|numbers}")
 	@WebResult(name = "absolute")
 	public java.util.List<Double> absolute(@WebParam(name = "values") java.util.List<Double> values) {
 		java.util.List<Double> result = new ArrayList<Double>();
@@ -47,6 +50,7 @@ public class Math {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Sum {values|numbers}")
 	@WebResult(name = "sum")
 	public Double sum(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {
@@ -61,6 +65,7 @@ public class Math {
 		return sum;
 	}
 	
+	@ServiceDescription(comment = "Multiply {values|numbers}")
 	@WebResult(name = "result")
 	public Double multiply(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {
@@ -75,6 +80,7 @@ public class Math {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Get the maximum of {values|numbers}")
 	@WebResult(name = "maximum")
 	public Double maximum(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {
@@ -91,6 +97,7 @@ public class Math {
 		return max;
 	}
 	
+	@ServiceDescription(comment = "Get the minimum of {values|numbers}")
 	@WebResult(name = "minimum")
 	public Double minimum(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {
@@ -107,6 +114,7 @@ public class Math {
 		return min;
 	}
 	
+	@ServiceDescription(comment = "Calculate the average of {values|numbers}")
 	@WebResult(name = "average")
 	public Double average(@WebParam(name = "values") java.util.List<Double> values) {
 		if (values == null || values.isEmpty()) {
@@ -120,6 +128,7 @@ public class Math {
 	}
 	
 	// we either have a population calculation (the values are the entirety of the available values) or a sample calculation where the value represent only a subset of the real series of values
+	@ServiceDescription(comment = "Calculate the variance of {values|numbers}")
 	@WebResult(name = "variance")
 	public Double variance(@WebParam(name = "values") java.util.List<Double> values, @WebParam(name = "sample") Boolean isSample) {
 		if (values == null || values.isEmpty()) {
@@ -134,6 +143,7 @@ public class Math {
 	}
 	
 	// standard deviation
+	@ServiceDescription(comment = "Calculate the standard deviation of {values|numbers}")
 	@WebResult(name = "deviation")
 	public Double deviation(@WebParam(name = "values") java.util.List<Double> values, @WebParam(name = "sample") Boolean isSample) {
 		if (values == null || values.isEmpty()) {
@@ -142,6 +152,7 @@ public class Math {
 		return java.lang.Math.sqrt(variance(values, isSample));
 	}
 
+	@ServiceDescription(comment = "Generate a random number between {minimum|zero} and {maximum|one}")
 	@WebResult(name = "random")
 	public Double random(@WebParam(name = "minimum") Double minimum, @WebParam(name = "maximum") Double maximum) {
 		double nextDouble = new Random().nextDouble();

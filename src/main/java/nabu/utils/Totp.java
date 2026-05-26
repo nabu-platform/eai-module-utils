@@ -21,16 +21,19 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.utils.security.TOTP;
 
 @WebService
 public class Totp {
 	
+	@ServiceDescription(comment = "Generate a new TOTP key")
 	@WebResult(name = "key")
 	public java.lang.String newKey() {
 		return TOTP.generateKey();
 	}
 	
+	@ServiceDescription(comment = "Generate an OTP for {key|a key}")
 	@WebResult(name = "otp")
 	public java.lang.String otp(@WebParam(name = "key") java.lang.String key) {
 		return TOTP.getOtp(key);

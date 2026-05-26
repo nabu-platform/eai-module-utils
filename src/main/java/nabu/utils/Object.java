@@ -101,6 +101,7 @@ public class Object {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Obfuscate sensitive data in {object|an object}")
 	@WebResult(name = "obfuscated")
 	public java.lang.Object obfuscate(@WebParam(name = "object") java.lang.Object object) {
 		if (object == null) {
@@ -119,6 +120,7 @@ public class Object {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Extract the explicitly set values from {object|an object}")
 	@WebResult(name = "values") 
 	// returns only values that HAVE an active value set, can be used for PUT operations to see what was actually set vs what "could" be set
 	public List<KeyRawValuePair> toValues(@WebParam(name = "object") java.lang.Object object) {
@@ -315,6 +317,7 @@ public class Object {
 	}
 
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Map {properties|properties} into {into|an object}")
 	@WebResult(name = "changed")
 	public boolean mapProperties(@WebParam(name = "into") java.lang.Object target, @WebParam(name = "properties") List<KeyValuePair> properties) {
 		if (target == null || properties == null) {
@@ -499,7 +502,7 @@ public class Object {
 		}
 	}
 
-	@ServiceDescription(comment = "Generate stub data")
+	@ServiceDescription(comment = "Generate stub data for {typeId|a type}")
 	@WebResult(name = "stub")
 	public java.lang.Object stub(@WebParam(name = "typeId") String id, @WebParam(name = "stubId") String identifier, @WebParam(name = "iterations") Integer amountOfIterations, @WebParam(name = "increment") ExtendedTimeUnit increment, @WebParam(name = "multiplier") Double multiplier) {
 		if (id == null) {

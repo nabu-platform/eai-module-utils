@@ -35,30 +35,31 @@ import be.nabu.utils.io.containers.chars.HexReadableCharContainer;
 @WebService
 public class Bytes {
 	
-	@ServiceDescription(comment = "Format a byte array into a string")
+	@ServiceDescription(comment = "Convert {bytes|a byte array} to a string")
 	@WebResult(name = "string")
 	public String toString(@WebParam(name = "bytes") byte [] bytes, @WebParam(name = "charset") Charset charset) {
 		return bytes == null ? null : new String(bytes, charset == null ? Charset.defaultCharset() : charset);
 	}
 
-	@ServiceDescription(comment = "Transform a byte array into a byte stream")
+	@ServiceDescription(comment = "Convert {bytes|a byte array} to a byte stream")
 	@WebResult(name = "stream")
 	public InputStream toStream(@WebParam(name = "bytes") byte [] bytes) {
 		return bytes == null ? null : new ByteArrayInputStream(bytes);
 	}
 	
-	@ServiceDescription(comment = "Format a byte array into a hexadecimal string")
+	@ServiceDescription(comment = "Convert {bytes|a byte array} to a hexadecimal string")
 	@WebResult(name = "string")
 	public java.lang.String toHexString(@WebParam(name = "bytes") byte [] bytes) throws IOException {
 		return bytes == null ? null : IOUtils.toString(new HexReadableCharContainer(IOUtils.wrap(bytes, true)));
 	}
 	
-	@ServiceDescription(comment = "Parse a hexadecimal string into bytes")
+	@ServiceDescription(comment = "Parse {hexString|a hexadecimal string} into bytes")
 	@WebResult(name = "bytes")
 	public byte[] fromHexString(@WebParam(name = "hexString") java.lang.String string) throws IOException {
 		return new BigInteger(string, 16).toByteArray();
 	}
 	
+	@ServiceDescription(comment = "Get the size of {bytes|a byte array}")
 	@WebResult(name = "size")
 	public Integer size(@WebParam(name = "bytes") byte [] bytes) {
 		return bytes == null ? null : bytes.length;

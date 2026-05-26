@@ -28,12 +28,14 @@ import javax.jws.WebService;
 
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.libs.artifacts.api.Artifact;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedType;
 
 @WebService
 public class Repository {
 	
+	@ServiceDescription(comment = "List all complex types in the repository")
 	@WebResult(name = "complexTypes")
 	public List<ComplexType> getComplexTypes() {
 		List<ComplexType> artifacts = new ArrayList<ComplexType>();
@@ -48,6 +50,7 @@ public class Repository {
 		return artifacts;
 	}
 	
+	@ServiceDescription(comment = "Get complex type {id|a type id}")
 	@WebResult(name = "complexType")
 	public ComplexType getComplexType(String id) throws IOException, ParseException {
 		EAIResourceRepository instance = EAIResourceRepository.getInstance();

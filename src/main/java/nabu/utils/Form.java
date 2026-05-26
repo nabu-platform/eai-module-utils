@@ -35,9 +35,11 @@ import be.nabu.utils.mime.impl.MimeHeader;
 import be.nabu.utils.mime.impl.PlainMimeContentPart;
 import be.nabu.utils.mime.impl.PlainMimeMultiPart;
 import nabu.utils.types.FormFile;
+import be.nabu.libs.services.api.ServiceDescription;
 
 @WebService
 public class Form {
+	@ServiceDescription(comment = "Create a multipart request for {endpoint|an endpoint}")
 	@WebResult(name = "request")
 	public HTTPRequest newMultiPartRequest(@WebParam(name = "endpoint") URI endpoint, @WebParam(name = "values") java.util.List<KeyValuePair> values, @WebParam(name = "files") java.util.List<FormFile> files) throws IOException, FormatException {
 		if (values == null && files == null) {

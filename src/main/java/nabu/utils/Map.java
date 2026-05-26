@@ -30,6 +30,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.map.MapContentWrapper;
 import nabu.utils.types.Property;
@@ -43,6 +44,7 @@ public class Map {
 		NATURAL
 	}
 	
+	@ServiceDescription(comment = "Convert {map|a map} to properties")
 	@WebResult(name = "properties")
 	public List<KeyValuePair> toProperties(@WebParam(name = "map") java.util.Map<String, String> map) {
 		List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
@@ -57,11 +59,13 @@ public class Map {
 		return properties;
 	}
 	
+	@ServiceDescription(comment = "Put {value|a value} in {map|a map} at {key|a key}")
 	@WebResult(name = "previousValue")
 	public Object put(@WebParam(name = "map") java.util.Map<String, Object> map, @WebParam(name = "key") String key, @WebParam(name = "value") Object value) {
 		return map == null ? null : map.put(key, value);
 	}
 	
+	@ServiceDescription(comment = "Create a new map with {order|default ordering}")
 	@WebResult(name = "map")
 	public java.util.Map<String, Object> create(@WebParam(name = "order") MapOrder order) {
 		if (order == null || order == MapOrder.NONE) {
@@ -73,21 +77,25 @@ public class Map {
 		return new TreeMap<String, Object>();
 	}
 	
+	@ServiceDescription(comment = "Get the keys from {map|a map}")
 	@WebResult(name = "keys")
 	public List<String> keys(@WebParam(name = "map") java.util.Map<String, Object> map) {
 		return map == null ? new ArrayList<String>() : new ArrayList<String>(map.keySet());
 	}
 	
+	@ServiceDescription(comment = "Get the value at {key|a key} from {map|a map}")
 	@WebResult(name = "value")
 	public Object get(@WebParam(name = "map") java.util.Map<String, Object> map, @WebParam(name = "key") String key) {
 		return map == null ? null : map.get(key);
 	}
 	
+	@ServiceDescription(comment = "Get the values from {map|a map}")
 	@WebResult(name = "values")
 	public Collection<Object> values(@WebParam(name = "map") java.util.Map<String, Object> map) {
 		return map == null ? new ArrayList<Object>() : map.values();
 	}
 	
+	@ServiceDescription(comment = "Wrap {map|a map} as an object")
 	@WebResult(name = "object")
 	public java.lang.Object toObject(@WebParam(name = "map") java.util.Map<String, Object> map) {
 		return new MapContentWrapper().wrap(map);

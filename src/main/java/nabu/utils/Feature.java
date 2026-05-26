@@ -33,6 +33,7 @@ import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.artifacts.api.FeaturedArtifact;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.FeaturedExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import nabu.utils.types.FeatureDescription;
 
 @WebService
@@ -41,10 +42,12 @@ public class Feature {
 	private ExecutionContext executionContext;
 
 	// you can toggle a global feature, it is in memory so must be toggled after startup
+	@ServiceDescription(comment = "Toggle global {feature|a feature} to {enabled|false}")
 	public void toggleGlobal(@NotNull @WebParam(name = "feature") java.lang.String feature, @WebParam(name = "enabled") Boolean enabled) {
 		EAIResourceRepository.getInstance().toggleGlobalFeature(feature, enabled != null && enabled);
 	}
 	
+	@ServiceDescription(comment = "Toggle local {feature|a feature} to {enabled|false}")
 	@WebResult(name = "previousValue")
 	public boolean toggle(@NotNull @WebParam(name = "feature") java.lang.String feature, @WebParam(name = "enabled") Boolean enabled) {
 		if (executionContext instanceof FeaturedExecutionContext) {
@@ -64,6 +67,7 @@ public class Feature {
 		}
 	}
 	
+	@ServiceDescription(comment = "Scan features for {id|all}")
 	@WebResult(name = "features")
 	public java.util.List<FeatureDescription> scan(@WebParam(name = "id") java.lang.String id) throws IOException, ParseException {
 		java.util.Map<java.lang.String, FeatureDescription> map = new HashMap<java.lang.String, FeatureDescription>();
@@ -96,6 +100,7 @@ public class Feature {
 	
 	
 
+	@ServiceDescription(comment = "List features for {id|an entry id} with {recursive|false}")
 	@WebResult(name = "features")
 	public java.util.List<FeatureDescription> list(@NotNull @WebParam(name = "id") java.lang.String id, @WebParam(name = "recursive") Boolean recursive) throws IOException, ParseException {
 		java.util.Map<java.lang.String, FeatureDescription> map = new HashMap<java.lang.String, FeatureDescription>();

@@ -119,7 +119,7 @@ public class Date {
 		}
 	}
 	
-	@ServiceDescription(comment = "Generate a timestamp containing the current date")
+	@ServiceDescription(comment = "Generate the current date and time")
 	@WebResult(name = "date")
 	@NotNull
 	public java.util.Date now() {
@@ -221,7 +221,7 @@ public class Date {
 		return unit.increment(start, increment, timezone);
 	}
 	
-	@ServiceDescription(comment = "Generate a range of dates based on a time increment")
+	@ServiceDescription(comment = "Generate a range of dates from {start|a start date} to {stop|an end date} using {increment|an increment} {unit|a time unit}")
 	@WebResult(name = "dates")
 	public java.util.List<java.util.Date> range(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @WebParam(name = "increment") Integer increment, @WebParam(name = "unit") ExtendedTimeUnit unit, @WebParam(name = "startInclusive") Boolean startInclusive, @WebParam(name = "endInclusive") Boolean endInclusive, @WebParam(name = "timezone") TimeZone timezone) {
 		if (start == null) {
@@ -260,7 +260,7 @@ public class Date {
 		return dates;
 	}
 	
-	@ServiceDescription(comment = "Generate a range of dates based on a duration")
+	@ServiceDescription(comment = "Generate a range of dates from {start|a start date} to {stop|an end date} using {duration|a duration}")
 	@WebResult(name = "dates")
 	public java.util.List<java.util.Date> rangeDuration(@WebParam(name = "start") java.util.Date start, @WebParam(name = "end") java.util.Date end, @NotNull @WebParam(name = "duration") Duration duration, @WebParam(name = "startInclusive") Boolean startInclusive, @WebParam(name = "endInclusive") Boolean endInclusive, @WebParam(name = "timezone") TimeZone timezone) {
 		if (start == null) {
@@ -358,7 +358,7 @@ public class Date {
 		return values;
 	}
 	
-	@ServiceDescription(comment = "Format a date from its separate values")
+	@ServiceDescription(comment = "Build a date from {values|separate date values}")
 	@WebResult(name = "date")
 	public java.util.Date fromValues(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
 		Calendar calendar = Calendar.getInstance(timezone != null ? timezone : TimeZone.getDefault());
@@ -399,13 +399,13 @@ public class Date {
 		return calendar.getTime();
 	}
 	
-	@ServiceDescription(comment = "Normalize a date")
+	@ServiceDescription(comment = "Normalize {date|a date}")
 	@WebResult(name = "normalized")
 	public DateValues normalize(@WebParam(name = "values") DateValues values, @WebParam(name = "timezone") TimeZone timezone) {
 		return toValues(fromValues(values, timezone), timezone);
 	}
 	
-	@ServiceDescription(comment = "Transform between time units")
+	@ServiceDescription(comment = "Convert {amount|an amount} from {from|a source unit} to {to|a target unit}")
 	@WebResult(name = "amount")
 	public Long toTimeUnit(@WebParam(name = "amount") Long amount, @WebParam(name = "fromTimeUnit") TimeUnit fromTimeUnit, @NotNull @WebParam(name = "toTimeUnit") TimeUnit toTimeUnit) {
 		if (amount == null) {

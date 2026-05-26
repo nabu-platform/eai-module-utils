@@ -41,6 +41,7 @@ import be.nabu.libs.resources.api.Resource;
 import be.nabu.libs.resources.api.ResourceContainer;
 import be.nabu.libs.resources.api.ResourceProperties;
 import be.nabu.libs.resources.api.WritableResource;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.io.api.ByteBuffer;
 import be.nabu.utils.io.api.WritableContainer;
@@ -48,11 +49,13 @@ import be.nabu.utils.io.api.WritableContainer;
 @WebService
 public class Vfs {
 	
+	@ServiceDescription(comment = "Resolve {uri|a URI}")
 	@WebResult(name = "resource")
 	public Resource resolve(@WebParam(name = "uri") URI uri) throws IOException {
 		return ResourceFactory.getInstance().resolve(uri, null);
 	}
 	
+	@ServiceDescription(comment = "Get child {name|a name} from {resource|a resource}")
 	@WebResult(name = "resource")
 	public Resource cd(@NotNull @WebParam(name = "resource") Resource resource, @NotNull @WebParam(name = "name") String name) {
 		if (!(resource instanceof ResourceContainer)) {
@@ -61,6 +64,7 @@ public class Vfs {
 		return ((ResourceContainer<?>) resource).getChild(name);
 	}
 	
+	@ServiceDescription(comment = "Remove {name|a name} from {resource|a resource}")
 	public void rm(@NotNull @WebParam(name = "resource") Resource resource, @NotNull @WebParam(name = "name") String name) throws IOException {
 		if (!(resource instanceof ManageableContainer)) {
 			throw new IllegalArgumentException("The resource is not a container");
@@ -68,6 +72,7 @@ public class Vfs {
 		((ManageableContainer<?>) resource).delete(name);
 	}
 	
+	@ServiceDescription(comment = "Create directory {name|a name} in {resource|a resource}")
 	@WebResult(name = "resource")
 	public Resource mkdir(@NotNull @WebParam(name = "resource") Resource resource, @NotNull @WebParam(name = "name") String name) throws IOException {
 		if (!(resource instanceof ManageableContainer)) {
@@ -76,6 +81,7 @@ public class Vfs {
 		return ((ManageableContainer<?>) resource).create(name, Resource.CONTENT_TYPE_DIRECTORY);
 	}
 	
+	@ServiceDescription(comment = "Create {name|a resource} in {resource|a container}")
 	@WebResult(name = "resource")
 	public Resource touch(@NotNull @WebParam(name = "resource") Resource resource, @NotNull @WebParam(name = "name") String name, @WebParam(name = "contentType") String contentType) throws IOException {
 		if (!(resource instanceof ManageableContainer)) {
@@ -87,6 +93,7 @@ public class Vfs {
 		return ((ManageableContainer<?>) resource).create(name, contentType);
 	}
 	
+	@ServiceDescription(comment = "Read {resource|a resource}")
 	@WebResult(name = "stream")
 	public InputStream read(@NotNull @WebParam(name = "resource") Resource resource) throws IOException {
 		if (!(resource instanceof ReadableResource)) {
@@ -95,6 +102,7 @@ public class Vfs {
 		return new BufferedInputStream(IOUtils.toInputStream(((ReadableResource) resource).getReadable()));
 	}
 	
+	@ServiceDescription(comment = "Write {stream|a stream} to {resource|a resource}")
 	public void write(@NotNull @WebParam(name = "resource") Resource resource, @WebParam(name = "stream") InputStream input, @WebParam(name = "append") Boolean append) throws IOException {
 		WritableContainer<ByteBuffer> writable;
 		if (append != null && append) {
@@ -122,11 +130,13 @@ public class Vfs {
 		}
 	}
 
+	@ServiceDescription(comment = "Get properties for {resource|a resource}")
 	@WebResult(name = "properties")
 	public ResourceProperties properties(@NotNull @WebParam(name = "resource") Resource resource) {
 		return ResourceUtils.properties(resource);
 	}
 	
+	@ServiceDescription(comment = "List the children of {resource|a resource}")
 	@WebResult(name = "children")
 	public java.util.List<Resource> ls(@NotNull @WebParam(name = "resource") Resource resource) {
 		if (!(resource instanceof ResourceContainer)) {

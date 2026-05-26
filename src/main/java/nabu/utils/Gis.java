@@ -18,6 +18,7 @@
 package nabu.utils;
 
 import javax.jws.WebParam;
+import be.nabu.libs.services.api.ServiceDescription;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
@@ -54,6 +55,7 @@ public class Gis {
 	 */
 	public static final double MAX_LONGITUDE = Math.toRadians(180d); 
 	
+	@ServiceDescription(comment = "Calculate the bounding box around {center|a coordinate} for {distance|a distance}")
 	@WebResult(name = "boundingBox")
 	public BoundingBox boundingBox(@NotNull @WebParam(name = "center") Coordinate center, @WebParam(name = "distance") long distance) {
 		// based on: http://janmatuschek.de/LatitudeLongitudeBoundingCoordinates
@@ -88,6 +90,7 @@ public class Gis {
 		);
 	}
 	
+	@ServiceDescription(comment = "Calculate the distance from {from|one coordinate} to {to|another coordinate}")
 	@WebResult(name = "distance")	// in kilometers it seems!
 	public double distance(@NotNull @WebParam(name = "from") Coordinate from, @NotNull @WebParam(name = "to") Coordinate to) {
 		// based on https://en.wikipedia.org/wiki/Haversine_formula
@@ -115,6 +118,7 @@ public class Gis {
 		return sin(theta / 2) * sin(theta / 2); 
 	}
 	
+	@ServiceDescription(comment = "Convert Lambert72 coordinates {x|x} and {y|y} to a coordinate")
 	@WebResult(name = "coordinate")
 	public Coordinate convertLambert72(@WebParam(name = "x") double x, @WebParam(name = "y") double y) {
 		double n = 0.77164219;

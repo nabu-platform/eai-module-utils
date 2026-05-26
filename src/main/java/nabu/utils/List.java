@@ -54,6 +54,7 @@ public class List {
 	
 	private ExecutionContext executionContext;
 	
+	@ServiceDescription(comment = "Group {list|a list} using {definition|a type definition}")
 	public java.util.List<java.lang.Object> group(@WebParam(name = "list") java.util.List<java.lang.Object> instances, @NotNull @WebParam(name = "definition") java.lang.String name, @WebParam(name = "depth") Integer depth) {
 		// detect the fields at each level and group the current list by them, do type masking on the inner document
 		DefinedType resolve = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(name);
@@ -64,6 +65,7 @@ public class List {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Group {objects|objects} by the values of {queries|one or more queries}")
 	@WebResult(name = "hashed")
 	public java.util.Map<java.lang.String, java.util.List<java.lang.Object>> hash(@WebParam(name = "objects") java.util.List<java.lang.Object> documents, @NotNull @WebParam(name = "queries") java.util.List<java.lang.String> keys) throws ParseException, EvaluationException {
 		java.util.Map<java.lang.String, java.util.List<java.lang.Object>> results = new HashMap<java.lang.String, java.util.List<java.lang.Object>>();
@@ -104,11 +106,13 @@ public class List {
 		return results;
 	}
 	
+	@ServiceDescription(comment = "Check whether {list|a list} contains {object|an object}")
 	@WebResult(name = "contains")
 	public boolean contains(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
 		return list == null || indexOf(list, object) == null ? false : true;
 	}
 	
+	@ServiceDescription(comment = "Get the index of {object|an object} in {list|a list}")
 	@WebResult(name = "index")
 	public Integer indexOf(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
 		if (list == null) {
@@ -129,6 +133,7 @@ public class List {
 		return index < 0 ? null : index;
 	}
 	
+	@ServiceDescription(comment = "Add {object|an object} to {list|a list} at {index|the end}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> add(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "index") Integer index, @WebParam(name = "object") java.lang.Object object) {
 		if (list == null) {
@@ -143,6 +148,7 @@ public class List {
 		return list;
 	}
 	
+	@ServiceDescription(comment = "Get the element at {index|an index} from {list|a list}")
 	@WebResult(name = "element")
 	@Comment(title = "You can get a specific index from a list. If the index is negative, it starts counting at the back, e.g. -1 is the last element, -2 is the second to last...") 
 	public java.lang.Object get(@WebParam(name = "list") java.util.List<java.lang.Object> list, @NotNull @WebParam(name = "index") Integer index) {
@@ -160,6 +166,7 @@ public class List {
 		return index == null || index >= list.size() ? null : list.get(index);
 	}
 	
+	@ServiceDescription(comment = "Get a slice of {list|a list} from {fromInclusive|the start} to {toExclusive|the end}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> getAll(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "fromInclusive") Integer from, @WebParam(name = "toExclusive") Integer to) {
 		if (list == null) {
@@ -173,6 +180,7 @@ public class List {
 		return new ArrayList<java.lang.Object>(list.subList(from == null ? 0 : from, to == null ? list.size() : java.lang.Math.min(list.size(), to)));
 	}
 
+	@ServiceDescription(comment = "Set {object|an object} at {index|an index} in {list|a list}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> set(@WebParam(name = "list") java.util.List<java.lang.Object> list, @NotNull @WebParam(name = "index") Integer index, @WebParam(name = "object") java.lang.Object object) {
 		if (list == null) {
@@ -200,6 +208,7 @@ public class List {
 		return unwrapped;
 	}
 	
+	@ServiceDescription(comment = "Add {objects|objects} to {list|a list} at {index|the end}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> addAll(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "index") Integer index, @WebParam(name = "objects") java.util.List<java.lang.Object> objects) {
 		if (list == null) {
@@ -216,6 +225,7 @@ public class List {
 		return list;
 	}
 	
+	@ServiceDescription(comment = "Remove {object|an object} from {list|a list}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> remove(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "object") java.lang.Object object) {
 		if (list == null) {
@@ -231,6 +241,7 @@ public class List {
 		return list;
 	}
 	
+	@ServiceDescription(comment = "Remove {objects|objects} from {list|a list}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> removeAll(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "objects") java.util.List<java.lang.Object> objects) {
 		if (list == null) {
@@ -258,6 +269,7 @@ public class List {
 		return list;
 	}
 	
+	@ServiceDescription(comment = "Remove the element at {index|an index} from {list|a list}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> removeIndex(@WebParam(name = "list") java.util.List<java.lang.Object> list, @NotNull @WebParam(name = "index") Integer index) {
 		if (list == null) {
@@ -267,6 +279,7 @@ public class List {
 		return list;
 	}
 	
+	@ServiceDescription(comment = "Reverse {list|a list}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> reverse(@WebParam(name = "list") java.util.List<java.lang.Object> list) {
 		if (list == null) {
@@ -277,6 +290,7 @@ public class List {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ServiceDescription(comment = "Sort {list|a list} using {comparatorService|a comparator service} or {fields|fields}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> sort(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId, @WebParam(name = "fields") final java.util.List<java.lang.String> fields) {
 		if (list == null) {
@@ -373,6 +387,7 @@ public class List {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Keep unique entries in {list|a list} using {fields|all values}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> unique(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "fields") java.util.List<java.lang.String> fields) {
 		if (list == null || list.isEmpty()) {
@@ -414,23 +429,27 @@ public class List {
 		return results;
 	}
 	
+	@ServiceDescription(comment = "Get the minimum value from {list|a list}")
 	@WebResult(name = "minimum")
 	public java.lang.Object minimum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId, @WebParam(name = "fields") java.util.List<java.lang.String> fields) {
 		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId, fields);
 		return sort.isEmpty() ? null : sort.get(0);
 	}
 	
+	@ServiceDescription(comment = "Get the maximum value from {list|a list}")
 	@WebResult(name = "maximum")
 	public java.lang.Object maximum(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "comparatorService") java.lang.String comparatorServiceId, @WebParam(name = "fields") java.util.List<java.lang.String> fields) {
 		java.util.List<java.lang.Object> sort = sort(list, comparatorServiceId, fields);
 		return sort.isEmpty() ? null : sort.get(sort.size() - 1);
 	}
 	
+	@ServiceDescription(comment = "Create a new list with {initialCapacity|default capacity}")
 	@WebResult(name = "list")
 	public java.util.List<java.lang.Object> newList(@WebParam(name = "initialCapacity") Integer initialCapacity) {
 		return initialCapacity == null ? new ArrayList<java.lang.Object>() : new ArrayList<java.lang.Object>(initialCapacity);
 	}
 	
+	@ServiceDescription(comment = "Create a new linked list")
 	@WebResult(name = "linkedList")
 	public java.util.List<java.lang.Object> newLinkedList() {
 		return new LinkedList<java.lang.Object>();
@@ -444,6 +463,7 @@ public class List {
 	}
 	
 	@SuppressWarnings({ "unchecked" })
+	@ServiceDescription(comment = "Convert {list|a list} to a map using {keyField|a key field} and {valueField|a value field}")
 	@WebResult(name = "map")
 	public java.util.Map<java.lang.String, java.lang.Object> toMap(@WebParam(name = "list") java.util.List<java.lang.Object> list, @WebParam(name = "keyField") java.lang.String keyField, @WebParam(name = "valueField") java.lang.String valueField) {
 		java.util.Map<java.lang.String, java.lang.Object> map = new HashMap<java.lang.String, java.lang.Object>();

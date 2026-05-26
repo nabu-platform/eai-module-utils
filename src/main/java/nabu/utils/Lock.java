@@ -28,6 +28,7 @@ import be.nabu.libs.cluster.api.ClusterLock;
 import be.nabu.libs.cluster.local.LocalInstance;
 import be.nabu.libs.services.TransactionCloseable;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceException;
 
 @WebService
@@ -45,6 +46,7 @@ public class Lock {
 	// one task-heavy server in particular that was looked at had (over a period of time) accumulated 1.1GB of objects from the tryLock, out of a heapdump of 2.5gb
 	// we advise sequence based management of default transactions because this is easiest, especially in daemons
 	// but in those rare cases that it is relevant, we want to give you control over the transaction it ends up in which is why the transactionId was added as a way of controlling this
+	@ServiceDescription(comment = "Lock {name|a lock name}")
 	public void lock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local, @WebParam(name = "transactionId") java.lang.String transactionId) {
 		final ClusterLock lock = getCluster(local).lock(name);
 		lock.lock();
@@ -60,6 +62,7 @@ public class Lock {
 			}
 		}));
 	}
+	@ServiceDescription(comment = "Try to lock {name|a lock name}")
 	@WebResult(name = "locked")
 	public boolean tryLock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local, @WebParam(name = "transactionId") java.lang.String transactionId) {
 		final ClusterLock lock = getCluster(local).lock(name);
@@ -77,10 +80,12 @@ public class Lock {
 		}
 		return false;
 	}
+	@ServiceDescription(comment = "Check whether {name|a lock name} is locked")
 	@WebResult(name = "locked")
 	public boolean isLocked(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local) {
 		return getCluster(local).lock(name).isLocked();
 	}
+	@ServiceDescription(comment = "Unlock {name|a lock name}")
 	public void unlock(@WebParam(name = "name") java.lang.String name, @WebParam(name = "local") Boolean local) throws ServiceException {
 		ClusterLock lock = getCluster(local).lock(name);
 		try {

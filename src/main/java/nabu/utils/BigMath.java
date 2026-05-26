@@ -18,6 +18,7 @@
 package nabu.utils;
 
 import java.math.BigDecimal;
+import be.nabu.libs.services.api.ServiceDescription;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import javax.jws.WebService;
 
 @WebService
 public class BigMath {
+	@ServiceDescription(comment = "Round {value|a decimal} to {precision|zero} decimals")
 	@WebResult(name = "rounded")
 	public BigDecimal round(@WebParam(name = "value") BigDecimal bigDecimal, @WebParam(name = "precision") Integer precision, @WebParam(name = "roundingMode") RoundingMode roundingMode) {
 		if (bigDecimal == null) {
@@ -36,6 +38,7 @@ public class BigMath {
 		return bigDecimal.setScale(precision == null ? 0 : precision, roundingMode == null ? RoundingMode.HALF_UP : roundingMode);
 	}
 	
+	@ServiceDescription(comment = "Get the absolute values of {decimals|decimals}")
 	@WebResult(name = "absolute")
 	public java.util.List<BigDecimal> absoluteDecimals(@WebParam(name = "decimals") java.util.List<BigDecimal> bigDecimal) {
 		if (bigDecimal == null) {
@@ -50,6 +53,7 @@ public class BigMath {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Get the absolute values of {decimals|integers}")
 	@WebResult(name = "absolute")
 	public java.util.List<BigInteger> absoluteIntegers(@WebParam(name = "decimals") java.util.List<BigInteger> bigInteger) {
 		if (bigInteger == null) {
@@ -62,6 +66,7 @@ public class BigMath {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Sum {decimals|decimals}")
 	@WebResult(name = "result")
 	public BigDecimal sumDecimals(@WebParam(name = "decimals") java.util.List<BigDecimal> decimals) {
 		BigDecimal result = BigDecimal.valueOf(0);
@@ -75,6 +80,7 @@ public class BigMath {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Sum {integers|integers}")
 	@WebResult(name = "result")
 	public BigInteger sumIntegers(@WebParam(name = "integers") java.util.List<BigInteger> integers) {
 		BigInteger result = BigInteger.valueOf(0);
@@ -88,6 +94,7 @@ public class BigMath {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Multiply {decimals|decimals}")
 	@WebResult(name = "result")
 	public BigDecimal multiplyDecimals(@WebParam(name = "decimals") java.util.List<BigDecimal> decimals) {
 		BigDecimal result = BigDecimal.valueOf(1);
@@ -101,6 +108,7 @@ public class BigMath {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "Multiply {integers|integers}")
 	@WebResult(name = "result")
 	public BigInteger multiplyIntegers(@WebParam(name = "integers") java.util.List<BigInteger> integers) {
 		BigInteger result = BigInteger.valueOf(1);

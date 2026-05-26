@@ -54,6 +54,7 @@ import be.nabu.eai.repository.api.VirusInfection;
 import be.nabu.eai.repository.api.VirusScanner;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.BCSecurityUtils;
@@ -69,6 +70,7 @@ public class Security {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
+	@ServiceDescription(comment = "Scan {scannerId|context default} for viruses using {stream|a stream}")
 	@WebResult(name = "result")
 	public VirusInfection scanForVirus(@WebParam(name = "scannerId") java.lang.String scannerId, @WebParam(name = "stream") InputStream input) throws ServiceException {
 		VirusScanner scanner;
@@ -87,20 +89,24 @@ public class Security {
 		return input == null ? null : scanner.scan(input);
 	}
 	
+	@ServiceDescription(comment = "Digest {stream|a stream} with {algorithm|an algorithm}")
 	@WebResult(name = "bytes")
 	public byte [] digest(@WebParam(name = "stream") InputStream input, @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
 		return input == null ? null : SecurityUtils.digest(input, algorithm);
 	}
 	
+	@ServiceDescription(comment = "Create a MAC for {stream|a stream} using {algorithm|an algorithm}")
 	public java.lang.String mac(@WebParam(name = "key") byte[] key, @WebParam(name = "stream") InputStream content, @WebParam(name = "algorithm") MacAlgorithm algorithm) throws NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalStateException {
 		return SecurityUtils.encodeMac(key, content, algorithm.name());
 	}
 	
+	@ServiceDescription(comment = "Hash {string|a string} with {algorithm|an algorithm}")
 	@WebResult(name = "hash")
 	public java.lang.String hash(@WebParam(name = "string") java.lang.String content, @NotNull @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
 		return content == null ? null : SecurityUtils.hash(content, algorithm);
 	}
 	
+	@ServiceDescription(comment = "Validate {string|a string} against {hash|a hash} using {algorithm|an algorithm}")
 	@WebResult(name = "valid")
 	public java.lang.Boolean validateHash(@WebParam(name = "string") java.lang.String content, @NotNull @WebParam(name = "hash") java.lang.String hash, @NotNull @WebParam(name = "algorithm") DigestAlgorithm algorithm) throws NoSuchAlgorithmException, IOException {
 		try {
@@ -112,28 +118,33 @@ public class Security {
 		}
 	}
 	
+	@ServiceDescription(comment = "Encrypt {data|data} with {password|a password} and {algorithm|an algorithm}")
 	@WebResult(name = "encrypted")
 	public InputStream pbeEncrypt(@WebParam(name = "data") InputStream input, @WebParam(name = "password") java.lang.String password, @WebParam(name = "algorithm") PBEAlgorithm algorithm) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidParameterSpecException {
 		byte[] bytes = IOUtils.toBytes(IOUtils.wrap(input));
 		return new ByteArrayInputStream(SecurityUtils.pbeEncrypt(bytes, password, algorithm).getBytes("ASCII"));
 	}
 	
+	@ServiceDescription(comment = "Decrypt {encrypted|encrypted data} with {password|a password} and {algorithm|an algorithm}")
 	@WebResult(name = "decrypted")
 	public InputStream pbeDecrypt(@WebParam(name = "encrypted") InputStream input, @WebParam(name = "password") java.lang.String password, @WebParam(name = "algorithm") PBEAlgorithm algorithm) throws InvalidKeyException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
 		byte[] bytes = IOUtils.toBytes(IOUtils.wrap(input));
 		return new ByteArrayInputStream(SecurityUtils.pbeDecrypt(new java.lang.String(bytes, "ASCII"), password, algorithm));
 	}
 	
+	@ServiceDescription(comment = "Parse a PEM key from {pem|PEM content}")
 	@WebResult(name = "key")
 	public Key parseKeyPem(@WebParam(name = "pem") byte[] pem) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IOException {
 		return BCSecurityUtils.parseKeyPem(new StringReader(new java.lang.String(pem, "ASCII")));
 	}
 	
+	@ServiceDescription(comment = "Parse a certificate from {serialized|serialized content}")
 	@WebResult(name = "certificate")
 	public Certificate parseSerializedCertificate(@WebParam(name = "serialized") java.lang.String serialized) throws CertificateException, IOException {
 		return SecurityUtils.decodeCertificate(serialized);
 	}
 	
+	@ServiceDescription(comment = "Validate the XML signature at {signaturePath|a signature path} using {certificate|a certificate}")
 	@WebResult(name = "signatureResult")
 	public SignatureResult xmlSignatureValidate(@WebParam(name = "xml") java.lang.String xml, @WebParam(name = "signaturePath") java.lang.String signaturePath, @WebParam(name = "certificate") Certificate certificate) throws MarshalException, SAXException, IOException, ParserConfigurationException {
 		SignatureResult result = new SignatureResult();
@@ -163,11 +174,13 @@ public class Security {
 		return toDocument(input, namespaceAware);
 	}
 	
+	@ServiceDescription(comment = "Generate a PBKDF2 hash for {content|content}")
 	@WebResult(name = "encoded")
 	public java.lang.String pbkdf2Generate(@WebParam(name = "content") java.lang.String content) throws InvalidKeyException, NoSuchAlgorithmException, IOException {
 		return Rfc2898DeriveBytes.generateCryptoHash(content);
 	}
 	
+	@ServiceDescription(comment = "Validate the PBKDF2 hash {encoded|an encoded hash} for {content|content}")
 	@WebResult(name = "valid")
 	public java.lang.Boolean pbkdf2Validate(@WebParam(name = "content") java.lang.String content, @WebParam(name = "encoded") java.lang.String encoded) throws InvalidKeyException, NoSuchAlgorithmException, IOException {
 		return Rfc2898DeriveBytes.validateCryptoHash(encoded, content);

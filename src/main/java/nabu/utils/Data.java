@@ -32,9 +32,11 @@ import be.nabu.libs.types.binding.api.BindingProvider;
 import be.nabu.libs.types.binding.api.DynamicBindingProvider;
 import be.nabu.libs.types.binding.api.UnmarshallableBinding;
 import be.nabu.libs.types.binding.api.Window;
+import be.nabu.libs.services.api.ServiceDescription;
 
 @WebService
 public class Data {
+	@ServiceDescription(comment = "Unmarshal {input|input data} using {contentType|a content type}")
 	@WebResult(name = "unmarshalled")
 	public java.lang.Object unmarshalDynamic(@WebParam(name = "input") InputStream input, @NotNull @WebParam(name = "contentType") java.lang.String contentType, @WebParam(name = "charset") Charset charset) throws IOException, ParseException {
 		// TODO: if content type is missing, make an educated guess based on the first byte, e.g. <, {, # ...

@@ -25,6 +25,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.utils.codec.TranscoderUtils;
 import be.nabu.utils.codec.impl.Base64Decoder;
 import be.nabu.utils.codec.impl.Base64Encoder;
@@ -44,11 +45,13 @@ public class Transcoder {
 		URL
 	}
 	
+	@ServiceDescription(comment = "Transcode {stream|a stream} using {transcoder|a transcoder}")
 	@WebResult(name = "stream")
 	public InputStream transcode(@WebParam(name = "stream") InputStream input, @NotNull @WebParam(name = "transcoder") be.nabu.utils.codec.api.Transcoder<ByteBuffer> transcoder) throws IOException {
 		return IOUtils.toInputStream(TranscoderUtils.wrapReadable(IOUtils.wrap(input), transcoder), true);
 	}
 	
+	@ServiceDescription(comment = "Create a base64 encoder for {type|standard base64}")
 	@WebResult(name = "transcoder")
 	public Base64Encoder base64Encoder(@WebParam(name = "type") Base64Type type, @WebParam(name = "bytesPerLine") Integer bytesPerLine) {
 		Base64Encoder base64Encoder = new Base64Encoder();
@@ -63,6 +66,7 @@ public class Transcoder {
 		return base64Encoder;
 	}
 	
+	@ServiceDescription(comment = "Create a base64 decoder for {type|standard base64}")
 	@WebResult(name = "transcoder")
 	public Base64Decoder base64Decoder(@WebParam(name = "type") Base64Type type) {
 		Base64Decoder base64Decoder = new Base64Decoder();
@@ -72,18 +76,22 @@ public class Transcoder {
 		return base64Decoder;
 	}
 	
+	@ServiceDescription(comment = "Create a gzip encoder")
 	@WebResult(name = "transcoder")
 	public GZIPEncoder gzipEncoder() {
 		return new GZIPEncoder();
 	}
+	@ServiceDescription(comment = "Create a gzip decoder")
 	@WebResult(name = "transcoder")
 	public GZIPDecoder gzipDecoder() {
 		return new GZIPDecoder();
 	}
+	@ServiceDescription(comment = "Create a deflate encoder with {nowrap|standard wrapping}")
 	@WebResult(name = "transcoder")
 	public DeflateTranscoder deflateEncoder(@WebParam(name = "nowrap") Boolean nowrap) {
 		return new DeflateTranscoder(DeflaterLevel.BEST_COMPRESSION, nowrap != null && nowrap);
 	}
+	@ServiceDescription(comment = "Create a deflate decoder with {nowrap|standard wrapping}")
 	@WebResult(name = "transcoder")
 	public InflateTranscoder deflateDecoder(@WebParam(name = "nowrap") Boolean nowrap) {
 		return new InflateTranscoder(nowrap != null && nowrap);

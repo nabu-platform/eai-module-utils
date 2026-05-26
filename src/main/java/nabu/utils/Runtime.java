@@ -65,6 +65,7 @@ import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.FeaturedExecutionContext;
 import be.nabu.libs.services.api.Service;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.base.ComplexElementImpl;
@@ -86,6 +87,7 @@ public class Runtime {
 	
 	private ExecutionContext executionContext;
 	
+	@ServiceDescription(comment = "Get the current user from the runtime context")
 	@WebResult(name = "user")
 	public String getCurrentUser() {
 		return executionContext.getSecurityContext().getToken() == null ? null : executionContext.getSecurityContext().getToken().getName();
@@ -96,33 +98,39 @@ public class Runtime {
 //		return executionContext.getSecurityContext().getToken();
 //	}
 	
+	@ServiceDescription(comment = "Get the current token from the runtime context")
 	@WebResult(name = "token")
 	public Token getCurrentToken() {
 		return executionContext.getSecurityContext().getToken();
 	}
 	
+	@ServiceDescription(comment = "Get the current server uptime")
 	@WebResult(name = "uptime")
 	public Date uptime() {
 		return EAIResourceRepository.getInstance().getStarted();
 	}
 	
+	@ServiceDescription(comment = "Get the current device from the runtime context")
 	@WebResult(name = "device")
 	public Device getCurrentDevice() {
 		return getDeviceFromToken(executionContext.getSecurityContext().getToken());
 	}
 	
 	@Deprecated
+	@ServiceDescription(comment = "Unwrap {token|a token} to its original token")
 	@WebResult(name = "token")
 	public Token unwrapToken(@WebParam(name = "token") Token token) {
 		return token instanceof WrappedToken ? ((WrappedToken) token).getOriginalToken() : null;
 	}
 	
 	@Deprecated
+	@ServiceDescription(comment = "Wrap {token|a token} as {name|a name} in {realm|a realm}")
 	@WebResult(name = "token")
 	public Token wrapToken(@WebParam(name = "token") Token originalToken, @WebParam(name = "name") String name, @WebParam(name = "realm") String realm) {
 		return new ImpersonateToken(originalToken, realm, name);
 	}
 
+	@ServiceDescription(comment = "Get the device from {token|a token}")
 	@WebResult(name = "device")
 	public Device getDeviceFromToken(@WebParam(name = "token") Token token) {
 		Device device = null;
@@ -142,11 +150,13 @@ public class Runtime {
 		return device;
 	}
 	
+	@ServiceDescription(comment = "Get the current realm from the runtime context")
 	@WebResult(name = "realm")
 	public String getCurrentRealm() {
 		return executionContext.getSecurityContext().getToken() instanceof Token ? ((Token) executionContext.getSecurityContext().getToken()).getRealm() : null;
 	}
 	
+	@ServiceDescription(comment = "Get the service {offset|1} levels up")
 	@WebResult(name = "service")
 	public String getService(@WebParam(name = "offset") Integer offset) {
 		ServiceRuntime runtime = ServiceRuntime.getRuntime();
@@ -161,6 +171,7 @@ public class Runtime {
 		return service instanceof DefinedService ? ((DefinedService) service).getId() : null;
 	}
 	
+	@ServiceDescription(comment = "Get the current service stack")
 	@WebResult(name = "services")
 	public List<String> getServices() {
 		ServiceRuntime runtime = ServiceRuntime.getRuntime();
@@ -178,6 +189,7 @@ public class Runtime {
 		return services;
 	}
 
+	@ServiceDescription(comment = "Get the root service in the current stack")
 	@WebResult(name = "service")
 	public String getRootService() {
 		ServiceRuntime runtime = ServiceRuntime.getRuntime();
@@ -190,12 +202,14 @@ public class Runtime {
 		return null;
 	}
 	
+	@ServiceDescription(comment = "Get the current application id")
 	@WebResult(name = "application")
 	public String getApplication() {
 		String rootService = getRootService();
 		return rootService == null ? null : rootService.replaceAll(APPLICATION_REGEX, "$1");
 	}
 	
+	@ServiceDescription(comment = "Get the current process id")
 	@WebResult(name = "process")
 	public String getProcess() {
 		String rootService = getRootService();
@@ -211,21 +225,25 @@ public class Runtime {
 		}
 	}
 	
+	@ServiceDescription(comment = "Get the context value for {key|a key}")
 	@WebResult(name = "value")
 	public Object getContext(@WebParam(name = "key") String key) {
 		return ServiceRuntime.getRuntime().getContext().get(key);
 	}
 	
+	@ServiceDescription(comment = "Summarize {exception|an exception}")
 	@WebResult(name = "summary")
 	public ExceptionSummary summarizeException(@WebParam(name = "exception") Exception exception) {
 		return exception == null ? null : ExceptionSummary.build(exception);
 	}
 	
+	@ServiceDescription(comment = "Summarize {validations|validations}")
 	@WebResult(name = "summary")
 	public ValidationSummary summarizeValidations(@WebParam(name = "validations") List<Validation<?>> validations) {
 		return validations == null || validations.isEmpty() ? null : ValidationSummary.build(validations);
 	}
 	
+	@ServiceDescription(comment = "Get context information for {id|an id}")
 	@WebResult(name = "information")
 	public ContextInformation getContextInformation(@WebParam(name = "id") String id) {
 		if (id == null) {

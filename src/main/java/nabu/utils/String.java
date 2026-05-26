@@ -72,12 +72,13 @@ public class String {
 		return content;
 	}
 	
+	@ServiceDescription(comment = "Reverse {content|a string}")
 	@WebResult(name = "reversed")
 	public java.lang.String reverse(@WebParam(name = "content") java.lang.String content) {
 		return content == null ? null : new StringBuilder(content).reverse().toString();
 	}
 	
-	@ServiceDescription(comment = "Apply a naming convention to a string")
+	@ServiceDescription(comment = "Convert {content|a string} from {from|the source convention} to {to|the target convention}")
 	@WebResult(name = "conventionized")
 	public java.lang.String conventionize(@WebParam(name = "content") java.lang.String content, @WebParam(name = "from") NamingConvention from, @WebParam(name = "to") NamingConvention to) {
 		if (content == null) {
@@ -89,13 +90,13 @@ public class String {
 		return to.apply(content, from == null ? NamingConvention.LOWER_CAMEL_CASE : from);
 	}
 	
-	@ServiceDescription(comment = "Get the total size of a string")
+	@ServiceDescription(comment = "Get the length of {string|a string}")
 	@WebResult(name = "size")
 	public java.lang.Integer size(@WebParam(name = "string") java.lang.String content) {
 		return content != null ? content.length() : null;
 	}
 
-	@ServiceDescription(comment = "Find matching parts of a string")
+	@ServiceDescription(comment = "Find all regex matches in {content|a string} using {find|a regex}")
 	@WebResult(name = "matches")
 	public List<java.lang.String> find(@WebParam(name = "content") java.lang.String content, @WebParam(name = "find") java.lang.String find) {
 		final Pattern pattern = Pattern.compile(find);
@@ -130,13 +131,13 @@ public class String {
 		return useRegex ? content.replaceAll(find, replace) : content.replace(find, replace);
 	}
 	
-	@ServiceDescription(comment = "Parse a string into a byte array")
+	@ServiceDescription(comment = "Convert {string|a string} to a byte array")
 	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
 		return string == null ? null : string.getBytes(charset == null ? Charset.defaultCharset() : charset);
 	}
 	
-	@ServiceDescription(comment = "Parse a string into a byte stream")
+	@ServiceDescription(comment = "Convert {string|a string} to a byte stream")
 	@WebResult(name = "stream")
 	public InputStream toStream(@WebParam(name = "string") java.lang.String string, @WebParam(name = "charset") Charset charset) {
 		return string == null ? null : new ByteArrayInputStream(toBytes(string, charset));
@@ -175,13 +176,13 @@ public class String {
 		return isFirst ? null : builder.toString();
 	}
 	
-	@ServiceDescription(comment = "Uppercase all the letters in a string")
+	@ServiceDescription(comment = "Convert {string|a string} to uppercase")
 	@WebResult(name = "upper")
 	public java.lang.String upper(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.toUpperCase();
 	}
 	
-	@ServiceDescription(comment = "Lowercase all the letters in a string")
+	@ServiceDescription(comment = "Convert {string|a string} to lowercase")
 	@WebResult(name = "lower")
 	public java.lang.String lower(@WebParam(name = "string") java.lang.String string) {
 		return string == null ? null : string.toLowerCase();
@@ -205,7 +206,7 @@ public class String {
         return DIACRITICS_AND_FRIENDS.matcher(normalized).replaceAll("");
 	}
 	
-	@ServiceDescription(comment = "Get part of a string")
+	@ServiceDescription(comment = "Extract a substring from {string|a string}")
 	@WebResult(name = "substring")
 	public java.lang.String substring(@WebParam(name = "string") java.lang.String string, @WebParam(name = "start") Integer start, @WebParam(name = "stop") Integer stop) {
 		if (string == null || (start == null && stop == null)) {
@@ -227,7 +228,7 @@ public class String {
 		return new BigInteger(string, 16).toByteArray();
 	}
 	
-	@ServiceDescription(comment = "Format a string using the given parameters")
+	@ServiceDescription(comment = "Format {template|a template string} with {parameters|parameters}")
 	@WebResult(name = "formatted")
 	public java.lang.String format(@WebParam(name = "template") java.lang.String template, @WebParam(name = "parameters") List<java.lang.Object> parameters) {
 		if (template == null) {
@@ -236,7 +237,7 @@ public class String {
 		return java.lang.String.format(template, parameters == null ? new Object[0] : parameters.toArray());
 	}
 	
-	@ServiceDescription(comment = "Trim the whitespace on each side of the string")
+	@ServiceDescription(comment = "Trim leading and trailing whitespace from {string|a string}")
 	@WebResult(name = "trimmed")
 	public java.lang.String trim(@WebParam(name = "string") java.lang.String string) {
 		if (string == null) {
@@ -248,6 +249,7 @@ public class String {
 		return string.strip();
 	}
 	
+	@ServiceDescription(comment = "Extract regex groups from {string|a string} using {regex|a regex}")
 	@WebResult(name = "groups")
 	public List<java.lang.String> regexGroups(@WebParam(name = "string") java.lang.String string, @NotNull @WebParam(name = "regex") java.lang.String regex) {
 		if (string == null) {

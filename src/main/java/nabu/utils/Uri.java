@@ -29,6 +29,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import be.nabu.libs.resources.URIUtils;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.KeyValuePair;
 import be.nabu.libs.types.utils.KeyValuePairImpl;
 import nabu.utils.types.UriComponents;
@@ -38,16 +39,19 @@ public class Uri {
 	
 	private static boolean useOldUriBuilding = Boolean.parseBoolean(System.getProperty("useOldUriBuilding", "false"));
 	
+	@ServiceDescription(comment = "Split {uri|a URI} into components")
 	@WebResult(name = "components")
 	public UriComponents toComponents(@WebParam(name = "uri") URI uri) {
 		return uri == null ? null : UriComponents.build(uri);
 	}
 	
+	@ServiceDescription(comment = "Resolve {child|a child path} under {parent|a URI}")
 	@WebResult(name = "uri")
 	public URI getChild(@WebParam(name = "parent") URI uri, @WebParam(name = "child") String child) {
 		return URIUtils.getChild(uri, child);
 	}
 	
+	@ServiceDescription(comment = "Build a URI from {components|URI components}")
 	@WebResult(name = "uri")
 	public URI fromComponents(@WebParam(name = "components") UriComponents components) throws URISyntaxException {
 		if (components == null) {
@@ -76,36 +80,43 @@ public class Uri {
 		}
 	}
 
+	@ServiceDescription(comment = "Encode {uri|a URI}")
 	@WebResult(name = "uri")
 	public String encodeUri(@WebParam(name = "uri") String uri, @WebParam(name = "includeEncoded") Boolean includeEncoded) {
 		return URIUtils.encodeURI(uri, includeEncoded == null ? true : includeEncoded);
 	}
 	
+	@ServiceDescription(comment = "Decode {uri|a URI}")
 	@WebResult(name = "uri")
 	public String decodeUri(@WebParam(name = "uri") String uri) {
 		return URIUtils.decodeURI(uri);
 	}
 	
+	@ServiceDescription(comment = "Encode {url|a URL}")
 	@WebResult(name = "url")
 	public String encodeUrl(@WebParam(name = "url") String uri) {
 		return URIUtils.encodeURL(uri);
 	}
 	
+	@ServiceDescription(comment = "Decode {url|a URL}")
 	@WebResult(name = "url")
 	public String decodeUrl(@WebParam(name = "url") String uri) {
 		return URIUtils.decodeURL(uri);
 	}
 	
+	@ServiceDescription(comment = "Encode {component|a URI component}")
 	@WebResult(name = "component")
 	public String encodeUriComponent(@WebParam(name = "component") String component, @WebParam(name = "includeEncoded") Boolean includeEncoded) {
 		return URIUtils.encodeURIComponent(component, includeEncoded == null ? true : includeEncoded);
 	}
 	
+	@ServiceDescription(comment = "Decode {component|a URI component}")
 	@WebResult(name = "component")
 	public String decodeUriComponent(@WebParam(name = "component") String component) {
 		return URIUtils.decodeURIComponent(component);
 	}
 	
+	@ServiceDescription(comment = "Extract query properties from {uri|a URI}")
 	@WebResult(name = "properties")
 	public java.util.List<KeyValuePair> getQueryProperties(@WebParam(name = "uri") URI uri) {
 		if (uri == null) {
@@ -123,6 +134,7 @@ public class Uri {
 		return properties;
 	}
 	
+	@ServiceDescription(comment = "Normalize {uri|a URI}")
 	@WebResult(name = "normalized")
 	public URI normalize(@WebParam(name = "uri") URI uri) {
 		return URIUtils.normalize(uri);

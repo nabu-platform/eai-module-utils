@@ -33,6 +33,7 @@ import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.api.ComplexContent;
@@ -51,6 +52,7 @@ public class Properties {
 	private ExecutionContext executionContext;
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Map {properties|properties} into {into|an object}")
 	@WebResult(name = "changed")
 	public boolean mapToObject(@NotNull @WebParam(name = "into") Object target, @WebParam(name = "properties") List<KeyValuePair> properties) {
 		boolean changed = false;
@@ -66,6 +68,7 @@ public class Properties {
 		return changed;
 	}
 	
+	@ServiceDescription(comment = "Build an object of {typeId|a type} from {properties|properties}")
 	@WebResult(name = "object")
 	public Object toObject(@NotNull @WebParam(name = "typeId") String typeId, @WebParam(name = "properties") List<KeyValuePair> properties, @WebParam(name = "separator") String separator) {
 		DefinedType resolved = executionContext.getServiceContext().getResolver(DefinedType.class).resolve(typeId);
@@ -137,6 +140,7 @@ public class Properties {
 		return newInstance;
 	}
 	
+	@ServiceDescription(comment = "Get the value for {key|a key} from {properties|properties}")
 	@WebResult(name = "value")
 	public String getValue(@NotNull @WebParam(name = "key") String key, @WebParam(name = "properties") List<KeyValuePair> properties) {
 		for (KeyValuePair property : properties) {
@@ -152,6 +156,7 @@ public class Properties {
 	 * Normally the only change that still needs to occur is the merge of the types-evaluator logic with the evaluator-api
 	 * The latter is massively updated with regards to collection handling
 	 */
+	@ServiceDescription(comment = "Convert {properties|properties} to a map")
 	@WebResult(name = "map")
 	public Map<String, String> toMap(@WebParam(name = "properties") List<KeyValuePair> properties) {
 		Map<String, String> map = new LinkedHashMap<String, String>();

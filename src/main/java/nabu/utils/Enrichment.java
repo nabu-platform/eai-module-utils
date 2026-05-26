@@ -28,6 +28,7 @@ import be.nabu.eai.repository.EAIRepositoryUtils;
 import be.nabu.libs.property.ValueUtils;
 import be.nabu.libs.property.api.Value;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.libs.types.DefinedTypeResolverFactory;
 import be.nabu.libs.types.TypeUtils;
@@ -45,18 +46,21 @@ public class Enrichment {
 	
 	private ExecutionContext executionContext;
 	
+	@ServiceDescription(comment = "Apply enrichment to {objects|objects} using {language|a language}")
 	public void apply(@WebParam(name = "objects") List<java.lang.Object> objects, @WebParam(name = "language") java.lang.String language) throws ServiceException {
 		if (objects != null && !objects.isEmpty()) {
 			EAIRepositoryUtils.enrich(objects, language, executionContext);
 		}
 	}
 	
+	@ServiceDescription(comment = "Persist enrichment for {objects|objects} using {language|a language}")
 	public void persist(@WebParam(name = "objects") List<java.lang.Object> objects, @WebParam(name = "language") java.lang.String language) throws ServiceException {
 		if (objects != null && !objects.isEmpty()) {
 			EAIRepositoryUtils.persist(objects, language, executionContext);
 		}
 	}
 	
+	@ServiceDescription(comment = "Load enrichment configuration for {typeId|a type} and {field|a field}")
 	@WebResult(name = "configuration")
 	public EnrichmentConfiguration configuration(@WebParam(name = "typeId") java.lang.String typeId, @WebParam(name = "field") java.lang.String fieldName) {
 		DefinedType resolved = DefinedTypeResolverFactory.getInstance().getResolver().resolve(typeId);

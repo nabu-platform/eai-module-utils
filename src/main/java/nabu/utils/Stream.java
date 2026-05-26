@@ -33,19 +33,19 @@ import be.nabu.utils.io.IOUtils;
 @WebService
 public class Stream {
 
-	@ServiceDescription(comment = "Transform a byte stream into a byte array")
+	@ServiceDescription(comment = "Convert {stream|a byte stream} to a byte array")
 	@WebResult(name = "bytes")
 	public byte [] toBytes(@WebParam(name = "stream") InputStream input) throws IOException {
 		return input == null ? null : IOUtils.toBytes(IOUtils.wrap(input));
 	}
 	
-	@ServiceDescription(comment = "Format an byte stream into a string")
+	@ServiceDescription(comment = "Convert {stream|a byte stream} to a string")
 	@WebResult(name = "string")
 	public String toString(@WebParam(name = "stream") InputStream input, @WebParam(name = "charset") Charset charset) throws IOException {
 		return input == null ? null : new String(toBytes(input), charset == null ? Charset.defaultCharset() : charset);
 	}
 	
-	@ServiceDescription(comment = "Close a closeable object")
+	@ServiceDescription(comment = "Close {closeable|a closeable}")
 	public void close(@WebParam(name = "closeable") java.lang.Object closeable) throws IOException {
 		if (closeable instanceof Closeable) {
 			((Closeable) closeable).close();

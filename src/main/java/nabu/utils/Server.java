@@ -71,6 +71,7 @@ public class Server {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
+	@ServiceDescription(comment = "Get the current server image information")
 	public ImageInformation image() {
 		if (executionContext.getServiceContext().getServiceRunner() instanceof be.nabu.eai.server.Server) {
 			ImageInformation information = new ImageInformation();
@@ -83,6 +84,7 @@ public class Server {
 		return null;
 	}
 	
+	@ServiceDescription(comment = "Log {message|a message} at {level|INFO}")
 	public void log(@WebParam(name = "message") String message, @WebParam(name = "logger") String loggerName, @WebParam(name = "level") LogLevel level, @WebParam(name = "exception") Exception exception) {
 		if (message == null && exception != null) {
 			message = exception.getMessage();
@@ -150,6 +152,7 @@ public class Server {
 		return UUID.randomUUID();
 	}
 	
+	@ServiceDescription(comment = "Generate a password of {length|8} characters")
 	@WebResult(name = "password")
 	@NotNull
 	public String password(@WebParam(name = "length") Integer length, @WebParam(name = "allowedCharacters") String chars) {
@@ -171,27 +174,32 @@ public class Server {
 		return builder.toString();
 	}
 	
+	@ServiceDescription(comment = "Get the current host name")
 	@WebResult(name = "host")
 	@NotNull
 	public String getHostName() throws UnknownHostException {
 		return InetAddress.getLocalHost().getHostName();
 	}
 	
+	@ServiceDescription(comment = "Get the current server name")
 	@WebResult(name = "server")
 	public String getServerName() {
 		return EAIResourceRepository.getInstance().getName();
 	}
 	
+	@ServiceDescription(comment = "Get the current server group")
 	@WebResult(name = "group")
 	public String getServerGroup() {
 		return EAIResourceRepository.getInstance().getGroup();
 	}
 	
+	@ServiceDescription(comment = "Get the current server aliases")
 	@WebResult(name = "aliases")
 	public java.util.List<String> getServerAliases() {
 		return EAIResourceRepository.getInstance().getAliases();
 	}
 	
+	@ServiceDescription(comment = "Sleep for {amount|an amount} {unit|MILLISECONDS}")
 	public void sleep(@WebParam(name = "amount") long amount, @WebParam(name = "unit") TimeUnit timeUnit) {
 		try {
 			Thread.sleep(timeUnit == null ? amount : TimeUnit.MILLISECONDS.convert(amount, timeUnit));
@@ -201,6 +209,7 @@ public class Server {
 		}
 	}
 	
+	@ServiceDescription(comment = "List the current system properties")
 	@WebResult(name = "properties")
 	public java.util.List<KeyValuePair> properties() {
 		java.util.List<KeyValuePair> properties = new ArrayList<KeyValuePair>();
@@ -212,15 +221,18 @@ public class Server {
 		return properties;
 	}
 	
+	@ServiceDescription(comment = "Get property {key|a property key}")
 	@WebResult(name = "value")
 	public java.lang.String property(@NotNull @WebParam(name = "key") java.lang.String key, @WebParam(name = "defaultValue") java.lang.String defaultValue) {
 		return System.getProperty(key, defaultValue);
 	}
 	
+	@ServiceDescription(comment = "Set property {key|a property key}")
 	public void setProperty(@NotNull @WebParam(name = "key") java.lang.String key, @WebParam(name = "value") java.lang.String value) {
 		System.setProperty(key, value);
 	}
 	
+	@ServiceDescription(comment = "Bring the current server online")
 	public void bringOnline() {
 		ServiceRunner runner = EAIResourceRepository.getInstance().getServiceRunner();
 		if (runner instanceof be.nabu.eai.server.Server) {
@@ -230,6 +242,7 @@ public class Server {
 			throw new IllegalStateException("Can not find the server");
 		}
 	}
+	@ServiceDescription(comment = "Bring the current server offline")
 	public void bringOffline() {
 		ServiceRunner runner = EAIResourceRepository.getInstance().getServiceRunner();
 		if (runner instanceof be.nabu.eai.server.Server) {
@@ -239,6 +252,7 @@ public class Server {
 			throw new IllegalStateException("Can not find the server");
 		}
 	}
+	@ServiceDescription(comment = "Check whether the current server is online")
 	@WebResult(name = "online")
 	public boolean isOnline() {
 		ServiceRunner runner = EAIResourceRepository.getInstance().getServiceRunner();

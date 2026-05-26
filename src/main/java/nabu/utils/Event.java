@@ -30,6 +30,7 @@ import be.nabu.libs.events.api.EventDispatcher;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.utils.cep.api.CommonEvent;
 import be.nabu.utils.cep.api.ComplexEvent;
 import be.nabu.utils.cep.api.EventSeverity;
@@ -41,11 +42,13 @@ public class Event {
 	
 	private ExecutionContext executionContext;
 	
+	@ServiceDescription(comment = "Create an event from {event|an event}")
 	@WebResult(name = "event")
 	public java.lang.Object create(@WebParam(name = "event") ComplexEvent event) {
 		return event;
 	}
 	
+	@ServiceDescription(comment = "Fire {event|an event}")
 	public void fire(@WebParam(name = "event") java.lang.Object event) {
 		if (executionContext.getEventTarget() != null) {
 			executionContext.getEventTarget().fire(event, this);
@@ -66,6 +69,7 @@ public class Event {
 	
 	// annotations are meant as short key/value pairs like for example contract numbers, client numbers etc which give more context to the event stream
 	// the values here should not be long jsonified content, that should be sent in a separate event in the data attribute
+	@ServiceDescription(comment = "Annotate {artifactId|current artifact} with {key|a key}={value|a value}")
 	public void annotate(@WebParam(name = "artifactId") java.lang.String artifactId, @WebParam(name = "key") java.lang.String key, @WebParam(name = "value") java.lang.String value, @WebParam(name = "message") java.lang.String message, @WebParam(name = "description") java.lang.String description) {
 		EventDispatcher complexEventDispatcher = EAIResourceRepository.getInstance().getComplexEventDispatcher();
 		if (complexEventDispatcher != null) {
@@ -90,6 +94,7 @@ public class Event {
 	}
 	
 	// should implement: be.nabu.eai.server.api.EventHandler.handle
+	@ServiceDescription(comment = "Subscribe to events for {serviceId|a service}")
 	public void subscribe(@WebParam(name = "serviceId") java.lang.String serviceId, @WebParam(name = "prioritySeverity") EventSeverity prioritySeverity) {
 		if (executionContext.getServiceContext().getServiceRunner() instanceof be.nabu.eai.server.Server) {
 			((be.nabu.eai.server.Server) executionContext.getServiceContext().getServiceRunner()).getProcessor().add(serviceId, prioritySeverity);
@@ -102,12 +107,14 @@ public class Event {
 //		
 //	}
 	
+	@ServiceDescription(comment = "Format {events|events} as CEF with {anonymize|false}")
 	public java.lang.String format(@WebParam(name = "events") java.util.List<java.lang.Object> events, @WebParam(name = "anonymize") Boolean anonymize) {
 		StringBuilder builder = new StringBuilder();
 		CEPUtils.asCEF(builder, "Nabu Platform", "Nabu Server", new ServerREST().getVersion(), anonymize != null && anonymize, events);
 		return builder.toString();
 	}
 	
+	@ServiceDescription(comment = "Parse events from {stream|a stream}")
 	@WebResult(name = "events")
 	public java.util.List<CommonEvent> parse(@WebParam(name = "stream") InputStream input) {
 		if (input != null) {

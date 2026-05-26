@@ -30,6 +30,7 @@ import be.nabu.libs.artifacts.api.Artifact;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.Service;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.Transactionable;
 import be.nabu.libs.types.ComplexContentWrapperFactory;
 import be.nabu.libs.types.api.ComplexContent;
@@ -39,29 +40,35 @@ public class Transaction {
 	
 	private ExecutionContext executionContext;
 	
+	@ServiceDescription(comment = "Start a new transaction")
 	@WebResult(name = "transactionId")
 	public String start() {
 		return UUID.randomUUID().toString();
 	}
 	
+	@ServiceDescription(comment = "Get the default transaction id from the current context")
 	@WebResult(name = "transactionId")
 	public String defaultTransactionId() {
 		return executionContext.getTransactionContext().getDefaultTransactionId();
 	}
 	
+	@ServiceDescription(comment = "Commit transaction {transactionId|the current transaction}")
 	public void commit(@WebParam(name = "transactionId") String transactionId) {
 		executionContext.getTransactionContext().commit(transactionId);
 	}
 	
+	@ServiceDescription(comment = "Rollback transaction {transactionId|the current transaction}")
 	public void rollback(@WebParam(name = "transactionId") String transactionId) {
 		executionContext.getTransactionContext().rollback(transactionId);
 	}
 	
 	// always add this to the top of the transaction context, otherwise things like jdbc adapters, streams etc might be closed
+	@ServiceDescription(comment = "Run {serviceId|a service} on commit")
 	public void onCommit(@WebParam(name = "transactionId") String transactionId, @NotNull @WebParam(name = "serviceId") String serviceId, @WebParam(name = "input") java.lang.Object input) {
 		executionContext.getTransactionContext().push(transactionId, toTransactionable(serviceId, input, true, false));
 	}
 	
+	@ServiceDescription(comment = "Run {serviceId|a service} on rollback")
 	public void onRollback(@WebParam(name = "transactionId") String transactionId, @NotNull @WebParam(name = "serviceId") String serviceId, @WebParam(name = "input") java.lang.Object input) {
 		executionContext.getTransactionContext().push(transactionId, toTransactionable(serviceId, input, false, true));
 	}

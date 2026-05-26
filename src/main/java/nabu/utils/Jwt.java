@@ -31,10 +31,12 @@ import be.nabu.eai.api.Comment;
 import be.nabu.libs.http.jwt.JWTBody;
 import be.nabu.libs.http.jwt.JWTUtils;
 import be.nabu.libs.http.jwt.enums.JWTAlgorithm;
+import be.nabu.libs.services.api.ServiceDescription;
 
 @WebService
 public class Jwt {
 	
+	@ServiceDescription(comment = "Unmarshal JWT {content|content} with {key|a key}")
 	@WebResult(name = "unmarshalled")
 	public JWTBody unmarshal(
 			@WebParam(name = "key") Key key,
@@ -43,6 +45,7 @@ public class Jwt {
 	}
 	
 	@Comment(title = "Note that the timestamps are expressed in seconds.")
+	@ServiceDescription(comment = "Marshal JWT {content|content} with {key|a key} and {algorithm|auto}")
 	@WebResult(name = "marshalled")
 	public java.lang.String marshal(
 			@WebParam(name = "key") Key key, 

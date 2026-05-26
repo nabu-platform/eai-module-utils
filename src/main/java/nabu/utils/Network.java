@@ -18,6 +18,7 @@
 package nabu.utils;
 
 import java.net.InetAddress;
+import be.nabu.libs.services.api.ServiceDescription;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -30,17 +31,20 @@ import javax.jws.WebService;
 
 @WebService
 public class Network {
+	@ServiceDescription(comment = "Check whether {ip|an address} is local")
 	@WebResult(name = "local")
 	public boolean isLocal(@WebParam(name = "ip") java.lang.String ip) throws UnknownHostException {
 		InetAddress byName = InetAddress.getByName(ip);
 		return byName != null && (byName.isAnyLocalAddress() || byName.isLoopbackAddress());
 	}
+	@ServiceDescription(comment = "Check whether {ip|an address} is site-local")
 	@WebResult(name = "siteLocal")
 	public boolean isSiteLocal(@WebParam(name = "ip") java.lang.String ip) throws UnknownHostException {
 		InetAddress byName = InetAddress.getByName(ip);
 		return byName != null && (byName.isAnyLocalAddress() || byName.isLoopbackAddress() || byName.isLinkLocalAddress() || byName.isSiteLocalAddress());
 	}
 	
+	@ServiceDescription(comment = "List all local network addresses")
 	@WebResult(name = "addresses")
 	public java.util.List<java.lang.String> getLocalAddresses() throws SocketException {
 		java.util.List<java.lang.String> result = new ArrayList<java.lang.String>();
@@ -58,6 +62,7 @@ public class Network {
 		return result;
 	}
 	
+	@ServiceDescription(comment = "List all public network addresses")
 	@WebResult(name = "addresses")
 	public java.util.List<java.lang.String> getPublicAddresses() throws SocketException {
 		java.util.List<java.lang.String> result = new ArrayList<java.lang.String>();

@@ -40,11 +40,13 @@ import be.nabu.libs.cache.api.CacheEntry;
 import be.nabu.libs.cache.api.CacheWithHash;
 import be.nabu.libs.cache.api.ExplorableCache;
 import be.nabu.libs.cache.api.LimitedCache;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.types.api.KeyValuePair;
 
 @WebService
 public class Cache {
 	
+	@ServiceDescription(comment = "List caches for {cacheProviderId|a cache provider}")
 	@WebResult(name = "caches")
 	public List<CacheProviderOverview> list(@WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
 		List<CacheProviderOverview> providers = new ArrayList<CacheProviderOverview>();
@@ -89,6 +91,7 @@ public class Cache {
 		return providers;
 	}
 	
+	@ServiceDescription(comment = "Prune cache {cacheId|a cache}")
 	public void prune(@NotNull @WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
 		Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
 		if (resolve instanceof CacheProviderArtifact) {
@@ -109,6 +112,7 @@ public class Cache {
 		}
 	}
 	
+	@ServiceDescription(comment = "Refresh cache {cacheId|a cache}")
 	public void refresh(@NotNull @WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId) throws IOException {
 		Artifact resolve = EAIResourceRepository.getInstance().resolve(cacheProviderId);
 		if (resolve instanceof CacheProviderArtifact) {
@@ -129,6 +133,7 @@ public class Cache {
 		}
 	}
 	
+	@ServiceDescription(comment = "Clear cache {cacheId|a cache}")
 	public void clear(@WebParam(name = "cacheProviderId") String cacheProviderId, @WebParam(name = "cacheId") String cacheId, @WebParam(name = "annotations") List<KeyValuePair> properties) throws IOException {
 		Map<java.lang.String, java.lang.String> annotations = properties == null ? null : new Properties().toMap(properties);
 		if (cacheProviderId != null) {
@@ -194,6 +199,7 @@ public class Cache {
 		}
 	}
 	
+	@ServiceDescription(comment = "Get the cache value for {key|a key}")
 	@WebResult(name = "value")
 	java.lang.Object get(@NotNull @WebParam(name = "cacheId") String cacheId, @WebParam(name = "key") @NotNull java.lang.Object key) throws IOException {
 		return EAIResourceRepository.getInstance().getCacheProvider().get(cacheId).get(key);

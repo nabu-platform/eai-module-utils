@@ -18,6 +18,7 @@
 package nabu.utils;
 
 import java.awt.AlphaComposite;
+import be.nabu.libs.services.api.ServiceDescription;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -47,6 +48,7 @@ import nabu.utils.types.ImageMetaData;
 @WebService
 public class Image {
 	
+	@ServiceDescription(comment = "Get metadata from {image|an image stream}")
 	@WebResult(name = "metaData")
 	public ImageMetaData getMetaData(@WebParam(name = "image") InputStream stream) throws IOException {
 		if (stream == null) {
@@ -72,6 +74,7 @@ public class Image {
 		return reader;
 	}
 	
+	@ServiceDescription(comment = "Crop {image|an image stream} to {width|a width} by {height|a height}")
 	@WebResult(name = "image")
 	public byte [] transform(@WebParam(name = "image") InputStream stream, @WebParam(name = "x") Integer x, @WebParam(name = "y") Integer y, @WebParam(name = "width") Integer width, @WebParam(name = "height") Integer height, @WebParam(name = "targetContentType") String targetContentType) throws IOException {
 		if (stream == null) {
@@ -114,6 +117,7 @@ public class Image {
 		return output.toByteArray();
 	}
 	
+	@ServiceDescription(comment = "Resize {image|an image stream} to {width|a width} by {height|a height}")
 	@WebResult(name = "image")
 	public byte [] resize(@WebParam(name = "image") InputStream stream, @WebParam(name = "width") Integer width, @WebParam(name = "height") Integer height, @WebParam(name = "targetContentType") String targetContentType) throws IOException {
 		if (stream == null) {
@@ -168,6 +172,7 @@ public class Image {
 	
 	// inspiration from: https://github.com/collicalex/JPEGOptimizer/blob/master/src/utils/ImageUtils.java
 	// the maxdiff should be a number between 0 and 1, sensible values seem to be around 0.5
+	@ServiceDescription(comment = "Optimize {image|an image stream} up to {maxDiff|a maximum difference}")
 	public InputStream optimize(@WebParam(name = "image") InputStream stream, @WebParam(name = "maxDiff") Double maxDiff) throws IOException {
 		// seems sensible value...
 		if (maxDiff == null) {

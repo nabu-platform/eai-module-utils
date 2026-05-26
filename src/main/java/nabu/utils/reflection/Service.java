@@ -46,6 +46,7 @@ import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.DefinedServiceInterface;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.libs.services.api.ServiceInterface;
 import be.nabu.libs.services.api.ServiceResult;
@@ -63,6 +64,7 @@ public class Service {
 	
 	ExecutionContext context;
 	
+	@ServiceDescription(comment = "Create service input for {serviceId|a service}")
 	@WebResult(name = "typeInstance")
 	public Object newServiceInput(@WebParam(name = "serviceId") String id, @WebParam(name = "content") InputStream content, @WebParam(name = "charset") Charset charset) throws IOException, ParseException {
 		if (id == null) {
@@ -82,6 +84,7 @@ public class Service {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@ServiceDescription(comment = "Invoke {serviceId|a service} with {input|input}")
 	@WebResult(name = "output")
 	public Object invoke(@WebParam(name = "serviceId") String id, @WebParam(name = "input") Object input, @WebParam(name = "runAs") Token token, @WebParam(name = "scopedContext") Boolean scopedContext) throws ServiceException, InterruptedException, ExecutionException {
 		if (id == null) {
@@ -127,6 +130,7 @@ public class Service {
 	}
 	
 	// with the implementations you can refer to a path (the key) which supports a certain implementation
+	@ServiceDescription(comment = "List implementations for {interfaceId|an interface}")
 	@WebResult(name = "implementations")
 	public List<NodeDescription> listImplementations(@NotNull @WebParam(name = "interfaceId") String interfaceId, @WebParam(name = "implementations") List<KeyValuePair> implementations, @WebParam(name = "properties") List<KeyValuePair> properties) throws ClassNotFoundException {
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
@@ -187,11 +191,13 @@ public class Service {
 		return nodes;
 	}
 	
+	@ServiceDescription(comment = "List service tags under {contextId|root}")
 	@WebResult(name = "tags")
 	public List<String> availableTags(@WebParam(name = "contextId") String contextId, @WebParam(name = "tags") List<String> mustHaveTags) {
 		return Node.availableTags(contextId, mustHaveTags, DefinedService.class);
 	}
 	
+	@ServiceDescription(comment = "List services by tag under {contextId|root}")
 	@WebResult(name = "services")
 	public List<NodeDescription> listByTag(@WebParam(name = "contextId") String contextId, @NotNull @WebParam(name = "tags") List<String> mustHaveTags) {
 		return Node.listByTag(contextId, mustHaveTags, DefinedService.class);

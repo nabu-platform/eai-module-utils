@@ -106,6 +106,7 @@ public class Node {
 		}
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "List nodes referencing {id|an id}")
 	@WebResult(name = "nodes")
 	public List<NodeDescription> references(@NotNull @WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive, @WebParam(name = "type") String artifactClass) {
 		Set<String> references = new LinkedHashSet<String>();
@@ -134,6 +135,7 @@ public class Node {
 		return nodes;
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "List dependencies for {id|an id}")
 	@WebResult(name = "nodes")
 	public List<NodeDescription> dependencies(@NotNull @WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {
 		Set<String> dependencies = new LinkedHashSet<String>();
@@ -150,6 +152,7 @@ public class Node {
 		return nodes;
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "List external dependencies for {id|an id}")
 	@WebResult(name = "externalDependencies")
 	public List<ExternalDependency> externalDependencies(@WebParam(name = "id") String id) {
 		List<ExternalDependency> dependencies = new ArrayList<ExternalDependency>();
@@ -175,6 +178,7 @@ public class Node {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@be.nabu.libs.services.api.ServiceDescription(comment = "Resolve the node for {id|an id} as {type|a type}")
 	@WebResult(name = "resolved")
 	public NodeDescription resolveFor(@WebParam(name = "id") String id, @NotNull @WebParam(name = "type") String artifactClass) throws ClassNotFoundException {
 		if (id == null) {
@@ -196,6 +200,7 @@ public class Node {
 		return resolveFor == null ? null : getDescription(EAIResourceRepository.getInstance().getEntry(resolveFor.getId()), false);
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "List nodes of type {type|a type} under {id|root}")
 	@WebResult(name = "nodes")
 	public List<NodeDescription> listByType(@WebParam(name = "id") String id, @NotNull @WebParam(name = "type") String artifactClass) throws ClassNotFoundException {
 		List<NodeDescription> nodes = new ArrayList<NodeDescription>();
@@ -217,6 +222,7 @@ public class Node {
 		return nodes;
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "List child nodes under {id|root}")
 	@WebResult(name = "nodes")
 	public List<NodeDescription> list(@WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {
 		Entry entry = id == null 
@@ -232,6 +238,7 @@ public class Node {
 		return nodes;
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "Get node {id|root}")
 	@WebResult(name = "node")
 	public NodeDescription get(@WebParam(name = "id") String id) {
 		Entry entry = id == null 
@@ -240,6 +247,7 @@ public class Node {
 		return entry == null ? null : getDescription(entry, false);
 	}
 	
+	@be.nabu.libs.services.api.ServiceDescription(comment = "List services under {id|root}")
 	@WebResult(name = "services")
 	public List<ServiceDescription> services(@WebParam(name = "id") String id, @WebParam(name = "recursive") Boolean recursive) {
 		Entry entry = id == null 
