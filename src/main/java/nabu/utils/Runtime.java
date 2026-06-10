@@ -62,6 +62,7 @@ import be.nabu.libs.services.NarrativeParts;
 import be.nabu.libs.services.ServiceRuntime;
 import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
+import be.nabu.libs.services.api.DefinedServiceLevelAgreement;
 import be.nabu.libs.services.api.ExecutionContext;
 import be.nabu.libs.services.api.FeaturedExecutionContext;
 import be.nabu.libs.services.api.Service;
@@ -214,6 +215,33 @@ public class Runtime {
 	public String getProcess() {
 		String rootService = getRootService();
 		return rootService == null ? null : rootService.replaceAll(PROCESS_REGEX, "$1");
+	}
+	
+	@ServiceDescription(comment = "Reset the cached service level agreements")
+	public void resetServiceLevelAgreements() {
+		EAIResourceRepository.getInstance().getServiceLevelAgreementProvider().reset();
+	}
+	
+	@ServiceDescription(comment = "Get the service level agreements for {id|a service id}")
+	@WebResult(name = "agreements")
+	public List<DefinedServiceLevelAgreement> getServiceLevelAgreements(@WebParam(name = "id") String id) {
+		if (id == null || id.trim().isEmpty()) {
+			return EAIResourceRepository.getInstance().getServiceLevelAgreementProvider().getAllAgreements();
+		}
+		Artifact artifact = EAIResourceRepository.getInstance().resolve(id);
+		if (!(artifact instanceof DefinedService)) {
+			return null;
+		}
+		List<DefinedServiceLevelAgreement> agreements = new ArrayList<DefinedServiceLevelAgreement>();
+		List<be.nabu.libs.services.api.ServiceLevelAgreement> resolved = EAIResourceRepository.getInstance().getServiceLevelAgreementProvider().getAgreementsFor((DefinedService) artifact);
+		if (resolved != null) {
+			for (be.nabu.libs.services.api.ServiceLevelAgreement agreement : resolved) {
+				if (agreement instanceof DefinedServiceLevelAgreement) {
+					agreements.add((DefinedServiceLevelAgreement) agreement);
+				}
+			}
+		}
+		return agreements;
 	}
 	
 	public void setContext(@WebParam(name = "key") String key, @WebParam(name = "value") Object value) {
