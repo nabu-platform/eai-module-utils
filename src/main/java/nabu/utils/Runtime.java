@@ -38,6 +38,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+import be.nabu.libs.types.SimpleTypeWrapperFactory;
 import be.nabu.eai.api.Hidden;
 import be.nabu.eai.repository.EAIResourceRepository;
 import be.nabu.eai.repository.api.Entry;
@@ -68,7 +73,11 @@ import be.nabu.libs.services.api.FeaturedExecutionContext;
 import be.nabu.libs.services.api.Service;
 import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceInstanceWithPipeline;
+import be.nabu.libs.types.ComplexContentWrapperFactory;
+import be.nabu.libs.types.api.ComplexContent;
+import be.nabu.libs.types.api.DefinedSimpleType;
 import be.nabu.libs.types.api.KeyValuePair;
+import be.nabu.libs.types.binding.json.JSONBinding;
 import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.structure.Structure;
 import be.nabu.libs.types.structure.StructureInstance;
@@ -77,6 +86,7 @@ import be.nabu.libs.validator.api.Validation;
 import be.nabu.utils.mime.api.Header;
 import be.nabu.utils.mime.api.ModifiablePart;
 import be.nabu.utils.mime.impl.MimeUtils;
+import be.nabu.libs.converter.ConverterFactory;
 
 @WebService
 public class Runtime {
@@ -403,9 +413,13 @@ public class Runtime {
 	}
 	
 	@WebResult(name = "running")
-	public List<ServiceInstance> getRunning() {
+	public List<ServiceInstance> getRunning(@WebParam(name = "search") String search) {
 		List<ServiceInstance> descriptions = new ArrayList<ServiceInstance>();
 		List<Long> ids = new ArrayList<Long>();
+		String searchLower = search == null ? null : search.trim().toLowerCase();
+		if (searchLower != null && searchLower.isEmpty()) {
+			searchLower = null;
+		}
 		for (ServiceRuntime runtime : ServiceRuntime.getRunning()) {
 			DefinedService lastService = null;
 			ServiceRuntime lastRuntime = null;
@@ -418,7 +432,7 @@ public class Runtime {
 				}
 				runtime = runtime.getParent();
 			}
-			if (lastService != null && lastRuntime != null && !ids.contains(lastRuntime.getId())) {
+			if (lastService != null && lastRuntime != null && !ids.contains(lastRuntime.getId()) && matchesSearch(lastRuntime, searchLower)) {
 				ids.add(lastRuntime.getId());
 				ServiceInstance description = new ServiceInstance();
 				description.setId(lastRuntime.getId());
@@ -433,6 +447,41 @@ public class Runtime {
 			}
 		}
 		return descriptions;
+	}
+	
+	private boolean matchesSearch(ServiceRuntime runtime, String search) {
+		if (search == null) {
+			return true;
+		}
+		if (runtime.getService() instanceof DefinedService && ((DefinedService) runtime.getService()).getId() != null && ((DefinedService) runtime.getService()).getId().toLowerCase().contains(search)) {
+			return true;
+		}
+		try {
+			String stringified = stringify(runtime.getContext());
+			return stringified != null && stringified.toLowerCase().contains(search);
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String stringify(Object data) throws IOException {
+		if (data == null) {
+			return null;
+		}
+		DefinedSimpleType<? extends Object> wrapped = SimpleTypeWrapperFactory.getInstance().getWrapper().wrap(data.getClass());
+		if (wrapped != null) {
+			return ConverterFactory.getInstance().getConverter().convert(data, String.class);
+		}
+		ComplexContent content = data instanceof ComplexContent ? (ComplexContent) data : ComplexContentWrapperFactory.getInstance().getWrapper().wrap(data);
+		if (content != null) {
+			JSONBinding binding = new JSONBinding(content.getType(), Charset.forName("UTF-8"));
+			ByteArrayOutputStream serialized = new ByteArrayOutputStream();
+			binding.marshal(serialized, content);
+			return new String(serialized.toByteArray(), Charset.forName("UTF-8"));
+		}
+		return data.toString();
 	}
 	
 	@WebResult(name = "correlationId")
