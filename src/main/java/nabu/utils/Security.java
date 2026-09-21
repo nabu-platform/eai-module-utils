@@ -59,6 +59,7 @@ import be.nabu.libs.services.api.ServiceException;
 import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.BCSecurityUtils;
 import be.nabu.utils.security.DigestAlgorithm;
+import be.nabu.utils.security.EncryptionXmlAdapter;
 import be.nabu.utils.security.MacAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
 import be.nabu.utils.security.Rfc2898DeriveBytes;
@@ -132,6 +133,18 @@ public class Security {
 		return new ByteArrayInputStream(SecurityUtils.pbeDecrypt(new java.lang.String(bytes, "ASCII"), password, algorithm));
 	}
 	
+	@ServiceDescription(comment = "Encrypt {data|configuration data} using the global configuration encryption settings")
+	@WebResult(name = "encrypted")
+	public java.lang.String configurationEncrypt(@WebParam(name = "data") java.lang.String data) throws Exception {
+		return data == null ? null : new EncryptionXmlAdapter().marshal(data);
+	}
+
+	@ServiceDescription(comment = "Decrypt {encrypted|configuration data} using the global configuration encryption settings")
+	@WebResult(name = "decrypted")
+	public java.lang.String configurationDecrypt(@WebParam(name = "encrypted") java.lang.String encrypted) throws Exception {
+		return encrypted == null ? null : new EncryptionXmlAdapter().unmarshal(encrypted);
+	}
+
 	@ServiceDescription(comment = "Parse a PEM key from {pem|PEM content}")
 	@WebResult(name = "key")
 	public Key parseKeyPem(@WebParam(name = "pem") byte[] pem) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IOException {
