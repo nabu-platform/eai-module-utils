@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,6 +47,7 @@ import be.nabu.libs.services.ServiceUtils;
 import be.nabu.libs.services.api.DefinedService;
 import be.nabu.libs.services.api.DefinedServiceInterface;
 import be.nabu.libs.services.api.ExecutionContext;
+import be.nabu.libs.services.api.FeaturedExecutionContext;
 import be.nabu.libs.services.api.ServiceDescription;
 import be.nabu.libs.services.api.ServiceException;
 import be.nabu.libs.services.api.ServiceInterface;
@@ -119,6 +121,11 @@ public class Service {
 		// to be reevaluated if a new usecase comes along
 		if (token != null || (scopedContext != null && scopedContext)) {
 			context = EAIResourceRepository.getInstance().newExecutionContext(token);
+			if (this.context instanceof FeaturedExecutionContext && context instanceof FeaturedExecutionContext) {
+				List<String> inheritedFeatures = new ArrayList<String>(new LinkedHashSet<String>(((FeaturedExecutionContext) this.context).getEnabledFeatures()));
+				inheritedFeatures.removeAll(((FeaturedExecutionContext) context).getEnabledFeatures());
+				((FeaturedExecutionContext) context).getEnabledFeatures().addAll(inheritedFeatures);
+			}
 		}
 		// allow different targets or not? can set different target in invoke itself...?
 		Future<ServiceResult> run = EAIResourceRepository.getInstance().getServiceRunner().run(service, context, serviceInput);

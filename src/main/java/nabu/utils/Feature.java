@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -67,6 +69,15 @@ public class Feature {
 		}
 	}
 	
+	@ServiceDescription(comment = "List the features enabled in the current execution context")
+	@WebResult(name = "features")
+	public List<java.lang.String> getEnabled() {
+		if (!(executionContext instanceof FeaturedExecutionContext)) {
+			throw new IllegalStateException("Not a featured execution context");
+		}
+		return new ArrayList<java.lang.String>(new LinkedHashSet<java.lang.String>(((FeaturedExecutionContext) executionContext).getEnabledFeatures()));
+	}
+
 	@ServiceDescription(comment = "Scan features for {id|all}")
 	@WebResult(name = "features")
 	public java.util.List<FeatureDescription> scan(@WebParam(name = "id") java.lang.String id) throws IOException, ParseException {
