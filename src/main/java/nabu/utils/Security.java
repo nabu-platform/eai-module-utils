@@ -27,6 +27,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
@@ -60,10 +62,12 @@ import be.nabu.utils.io.IOUtils;
 import be.nabu.utils.security.BCSecurityUtils;
 import be.nabu.utils.security.DigestAlgorithm;
 import be.nabu.utils.security.EncryptionXmlAdapter;
+import be.nabu.utils.security.KeyPairType;
 import be.nabu.utils.security.MacAlgorithm;
 import be.nabu.utils.security.PBEAlgorithm;
 import be.nabu.utils.security.Rfc2898DeriveBytes;
 import be.nabu.utils.security.SecurityUtils;
+import be.nabu.utils.security.SignatureType;
 import nabu.utils.types.SignatureResult;
 
 @WebService
@@ -151,6 +155,18 @@ public class Security {
 		return BCSecurityUtils.parseKeyPem(new StringReader(new java.lang.String(pem, "ASCII")));
 	}
 	
+	@ServiceDescription(comment = "Parse {encoded|an X.509 encoded public key} using {type|a key algorithm}")
+	@WebResult(name = "key")
+	public PublicKey parsePublicKey(@WebParam(name = "type") KeyPairType type, @WebParam(name = "encoded") byte[] encoded) throws InvalidKeySpecException, NoSuchAlgorithmException {
+		return SecurityUtils.parsePublic(type, encoded);
+	}
+
+	@ServiceDescription(comment = "Verify {stream|a stream} against {signature|a signature} with {key|a public key} using {type|a signature algorithm}")
+	@WebResult(name = "valid")
+	public java.lang.Boolean verifySignature(@WebParam(name = "stream") InputStream stream, @WebParam(name = "signature") byte[] signature, @WebParam(name = "key") PublicKey key, @WebParam(name = "type") SignatureType type) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, IOException {
+		return SecurityUtils.verify(stream, signature, key, type);
+	}
+
 	@ServiceDescription(comment = "Parse a certificate from {serialized|serialized content}")
 	@WebResult(name = "certificate")
 	public Certificate parseSerializedCertificate(@WebParam(name = "serialized") java.lang.String serialized) throws CertificateException, IOException {

@@ -1,0 +1,13 @@
+# WebAuthn verifier contract
+
+`verifyRegistration(WebAuthnRequest)` and `verifyAssertion(WebAuthnRequest)` return `WebAuthnResult`.
+
+- `valid=true`, `reason=null`: verified credential metadata is populated. Registration returns `publicKey` as unpadded base64url SPKI, `publicKeyFormat=SPKI`, and `algorithm=ES256` or `RS256`; store the key and format together. Assertion reports the validated stored key's algorithm and format, but does not return a new public key.
+- `valid=false`: `reason` is one of `INVALID_RESPONSE` (malformed/unsupported browser input), `VERIFICATION_FAILED` (cryptographic validation or a parsed ceremony mismatch, including client type, challenge, origin, cross-origin, credential ID, user handle, flags or counter), or `INVALID_STORED_KEY` (corrupt, weak, or unsupported persisted key). Credential ID, public key, algorithm and verified metadata are absent/default; do not update counters or persist credentials.
+- Missing or malformed server policy (`challenge`, `rpId`, `origin`), missing required server state (`responseJson`, assertion credential/key/format, negative counter), and invalid configured user handle throw `IllegalArgumentException`. Missing crypto providers, missing dependencies, and unexpected implementation errors throw rather than producing an invalid verdict.
+- `publicKeyFormat` is mandatory for assertion: `SPKI` (existing stored EC P-256 keys and new registrations, plus RSA keys) or `COSE` (WebAuthn4J-parsed EC2 ES256 or RSA RS256). The algorithm is derived from the validated stored public key, never from assertion JSON. Existing SPKI credentials need only the `SPKI` format set on the server request; they do not need re-enrollment.
+- `parseAssertionEnvelope(secret)` is a pre-verification extraction helper, not a verification endpoint. A malformed secret still throws `IllegalArgumentException`; the caller must handle that before loading trusted server state and calling `verifyAssertion`.
+
+Coordinated rollout: the current runtime index cannot wire the caller's `valid == true` gate. Do not deploy this updated Java verifier for live authentication until the artifact callers check `valid == true` before accepting a result or writing credential/counter state, and the runtime index is refreshed so that gate can be wired and verified. Upgrade the verifier and gated callers together; Maven packaging alone does not establish live safety.
+
+Dependencies: the packaged POM declares WebAuthn4J core and util 0.21.0.RELEASE directly, Jackson 2.14.2, and SLF4J as provided. Maven tests run on the build classpath; a Nabu deployment additionally requires these libraries and their transitive dependencies visible to the actual module loader. Parent-loader Jackson visibility has not been proven by Maven tests.
